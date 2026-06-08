@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* ── Fonts ── */
+  --font-instrument: var(--font-instrument-sans);
+  --font-inter: var(--font-inter);
+  --font-montserrat: var(--font-montserrat);
+
+  /* ── Brand colours (bc-*) ── */
+  --color-bc-bg: #F5F7FF;
+  --color-bc-purple: #311974;
+  --color-bc-purpleDark: #44286A;
+  --color-bc-yellow: #F7BD0D;
+  --color-bc-heading: #514E4E;
+  --color-bc-navy: #10213B;
+  --color-bc-navyDark: #012C3F;
+  --color-bc-blueLight: #CBEDFF;
+  --color-bc-pinkLight: #FFCBFF;
+  --color-bc-greenLight: #CDFFCB;
+  --color-bc-cream: #FEFCD6;
+
+  /* ── Shadows ── */
+  --shadow-yellow-glow: 0px 4px 74px 12px rgba(247,189,13,0.15);
+  --shadow-card: 0px 4px 19px 3px rgba(0,0,0,0.09);
+}
+
+/* ── Utility class for the yellow gradient ── */
+@utility bg-yellow-gradient {
+  background: linear-gradient(180deg, #F7BD0D 72%, #DEDADA 100%);
+}
+
+/* ── Base styles ── */
+@layer base {
+  body {
+    font-family: var(--font-instrument), sans-serif;
+    color: #514E4E;
+    background-color: #F5F7FF;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-instrument), sans-serif;
+  }
+}
