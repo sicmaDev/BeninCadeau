@@ -1,7 +1,13 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { CopyrightRow } from '@/components/CopyrightRow';
+
+export const metadata: Metadata = {
+  title: 'À Propos — Bénin Cadeau',
+  description: 'Découvrez notre histoire, notre mission, nos valeurs et nos engagements pour offrir du bonheur et célébrer chaque instant avec des cadeaux uniques et personnalisés au Bénin.',
+};
 
 export default function AboutPage() {
   return (
@@ -13,7 +19,7 @@ export default function AboutPage() {
           <section className="relative w-full h-[679px] overflow-hidden">
             <img
               src="/47-13.png"
-              alt="Chez Bénin Cadeau"
+              alt="Histoire et équipe de Bénin Cadeau - Créateurs d'émotions"
               className="absolute inset-0 w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-black/30"></div>
@@ -30,7 +36,7 @@ export default function AboutPage() {
                 </p>
                 <Link href="/commander">
                   <button
-                    className="px-8 py-4 rounded-[23px] font-instrument font-bold text-white text-base md:text-xl uppercase shadow-yellow-glow"
+                    className="px-8 py-4 rounded-[23px] font-instrument font-bold text-white text-base md:text-xl uppercase shadow-yellow-glow cursor-pointer"
                     style={{
                       background:
                         'linear-gradient(180deg, #F7BD0D 72%, #DEDADA 100%)',
@@ -49,7 +55,7 @@ export default function AboutPage() {
               <div className="bg-[#CBEDFF] rounded-3xl shadow-card p-6 pt-10 flex flex-col items-center text-center h-[514px]">
                 <img
                   src="/61-50.png"
-                  alt="Notre mission"
+                  alt="Illustration de la mission de Bénin Cadeau"
                   className="w-[120px] h-[120px] object-contain mb-6"
                 />
                 <h2 className="font-instrument font-bold text-2xl text-[#012C3F] mb-4">
@@ -68,7 +74,7 @@ export default function AboutPage() {
               <div className="bg-[#FFCBFF] rounded-3xl shadow-card p-6 pt-10 flex flex-col items-center text-center h-[514px]">
                 <img
                   src="/61-51.png"
-                  alt="Nos valeurs"
+                  alt="Illustration des valeurs de Bénin Cadeau"
                   className="w-[120px] h-[120px] object-contain mb-6"
                 />
                 <h2 className="font-instrument font-bold text-2xl text-[#012C3F] mb-4">
@@ -94,7 +100,7 @@ export default function AboutPage() {
               <div className="bg-[#CDFFCB] rounded-3xl shadow-card p-6 pt-10 flex flex-col items-center text-center h-[514px]">
                 <img
                   src="/61-51.png"
-                  alt="Nos engagements"
+                  alt="Illustration des engagements de Bénin Cadeau"
                   className="w-[120px] h-[120px] object-contain mb-6"
                 />
                 <h2 className="font-instrument font-bold text-2xl text-[#012C3F] mb-4">
@@ -124,7 +130,7 @@ export default function AboutPage() {
               {/* Background image */}
               <img
                 src="/55-39.png"
-                alt="Couple recevant un cadeau"
+                alt="Couple heureux partageant un moment de joie avec un cadeau de chez Bénin Cadeau"
                 className="absolute inset-0 w-full h-full object-cover"
               />
               {/* Yellow box on right */}

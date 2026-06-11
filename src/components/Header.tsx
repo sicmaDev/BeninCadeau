@@ -11,7 +11,7 @@ export function Header() {
   const pathname = usePathname();
 
   const navLinks = [
-    { name: 'Acceuil', path: '/' },
+    { name: 'Accueil', path: '/' },
     { name: 'A propos', path: '/a-propos' },
     { name: 'Nos propositions', path: '/nos-propositions' },
     { name: 'Nos packs', path: '/nos-packs' },

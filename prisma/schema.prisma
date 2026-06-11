@@ -1,0 +1,124 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  ADMIN
+  CUSTOMER
+}
+
+enum OrderStatus {
+  EN_ATTENTE
+  PAYEE
+  EN_PREPARATION
+  EXPEDIEE
+  LIVREE
+  ANNULEE
+}
+
+enum DiscountType {
+  FIXED
+  PERCENTAGE
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  phone        String?
+  address      String?
+  role         UserRole @default(CUSTOMER)
+  orders       Order[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Category {
+  id           Int       @id @default(autoincrement())
+  name         String
+  slug         String    @unique
+  active       Boolean   @default(true)
+  displayOrder Int       @default(0)
+  products     Product[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Product {
+  id                      Int         @id @default(autoincrement())
+  name                    String
+  slug                    String      @unique
+  description             String      @db.Text
+  price                   Int
+  stock                   Int         @default(0)
+  estimatedDelivery       String
+  images                  Json // Stocke un tableau d'URLs d'images
+  isCustomizable          Boolean     @default(false)
+  customFieldPlaceholder String?
+  active                  Boolean     @default(true)
+  categoryId              Int
+  category                Category    @relation(fields: [categoryId], references: [id])
+  orderItems              OrderItem[]
+  createdAt               DateTime    @default(now())
+  updatedAt               DateTime    @updatedAt
+}
+
+model ShippingZone {
+  id          Int      @id @default(autoincrement())
+  name        String
+  deliveryFee Int
+  orders      Order[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PromoCode {
+  id            Int          @id @default(autoincrement())
+  code          String       @unique
+  discountType  DiscountType
+  discountValue Int // Valeur absolue ou pourcentage
+  active        Boolean      @default(true)
+  expiresAt     DateTime
+  orders        Order[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Order {
+  id             Int          @id @default(autoincrement())
+  orderNumber    String       @unique
+  userId         Int?
+  user           User?        @relation(fields: [userId], references: [id])
+  status         OrderStatus  @default(EN_ATTENTE)
+  totalAmount    Int
+  shippingFee    Int
+  shippingZoneId Int
+  shippingZone   ShippingZone @relation(fields: [shippingZoneId], references: [id])
+  clientName     String
+  clientEmail    String
+  clientPhone    String
+  shippingAddress String      @db.Text
+  transactionId  String?      @unique // ID de transaction FedaPay
+  promoCodeId    Int?
+  promoCode      PromoCode?   @relation(fields: [promoCodeId], references: [id])
+  orderItems     OrderItem[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model OrderItem {
+  id                   Int     @id @default(autoincrement())
+  orderId              Int
+  order                Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId            Int
+  product              Product @relation(fields: [productId], references: [id])
+  quantity             Int
+  price                Int // Prix du produit au moment de la commande
+  customizationMessage String? @db.Text
+}

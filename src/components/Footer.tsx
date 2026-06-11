@@ -49,7 +49,7 @@ export function Footer() {
               <ul className="space-y-2 font-montserrat font-semibold text-lg">
                 <li>
                   <Link href="/" className="hover:text-bc-yellow transition-colors">
-                    Acceuil
+                    Accueil
                   </Link>
                 </li>
                 <li>

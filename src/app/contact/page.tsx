@@ -1,7 +1,14 @@
+import type { Metadata } from 'next';
 import { MapPin, Clock, Phone } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { CopyrightRow } from '@/components/CopyrightRow';
+import { ContactForm } from '@/components/ContactForm';
+
+export const metadata: Metadata = {
+  title: 'Contactez-nous — Bénin Cadeau',
+  description: 'Parlons de votre prochain cadeau ! Vous avez une question, une idée de personnalisation ou besoin d\'aide pour passer commande ? Notre équipe est là pour vous aider.',
+};
 
 export default function ContactPage() {
   return (
@@ -14,7 +21,7 @@ export default function ContactPage() {
             <div className="absolute inset-0">
               <img
                 src="https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&q=80&w=2000"
-                alt="City view"
+                alt="Vue de la ville de Cotonou - Bénin Cadeau"
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black/60"></div>
@@ -35,7 +42,7 @@ export default function ContactPage() {
           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
               {/* Left Info Card */}
-              <div className="lg:col-span-4 bg-bc-cream rounded-xl p-8 md:p-12 space-y-12">
+              <div className="lg:col-span-4 bg-bc-cream rounded-xl p-8 md:p-12 space-y-12 border border-[#ECEAA9]">
                 {/* Adresse */}
                 <div className="flex items-start gap-6">
                   <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md flex-shrink-0">
@@ -93,51 +100,7 @@ export default function ContactPage() {
                   N&apos;hésitez pas à nous contacter.
                 </h2>
 
-                <form className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-bc-cream rounded-lg p-6">
-                      <input
-                        type="text"
-                        placeholder="Votre nom"
-                        className="w-full bg-transparent border-none focus:outline-none font-inter font-medium text-xl text-gray-500 placeholder-gray-400"
-                      />
-                    </div>
-                    <div className="bg-bc-cream rounded-lg p-6">
-                      <input
-                        type="text"
-                        placeholder="Votre sujet"
-                        className="w-full bg-transparent border-none focus:outline-none font-inter font-medium text-xl text-gray-500 placeholder-gray-400"
-                      />
-                    </div>
-                    <div className="bg-bc-cream rounded-lg p-6">
-                      <input
-                        type="tel"
-                        placeholder="Téléphone"
-                        className="w-full bg-transparent border-none focus:outline-none font-inter font-medium text-xl text-gray-500 placeholder-gray-400"
-                      />
-                    </div>
-                    <div className="bg-bc-cream rounded-lg p-6">
-                      <input
-                        type="email"
-                        placeholder="Email"
-                        className="w-full bg-transparent border-none focus:outline-none font-inter font-medium text-xl text-gray-500 placeholder-gray-400"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="bg-bc-cream rounded-lg p-6 h-64">
-                    <textarea
-                      placeholder="Votre message"
-                      className="w-full h-full bg-transparent border-none focus:outline-none font-inter font-bold text-xl text-bc-heading placeholder-bc-heading resize-none">
-                    </textarea>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="bg-bc-purple text-white font-instrument font-medium text-2xl px-12 py-4 rounded-md hover:bg-bc-purpleDark transition-colors">
-                    Envoyer le message
-                  </button>
-                </form>
+                <ContactForm />
               </div>
             </div>
           </section>
