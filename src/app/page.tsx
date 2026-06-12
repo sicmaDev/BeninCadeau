@@ -245,7 +245,7 @@ export default function HomePage() {
             </div>
             <div className="flex justify-end">
               <Link
-                href="/nos-packs"
+                href="/catalogue?category=paniers-ravitaillement"
                 className="bg-bc-purple text-white px-6 py-2 rounded-[5px] font-inter font-light text-base">
                 VOIR TOUT
               </Link>

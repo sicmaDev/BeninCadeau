@@ -54,8 +54,8 @@ export function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/a-propos" className="hover:text-bc-yellow transition-colors">
-                    A propos
+                  <Link href="/catalogue" className="hover:text-bc-yellow transition-colors">
+                    Catalogue
                   </Link>
                 </li>
                 <li>
@@ -64,8 +64,8 @@ export function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/nos-packs" className="hover:text-bc-yellow transition-colors">
-                    Galerie
+                  <Link href="/a-propos" className="hover:text-bc-yellow transition-colors">
+                    A propos
                   </Link>
                 </li>
                 <li>
@@ -88,13 +88,13 @@ export function Footer() {
               </h3>
               <ul className="space-y-2 font-montserrat font-semibold text-lg">
                 <li>
-                  <Link href="/nos-propositions" className="hover:text-bc-yellow transition-colors">
-                    Nos propositions
+                  <Link href="/catalogue" className="hover:text-bc-yellow transition-colors">
+                    Catalogue
                   </Link>
                 </li>
                 <li>
-                  <Link href="/nos-packs" className="hover:text-bc-yellow transition-colors">
-                    Galerie
+                  <Link href="/nos-propositions" className="hover:text-bc-yellow transition-colors">
+                    Nos propositions
                   </Link>
                 </li>
                 <li>
