@@ -3,14 +3,14 @@ import Link from 'next/link';
 export function Footer() {
   return (
     <footer className="relative">
-      {/* Curved top using SVG that fills full width */}
+      {/* Curved top using SVG that fills full width (concave/scooped curve) */}
       <svg
         viewBox="0 0 1440 100"
         preserveAspectRatio="none"
         className="w-full block h-[60px] md:h-[100px] -mb-px"
         aria-hidden="true">
         <path
-          d="M0,100 C480,0 960,0 1440,100 L1440,100 L0,100 Z"
+          d="M0,0 C480,100 960,100 1440,0 L1440,100 L0,100 Z"
           fill="#10213B" />
       </svg>
 
@@ -22,7 +22,8 @@ export function Footer() {
               <img
                 src="/96-73.png"
                 alt="Bénin Cadeau"
-                className="w-[140px] h-auto object-contain" />
+                className="w-[140px] h-auto object-contain"
+              />
               <p className="font-montserrat font-semibold text-lg leading-relaxed max-w-[265px]">
                 Offrez de l&apos;émotion, pas juste un objet.
               </p>

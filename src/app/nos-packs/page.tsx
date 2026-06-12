@@ -3,8 +3,24 @@ import { Footer } from '@/components/Footer';
 import { CopyrightRow } from '@/components/CopyrightRow';
 import { FloatingCTA } from '@/components/FloatingCTA';
 import { ProductCard } from '@/components/ProductCard';
+import { prisma } from '@/utils/db';
+import Link from 'next/link';
 
-export default function PacksPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function PacksPage() {
+  // Récupérer toutes les catégories actives avec leurs produits actifs
+  const categories = await prisma.category.findMany({
+    where: { active: true },
+    orderBy: { displayOrder: 'asc' },
+    include: {
+      products: {
+        where: { active: true },
+        orderBy: { createdAt: 'desc' },
+      },
+    },
+  });
+
   return (
     <div className="min-h-screen flex flex-col bg-bc-bg">
       <Header />
@@ -45,77 +61,40 @@ export default function PacksPage() {
 
           {/* Sections */}
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32 space-y-32">
-            {/* Section 1 */}
-            <section>
-              <h2 className="font-inter font-black text-4xl text-bc-heading uppercase mb-12 inline-block border-b-4 border-white pb-2">
-                Cadeaux personnalisés
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <ProductCard
-                  imageSrc="https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&q=80&w=600"
-                  title="Mug avec prénom"
-                  price="30 000 FCFA"
-                />
-                <ProductCard
-                  imageSrc="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=600"
-                  title="T-shirt personnalisé"
-                  price="30 000 FCFA"
-                />
-                <ProductCard
-                  imageSrc="https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format&fit=crop&q=80&w=600"
-                  title="Coussin déco"
-                  price="30 000 FCFA"
-                />
-              </div>
-            </section>
+            {categories.map((category) => {
+              if (category.products.length === 0) return null;
+              return (
+                <section key={category.id}>
+                  <h2 className="font-inter font-black text-4xl text-bc-heading uppercase mb-12 inline-block border-b-4 border-white pb-2">
+                    {category.name}
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {category.products.map((product) => {
+                      let images: string[] = [];
+                      try {
+                        images = typeof product.images === 'string'
+                          ? JSON.parse(product.images)
+                          : (product.images as unknown as string[]);
+                      } catch {
+                        images = ['/1-19.png'];
+                      }
+                      const firstImage = images[0] || '/1-19.png';
+                      const formattedPrice = `${product.price.toLocaleString('fr-FR')} FCFA`;
 
-            {/* Section 2 */}
-            <section>
-              <h2 className="font-inter font-black text-4xl text-bc-heading uppercase mb-12 inline-block border-b-4 border-white pb-2">
-                Occasions spéciales
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <ProductCard
-                  imageSrc="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&q=80&w=600"
-                  title="Coffret mariage emballé avec ruban"
-                  price="30 000 FCFA"
-                />
-                <ProductCard
-                  imageSrc="https://images.unsplash.com/photo-1530103862676-de8892b07439?auto=format&fit=crop&q=80&w=600"
-                  title="Kit anniversaire (ballons + objet cadeau)"
-                  price="30 000 FCFA"
-                />
-                <ProductCard
-                  imageSrc="https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&q=80&w=600"
-                  title="Pack naissance (bavoir, pagne, mini-cadeau)"
-                  price="30 000 FCFA"
-                />
-              </div>
-            </section>
-
-            {/* Section 3 */}
-            <section>
-              <h2 className="font-inter font-black text-4xl text-bc-heading uppercase mb-12 inline-block border-b-4 border-white pb-2">
-                Petits paniers de ravitaillement
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <ProductCard
-                  imageSrc="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&q=80&w=600"
-                  title="Panier petit-déjeuner"
-                  price="30 000 FCFA"
-                />
-                <ProductCard
-                  imageSrc="https://images.unsplash.com/photo-1592861956120-e524fc739696?auto=format&fit=crop&q=80&w=600"
-                  title="Panier gourmand"
-                  price="30 000 FCFA"
-                />
-                <ProductCard
-                  imageSrc="https://images.unsplash.com/photo-1608686207856-001b95cf60ca?auto=format&fit=crop&q=80&w=600"
-                  title="Panier familial"
-                  price="30 000 FCFA"
-                />
-              </div>
-            </section>
+                      return (
+                        <Link key={product.id} href={`/produit/${product.slug}`} className="block hover:no-underline group">
+                          <ProductCard
+                            imageSrc={firstImage}
+                            title={product.name}
+                            price={formattedPrice}
+                          />
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </section>
+              );
+            })}
           </div>
         </div>
       </main>
