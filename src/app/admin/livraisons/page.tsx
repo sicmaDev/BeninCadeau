@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, X, Loader2, Truck } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useAdminToast } from '@/app/admin/layout';
 
 interface ShippingZone {
@@ -14,6 +14,10 @@ export default function AdminShippingZonesPage() {
   const { showToast } = useAdminToast();
   const [zones, setZones] = useState<ShippingZone[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   // Form Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,6 +38,7 @@ export default function AdminShippingZonesPage() {
       if (res.ok) {
         const data = await res.json();
         setZones(data.zones || []);
+        setCurrentPage(1);
       }
     } catch (e) {
       console.error(e);
@@ -112,147 +117,207 @@ export default function AdminShippingZonesPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="w-10 h-10 border-4 border-bc-yellow border-t-transparent rounded-full animate-spin"></div>
+      <div className="d-flex align-items-center justify-content-center py-10" style={{ minHeight: "60vh" }}>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Chargement...</span>
+        </div>
       </div>
     );
   }
 
+  const totalPages = Math.ceil(zones.length / itemsPerPage);
+  const paginatedZones = zones.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
-    <div className="space-y-8 font-instrument">
-      
+    <>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white font-montserrat tracking-tight">Frais de Livraison</h1>
-          <p className="text-gray-400 text-xs mt-1">Configurer les zones de distribution et les frais associés pour Cotonou et environs</p>
+      <div className="row">
+        <div className="col-12">
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h1 className="fs-3 mb-1 text-dark">Frais de Livraison</h1>
+              <p className="mb-0 text-secondary">Configurer les zones de distribution et les frais associés pour Cotonou et environs</p>
+            </div>
+            <div>
+              <button onClick={openAddModal} className="btn btn-primary">
+                <i className="ti ti-plus me-1"></i> Nouvelle Zone
+              </button>
+            </div>
+          </div>
         </div>
-        <button
-          onClick={openAddModal}
-          className="flex items-center gap-1.5 px-5 py-3 rounded-xl bg-bc-yellow hover:bg-yellow-400 text-bc-purple font-bold text-sm shadow-sm cursor-pointer"
-        >
-          <Plus size={18} /> Nouvelle Zone
-        </button>
       </div>
 
       {/* Table Container */}
-      <div className="bg-[#191E3A] border border-[#1B2E4B] rounded-3xl overflow-hidden shadow-sm max-w-2xl">
-        {zones.length === 0 ? (
-          <p className="p-8 text-gray-500 text-sm text-center">Aucune zone de livraison configurée.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead>
-                <tr className="border-b border-[#1B2E4B] text-gray-400 bg-[#141a35]">
-                  <th className="py-4 px-6 font-semibold">Zone / Quartier</th>
-                  <th className="py-4 px-6 font-semibold">Frais de livraison</th>
-                  <th className="py-4 px-6 font-semibold text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#1B2E4B] text-gray-300">
-                {zones.map((zone) => (
-                  <tr key={zone.id} className="hover:bg-[#1B2E4B]/20">
-                    <td className="py-4 px-6 font-semibold flex items-center gap-2">
-                      <Truck size={14} className="text-bc-yellow" />
-                      {zone.name}
-                    </td>
-                    <td className="py-4 px-6 font-bold text-white">
-                      {zone.deliveryFee.toLocaleString('fr-FR')} FCFA
-                    </td>
-                    <td className="py-4 px-6 text-center space-x-2">
-                      <button
-                        onClick={() => openEditModal(zone)}
-                        className="p-2 bg-[#1b2e4b] hover:bg-[#253b5e] text-bc-yellow rounded-xl transition-all cursor-pointer inline-flex items-center"
-                        title="Modifier"
-                      >
-                        <Edit2 size={14} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(zone.id)}
-                        className="p-2 bg-[#2d1b28] hover:bg-red-900/30 text-red-400 rounded-xl transition-all cursor-pointer inline-flex items-center"
-                        title="Supprimer"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </td>
+      <div className="row">
+        <div className="col-12">
+          <div className="card table-responsive">
+            {zones.length === 0 ? (
+              <p className="p-4 text-muted text-center mb-0">Aucune zone de livraison configurée.</p>
+            ) : (
+              <table className="table mb-0 text-nowrap table-hover">
+                <thead className="table-light border-light">
+                  <tr>
+                    <th className="text-dark">Zone / Quartier</th>
+                    <th className="text-dark">Frais de livraison</th>
+                    <th className="text-dark text-center">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="align-middle">
+                  {paginatedZones.map((zone) => (
+                    <tr key={zone.id}>
+                      <td className="fw-bold text-dark">
+                        <i className="ti ti-truck text-primary me-2"></i>
+                        {zone.name}
+                      </td>
+                      <td className="fw-bold text-dark">
+                        {zone.deliveryFee.toLocaleString('fr-FR')} FCFA
+                      </td>
+                      <td className="text-center">
+                        <span
+                          onClick={() => openEditModal(zone)}
+                          className="text-primary me-3 cursor-pointer"
+                          title="Modifier"
+                        >
+                          <i className="ti ti-edit fs-5"></i>
+                        </span>
+                        <span
+                          onClick={() => handleDelete(zone.id)}
+                          className="link-danger cursor-pointer"
+                          title="Supprimer"
+                        >
+                          <i className="ti ti-trash fs-5"></i>
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                {totalPages > 1 && (
+                  <tfoot>
+                    <tr>
+                      <td className="border-bottom-0 text-secondary align-middle">
+                        Affichage de {paginatedZones.length} sur {zones.length} zones
+                      </td>
+                      <td colSpan={2} className="border-bottom-0">
+                        <nav aria-label="Page navigation" className="d-flex justify-content-end">
+                          <ul className="pagination mb-0">
+                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                              <button
+                                className="page-link"
+                                onClick={() => setCurrentPage(currentPage - 1)}
+                                disabled={currentPage === 1}
+                              >
+                                Précédent
+                              </button>
+                            </li>
+                            {[...Array(totalPages)].map((_, i) => (
+                              <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                                <button className="page-link" onClick={() => setCurrentPage(i + 1)}>
+                                  {i + 1}
+                                </button>
+                              </li>
+                            ))}
+                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                              <button
+                                className="page-link"
+                                onClick={() => setCurrentPage(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                              >
+                                Suivant
+                              </button>
+                            </li>
+                          </ul>
+                        </nav>
+                      </td>
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75">
-          <div className="relative w-full max-w-md bg-[#191E3A] rounded-[28px] border border-[#1B2E4B] overflow-hidden flex flex-col">
-            
-            <div className="h-16 border-b border-[#1B2E4B] flex items-center justify-between px-6 bg-[#141a35]">
-              <span className="font-montserrat font-extrabold text-white text-base">
-                {editingZone ? 'Modifier la Zone' : 'Ajouter une Zone'}
-              </span>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-gray-400 hover:text-white"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs font-semibold text-gray-300">
-              
-              {/* Name */}
-              <div>
-                <label className="block text-gray-400 mb-1.5">Nom de la Zone / Ville / Quartier *</label>
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Ex: Cotonou (Fidjrossè)"
-                  className="w-full bg-[#11172a] border border-[#232e41] rounded-xl py-2.5 px-3 text-white focus:outline-none focus:ring-bc-yellow"
-                />
-              </div>
-
-              {/* Delivery Fee */}
-              <div>
-                <label className="block text-gray-400 mb-1.5">Frais de livraison (FCFA) *</label>
-                <input
-                  type="number"
-                  required
-                  value={deliveryFee}
-                  onChange={(e) => setDeliveryFee(e.target.value)}
-                  placeholder="1500"
-                  className="w-full bg-[#11172a] border border-[#232e41] rounded-xl py-2.5 px-3 text-white focus:outline-none"
-                />
-              </div>
-
-              {/* Submit Buttons */}
-              <div className="flex justify-end gap-3 pt-4 border-t border-[#1B2E4B] mt-6">
+        <div
+          className="modal show d-block"
+          tabIndex={-1}
+          role="dialog"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}
+        >
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              {/* Header */}
+              <div className="modal-header">
+                <h5 className="modal-title text-dark fw-bold">
+                  {editingZone ? 'Modifier la Zone' : 'Ajouter une Zone'}
+                </h5>
                 <button
                   type="button"
+                  className="btn-close"
+                  aria-label="Close"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-5 py-2.5 rounded-xl bg-[#1b2e4b] hover:bg-[#253b5e] text-white cursor-pointer"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-bc-yellow hover:bg-yellow-400 text-bc-purple font-bold cursor-pointer disabled:opacity-50"
-                >
-                  {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Sauvegarder
-                </button>
+                ></button>
               </div>
 
-            </form>
+              {/* Form */}
+              <form onSubmit={handleSubmit}>
+                <div className="modal-body text-dark">
+                  {/* Name */}
+                  <div className="mb-3">
+                    <label htmlFor="zoneName" className="form-label text-dark fw-medium">
+                      Nom de la Zone / Ville / Quartier *
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="zoneName"
+                      placeholder="Ex: Cotonou (Fidjrossè)"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                    />
+                  </div>
 
+                  {/* Delivery Fee */}
+                  <div className="mb-3">
+                    <label htmlFor="deliveryFee" className="form-label text-dark fw-medium">
+                      Frais de livraison (FCFA) *
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      id="deliveryFee"
+                      placeholder="1500"
+                      required
+                      value={deliveryFee}
+                      onChange={(e) => setDeliveryFee(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    Annuler
+                  </button>
+                  <button type="submit" className="btn btn-primary" disabled={submitting}>
+                    {submitting && <span className="spinner-border spinner-border-sm me-1" role="status"></span>}
+                    Sauvegarder
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
-
-    </div>
+    </>
   );
 }

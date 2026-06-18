@@ -1,37 +1,27 @@
 "use client";
 
-import React, { useState, useEffect, createContext, useContext } from 'react';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import React, { useState, useEffect, createContext, useContext } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import {
-  LayoutDashboard,
-  ShoppingBag,
-  ListFilter,
-  Users,
-  Truck,
-  Tag,
-  LogOut,
-  ChevronRight,
-  Menu,
   X,
   Lock,
   Mail,
   Loader2,
-  Package,
   CheckCircle,
-  AlertCircle
-} from 'lucide-react';
-import { cn } from '@/utils/cn';
+  AlertCircle,
+} from "lucide-react";
+import "@/styles/admin/style.scss";
 
 // Types pour le système de Toasts
 interface Toast {
   id: number;
   message: string;
-  type: 'success' | 'error';
+  type: "success" | "error";
 }
 
 interface ToastContextType {
-  showToast: (message: string, type: 'success' | 'error') => void;
+  showToast: (message: string, type: "success" | "error") => void;
 }
 
 // Création du Contexte
@@ -51,15 +41,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Sidebar states
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // Desktop collapse
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Mobile Drawer
+
+  // Dropdown states
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   // Login Form States
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loginLoading, setLoginLoading] = useState(false);
 
-  const showToast = (message: string, type: 'success' | 'error') => {
+  const showToast = (message: string, type: "success" | "error") => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
@@ -69,10 +67,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const checkAdminSession = async () => {
     try {
-      const res = await fetch('/api/auth/me');
+      const res = await fetch("/api/auth/me");
       if (res.ok) {
         const data = await res.json();
-        if (data.user && data.user.role === 'ADMIN') {
+        if (data.user && data.user.role === "ADMIN") {
           setIsAdmin(true);
         } else {
           setIsAdmin(false);
@@ -88,30 +86,49 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   };
 
   useEffect(() => {
+    setNotificationOpen(false);
+    setProfileOpen(false);
     checkAdminSession();
   }, [pathname]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      // Close dropdowns if clicking outside of the dropdown triggers or menus
+      if (!target.closest("#nav-notifications")) {
+        setNotificationOpen(false);
+      }
+      if (!target.closest("#nav-profile")) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        if (data.user && data.user.role === 'ADMIN') {
+        if (data.user && data.user.role === "ADMIN") {
           setIsAdmin(true);
           showToast("Connexion réussie ! Bienvenue sur le back-office.", "success");
           router.refresh();
         } else {
           showToast("Accès refusé : vous devez être administrateur.", "error");
-          await fetch('/api/auth/logout', { method: 'POST' });
+          await fetch("/api/auth/logout", { method: "POST" });
         }
       } else {
         showToast(data.error || "Identifiants de connexion invalides.", "error");
@@ -125,31 +142,35 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await fetch("/api/auth/logout", { method: "POST" });
       setIsAdmin(false);
       showToast("Déconnexion réussie.", "success");
-      router.push('/');
+      router.push("/");
     } catch (err) {
       showToast("Erreur lors de la déconnexion.", "error");
     }
   };
 
   const menuItems = [
-    { name: 'Tableau de bord', path: '/admin', icon: LayoutDashboard },
-    { name: 'Commandes', path: '/admin/commandes', icon: ShoppingBag },
-    { name: 'Produits', path: '/admin/produits', icon: Package },
-    { name: 'Catégories', path: '/admin/categories', icon: ListFilter },
-    { name: 'Clients', path: '/admin/clients', icon: Users },
-    { name: 'Zones de livraison', path: '/admin/livraisons', icon: Truck },
-    { name: 'Codes promo', path: '/admin/promocodes', icon: Tag },
+    { name: "Dashboard", path: "/admin", iconClass: "ti ti-home" },
+    { name: "Commandes", path: "/admin/commandes", iconClass: "ti ti-shopping-cart" },
+    { name: "Produits", path: "/admin/produits", iconClass: "ti ti-box-seam" },
+    { name: "Catégories", path: "/admin/categories", iconClass: "ti ti-list" },
+    { name: "Clients", path: "/admin/clients", iconClass: "ti ti-users" },
+    { name: "Zones de livraison", path: "/admin/livraisons", iconClass: "ti ti-truck" },
+    { name: "Codes promo", path: "/admin/promocodes", iconClass: "ti ti-ticket" },
   ];
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0E1726] flex items-center justify-center">
-        <div className="flex flex-col items-center">
-          <Loader2 className="w-12 h-12 text-bc-yellow animate-spin" />
-          <p className="mt-4 text-gray-400 text-sm font-semibold">Vérification des accès administrateur...</p>
+      <div className="d-flex items-center justify-content-center min-vh-100 bg-light">
+        <div className="text-center">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Vérification de session...</span>
+          </div>
+          <p className="mt-3 text-secondary text-uppercase fw-semibold" style={{ fontSize: "11px" }}>
+            Vérification de session...
+          </p>
         </div>
       </div>
     );
@@ -157,236 +178,351 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <ToastContext.Provider value={{ showToast }}>
-      
       {!isAdmin ? (
-        /* Formulaire de connexion Admin */
-        <div className="min-h-screen bg-[#0E1726] flex items-center justify-center px-4 font-instrument">
-          <div className="max-w-md w-full bg-[#191e3a] rounded-3xl shadow-card p-8 border border-[#1b2e4b] space-y-6">
-            
-            <div className="text-center space-y-2">
-              <img src="/1-19.png" alt="Bénin Cadeau Logo" className="w-20 h-20 mx-auto object-contain" />
-              <h1 className="text-2xl font-black text-white font-montserrat tracking-tight">Espace Administrateur</h1>
-              <p className="text-gray-400 text-xs font-medium">Connectez-vous pour accéder au back-office</p>
-            </div>
-
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Adresse E-mail</label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
-                    <Mail size={16} />
-                  </span>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@benincadeau.com"
-                    className="pl-10 block w-full bg-[#1b2e4b] border border-[#253b5e] rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-bc-yellow text-sm font-medium"
-                  />
-                </div>
+        /* CONNEXION ADMIN - Design Template signin.html */
+        <div className="container d-flex align-items-center justify-content-center min-vh-100 bg-light">
+          <div className="card" style={{ maxWidth: "420px", width: "100%" }}>
+            <div className="card-body p-5">
+              <div className="text-center mb-3">
+                <Link href="/" className="mb-4 d-inline-block text-decoration-none">
+                  <img src="/1-19.png" alt="Logo" width="48" height="48" style={{ objectFit: "contain" }} />
+                  <h1 className="card-title mt-3 h5 text-dark fw-bold uppercase">Bénin Cadeau Admin</h1>
+                </Link>
+                <p className="text-secondary small">Accédez au back-office de gestion</p>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Mot de Passe</label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
-                    <Lock size={16} />
-                  </span>
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="pl-10 block w-full bg-[#1b2e4b] border border-[#253b5e] rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-bc-yellow text-sm font-medium"
-                  />
+              <form onSubmit={handleLogin} className="needs-validation mt-3" noValidate>
+                <div className="mb-3">
+                  <label htmlFor="email" className="form-label text-dark fw-medium">
+                    Identifiant E-mail
+                  </label>
+                  <div className="input-group">
+                    <span className="input-group-text bg-transparent border-end-0">
+                      <Mail size={16} className="text-secondary" />
+                    </span>
+                    <input
+                      id="email"
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="admin@benincadeau.bj"
+                      className="form-control border-start-0"
+                    />
+                  </div>
                 </div>
+
+                <div className="mb-3">
+                  <label htmlFor="password" className="form-label text-dark fw-medium">
+                    Mot de passe
+                  </label>
+                  <div className="input-group">
+                    <span className="input-group-text bg-transparent border-end-0">
+                      <Lock size={16} className="text-secondary" />
+                    </span>
+                    <input
+                      id="password"
+                      type="password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="form-control border-start-0"
+                    />
+                  </div>
+                </div>
+
+                <button className="btn btn-primary w-100 py-2.5 mt-2 fw-bold" type="submit" disabled={loginLoading}>
+                  {loginLoading ? (
+                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  ) : (
+                    "Se connecter"
+                  )}
+                </button>
+              </form>
+
+              <div className="text-center mt-4">
+                <Link href="/" className="link-primary text-decoration-none small fw-semibold">
+                  ← Retour à la boutique
+                </Link>
               </div>
-
-              <button
-                type="submit"
-                disabled={loginLoading}
-                className="w-full flex justify-center items-center py-3.5 px-4 rounded-xl font-bold bg-bc-yellow hover:bg-yellow-400 text-bc-purple transition-all duration-200 cursor-pointer disabled:opacity-50 text-sm"
-              >
-                {loginLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  "Se connecter"
-                )}
-              </button>
-            </form>
-
-            <div className="text-center pt-2">
-              <Link href="/" className="text-xs text-bc-yellow hover:underline font-semibold">
-                ← Retour au site public
-              </Link>
             </div>
-
           </div>
         </div>
       ) : (
-        /* Tableau de bord avec Sidebar */
-        <div className="min-h-screen bg-[#0E1726] flex font-instrument text-[#E0E6ED]">
-          
-          {/* Sidebar for Desktop */}
-          <aside className="hidden md:flex flex-col w-64 bg-[#191E3A] border-r border-[#1B2E4B] flex-shrink-0 h-screen sticky top-0">
-            <div className="h-20 flex items-center px-6 border-b border-[#1B2E4B] gap-3">
-              <img src="/1-19.png" alt="Logo" className="w-10 h-10 object-contain" />
-              <span className="font-montserrat font-extrabold text-white text-lg tracking-tight">Admin BC</span>
-            </div>
+        /* BACK-OFFICE ADMIN - Design Template Structure */
+        <>
+          {/* OVERLAY FOR MOBILE */}
+          <div
+            id="overlay"
+            className={`overlay ${sidebarOpen ? "show" : ""}`}
+            onClick={() => setSidebarOpen(false)}
+          ></div>
 
-            <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-              {menuItems.map((item) => {
-                const isActive = pathname === item.path;
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.path}
-                    className={cn(
-                      'flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold transition-all',
-                      isActive
-                        ? 'bg-bc-yellow text-bc-purple font-extrabold shadow-sm'
-                        : 'text-gray-400 hover:bg-[#1B2E4B] hover:text-white'
-                    )}
-                  >
-                    <Icon size={18} />
-                    <span>{item.name}</span>
+          {/* TOPBAR */}
+          <nav
+            id="topbar"
+            className={`navbar bg-white border-bottom fixed-top topbar px-3 ${
+              sidebarCollapsed ? "full" : ""
+            }`}
+          >
+            <button
+              id="toggleBtn"
+              className="d-none d-lg-inline-flex btn btn-light btn-icon btn-sm"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            >
+              <i className="ti ti-layout-sidebar-left-expand"></i>
+            </button>
+
+            {/* MOBILE BUTTON */}
+            <button
+              id="mobileBtn"
+              className="btn btn-light btn-icon btn-sm d-lg-none me-2"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <i className="ti ti-layout-sidebar-left-expand"></i>
+            </button>
+
+            <h2 className="fs-6 mb-0 text-dark fw-bold uppercase tracking-wider d-none d-sm-block">
+              Back-Office Bénin Cadeau
+            </h2>
+
+            <div>
+              <ul className="list-unstyled d-flex align-items-center mb-0 gap-1">
+                {/* Public Shop Link */}
+                <li className="d-none d-md-block me-2">
+                  <Link href="/" className="btn btn-outline-primary btn-sm px-3 rounded-2 fw-bold text-uppercase">
+                    Visiter le site
                   </Link>
+                </li>
+
+                {/* Bell Notifications */}
+                <li className="position-relative" id="nav-notifications">
+                  <button
+                    className="position-relative btn-icon btn-sm btn-light btn rounded-circle border-0"
+                    onClick={() => {
+                      setNotificationOpen(!notificationOpen);
+                      setProfileOpen(false);
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="icon icon-tabler icons-tabler-outline icon-tabler-bell"
+                    >
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" />
+                      <path d="M9 17v1a3 3 0 0 0 6 0v-1" />
+                    </svg>
+                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger mt-2 ms-n2">
+                      2
+                    </span>
+                  </button>
+
+                  <div
+                    className={`dropdown-menu dropdown-menu-end dropdown-menu-md p-0 ${
+                      notificationOpen ? "show" : ""
+                    }`}
+                    style={{
+                      position: "absolute",
+                      inset: "auto 0px 0px auto",
+                      transform: "translate(0px, 40px)",
+                      display: notificationOpen ? "block" : "none",
+                    }}
+                  >
+                    <ul className="list-unstyled p-0 m-0">
+                      <li className="p-3 border-bottom">
+                        <div className="d-flex gap-3">
+                          <img
+                            src="/assets/images/avatar/avatar-1.jpg"
+                            alt=""
+                            className="avatar avatar-sm rounded-circle"
+                          />
+                          <div className="flex-grow-1 small">
+                            <p className="mb-0 fw-bold text-dark">Nouvelle commande reçue</p>
+                            <p className="mb-1 text-secondary">La commande #BC-9923 a été passée.</p>
+                            <div className="text-secondary" style={{ fontSize: "10px" }}>
+                              Il y a 5 min
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                      <li className="p-3 border-bottom">
+                        <div className="d-flex gap-3">
+                          <img
+                            src="/assets/images/avatar/avatar-4.jpg"
+                            alt=""
+                            className="avatar avatar-sm rounded-circle"
+                          />
+                          <div className="flex-grow-1 small">
+                            <p className="mb-0 fw-bold text-dark">Nouveau client inscrit</p>
+                            <p className="mb-1 text-secondary">Marie Soglo a créé un compte client.</p>
+                            <div className="text-secondary" style={{ fontSize: "10px" }}>
+                              Il y a 30 min
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </li>
+
+                {/* Profile Dropdown */}
+                <li className="ms-3 position-relative" id="nav-profile">
+                  <button
+                    className="bg-transparent border-0 p-0 d-flex align-items-center"
+                    onClick={() => {
+                      setProfileOpen(!profileOpen);
+                      setNotificationOpen(false);
+                    }}
+                  >
+                    <img
+                      src="/assets/images/avatar/avatar-1.jpg"
+                      alt=""
+                      className="avatar avatar-sm rounded-circle"
+                    />
+                    <i className="ti ti-chevron-down text-xs text-secondary ms-1"></i>
+                  </button>
+
+                  <div
+                    className={`dropdown-menu dropdown-menu-end p-0 ${profileOpen ? "show" : ""}`}
+                    style={{
+                      position: "absolute",
+                      inset: "auto 0px 0px auto",
+                      transform: "translate(0px, 40px)",
+                      minWidth: "200px",
+                      display: profileOpen ? "block" : "none",
+                    }}
+                  >
+                    <div>
+                      <div className="d-flex gap-3 align-items-center border-dashed border-bottom px-3 py-3">
+                        <img
+                          src="/assets/images/avatar/avatar-1.jpg"
+                          alt=""
+                          className="avatar avatar-md rounded-circle"
+                        />
+                        <div>
+                          <h4 className="mb-0 small fw-bold text-dark">Administrateur</h4>
+                          <p className="mb-0 small text-secondary">admin@benincadeau.bj</p>
+                        </div>
+                      </div>
+                      <div className="p-3 d-flex flex-column gap-1 small lh-lg">
+                        <Link href="/" className="text-decoration-none text-dark">
+                          Boutique publique
+                        </Link>
+                        <button
+                          onClick={handleLogout}
+                          className="w-full text-start bg-transparent border-0 p-0 text-danger"
+                        >
+                          Déconnexion
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </nav>
+
+          {/* SIDEBAR */}
+          <aside
+            id="sidebar"
+            className={`sidebar d-flex flex-column ${sidebarCollapsed ? "collapsed" : ""} ${
+              sidebarOpen ? "mobile-show" : ""
+            }`}
+          >
+            <div className="logo-area">
+              <Link href="/admin" className="d-inline-flex align-items-center text-decoration-none">
+                <img src="/1-19.png" alt="" width="24" height="24" style={{ objectFit: "contain" }} />
+                {!sidebarCollapsed && <span className="logo-text ms-2 fw-bold text-primary">Bénin Cadeau</span>}
+              </Link>
+            </div>
+            <ul className="nav flex-column">
+              <li className="px-4 py-2">
+                <small className="nav-text text-secondary text-uppercase fw-semibold" style={{ fontSize: "11px" }}>
+                  Main
+                </small>
+              </li>
+              {menuItems.map((item, index) => {
+                const isActive = pathname === item.path;
+                return (
+                  <li key={index}>
+                    <Link
+                      className={`nav-link ${isActive ? "active" : ""}`}
+                      href={item.path}
+                      onClick={() => setSidebarOpen(false)}
+                    >
+                      <i className={item.iconClass}></i>
+                      <span className="nav-text">{item.name}</span>
+                    </Link>
+                  </li>
                 );
               })}
-            </nav>
+            </ul>
 
-            <div className="p-4 border-t border-[#1B2E4B]">
+            <div className="p-3 border-top mt-auto">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center space-x-3 px-4 py-3 text-red-400 hover:bg-red-950/20 hover:text-red-300 rounded-xl text-sm font-bold transition-all cursor-pointer"
+                className="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2"
+                style={{ fontSize: "13px" }}
               >
-                <LogOut size={18} />
-                <span>Déconnexion</span>
+                <i className="ti ti-logout"></i>
+                {!sidebarCollapsed && <span>Déconnexion</span>}
               </button>
             </div>
           </aside>
 
-          {/* Mobile Sidebar overlay */}
-          {sidebarOpen && (
-            <div className="fixed inset-0 z-50 flex md:hidden">
-              <div className="fixed inset-0 bg-black/60" onClick={() => setSidebarOpen(false)}></div>
-              <div className="relative flex flex-col w-64 bg-[#191E3A] h-full border-r border-[#1B2E4B] z-10 animate-slideRight">
-                <div className="h-20 flex items-center justify-between px-6 border-b border-[#1B2E4B]">
-                  <div className="flex items-center gap-3">
-                    <img src="/1-19.png" alt="Logo" className="w-10 h-10 object-contain" />
-                    <span className="font-montserrat font-extrabold text-white text-lg tracking-tight">Admin BC</span>
-                  </div>
-                  <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-white">
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-                  {menuItems.map((item) => {
-                    const isActive = pathname === item.path;
-                    const Icon = item.icon;
-                    return (
-                      <Link
-                        key={item.name}
-                        href={item.path}
-                        onClick={() => setSidebarOpen(false)}
-                        className={cn(
-                          'flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold transition-all',
-                          isActive
-                            ? 'bg-bc-yellow text-bc-purple font-extrabold shadow-sm'
-                            : 'text-gray-400 hover:bg-[#1B2E4B] hover:text-white'
-                        )}
-                      >
-                        <Icon size={18} />
-                        <span>{item.name}</span>
-                      </Link>
-                    );
-                  })}
-                </nav>
-
-                <div className="p-4 border-t border-[#1B2E4B]">
-                  <button
-                    onClick={() => {
-                      setSidebarOpen(false);
-                      handleLogout();
-                    }}
-                    className="w-full flex items-center space-x-3 px-4 py-3 text-red-400 hover:bg-red-950/20 hover:text-red-300 rounded-xl text-sm font-bold transition-all cursor-pointer"
-                  >
-                    <LogOut size={18} />
-                    <span>Déconnexion</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Main content area */}
-          <div className="flex-1 flex flex-col min-w-0 min-h-screen">
-            
-            {/* Top Header */}
-            <header className="h-20 bg-[#191E3A] border-b border-[#1B2E4B] flex items-center justify-between px-6 sticky top-0 z-40">
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => setSidebarOpen(true)}
-                  className="md:hidden text-gray-400 hover:text-white focus:outline-none"
-                >
-                  <Menu size={24} />
-                </button>
-                <h2 className="text-xl font-bold font-montserrat text-white tracking-tight hidden sm:block">
-                  Bénin Cadeau Back-Office
-                </h2>
-              </div>
-
-              <div className="flex items-center space-x-4">
-                <Link href="/" className="text-xs text-bc-yellow border border-bc-yellow/30 hover:bg-bc-yellow/10 rounded-lg px-3 py-1.5 transition-all font-semibold uppercase tracking-wider">
-                  Aller sur le site public
-                </Link>
-                <span className="h-6 w-px bg-[#1B2E4B] hidden sm:block"></span>
-                <div className="flex items-center space-x-2 text-sm font-semibold text-gray-300">
-                  <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
-                  <span className="hidden sm:inline">Statut : Connecté Admin</span>
-                </div>
-              </div>
-            </header>
-
-            {/* Dynamic page content */}
-            <main className="flex-grow p-6 overflow-y-auto">
-              {children}
-            </main>
-          </div>
-
-        </div>
+          {/* CONTENT */}
+          <main
+            id="content"
+            className={`content d-flex flex-column min-vh-100 py-10 ${sidebarCollapsed ? "full" : ""}`}
+          >
+            <div className="container-fluid flex-grow-1">{children}</div>
+            <footer className="text-center py-3 border-top mt-auto bg-white">
+              <p className="mb-0 small text-secondary">
+                © {new Date().getFullYear()} Bénin Cadeau Back-Office. Tous droits réservés.
+              </p>
+            </footer>
+          </main>
+        </>
       )}
 
-      {/* Container global de notifications Toast */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm w-full font-instrument">
+      {/* TOAST SYSTEM */}
+      <div
+        className="position-fixed bottom-0 end-0 p-3"
+        style={{ zIndex: 1060, maxWidth: "400px", width: "100%" }}
+      >
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={cn(
-              "p-4 rounded-2xl shadow-card border text-sm font-semibold flex items-start justify-between gap-3 animate-slideRight border-l-4",
-              t.type === 'success'
-                ? "bg-[#1c352d] border-[#254f3b] text-green-400 border-l-green-500"
-                : "bg-[#3b1b22] border-[#5a242f] text-red-400 border-l-red-500"
-            )}
+            className={`toast show mb-3 border-start border-4 ${
+              t.type === "success" ? "bg-success bg-opacity-10 border-success" : "bg-danger bg-opacity-10 border-danger"
+            }`}
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
           >
-            <div className="flex items-start gap-2 pt-0.5">
-              {t.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
-              <span className="leading-tight text-white">{t.message}</span>
+            <div className="toast-header bg-transparent border-0 d-flex justify-content-between">
+              <strong className={`me-auto ${t.type === "success" ? "text-success" : "text-danger"}`}>
+                {t.type === "success" ? "Succès" : "Erreur"}
+              </strong>
+              <button
+                type="button"
+                className="btn-close"
+                onClick={() => setToasts((prev) => prev.filter((item) => item.id !== t.id))}
+              ></button>
             </div>
-            <button
-              onClick={() => setToasts((prev) => prev.filter((item) => item.id !== t.id))}
-              className="text-gray-400 hover:text-white p-0.5 rounded transition-colors"
-            >
-              <X size={16} />
-            </button>
+            <div className="toast-body text-dark fw-medium pt-0">{t.message}</div>
           </div>
         ))}
       </div>
-
     </ToastContext.Provider>
   );
 }

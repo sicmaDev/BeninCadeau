@@ -1,10 +1,13 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css');
 
 @theme inline {
   /* ── Fonts ── */
   --font-instrument: var(--font-instrument-sans);
   --font-inter: var(--font-inter);
   --font-montserrat: var(--font-montserrat);
+  --font-poppins: 'Poppins', sans-serif;
 
   /* ── Brand colours (bc-*) ── */
   --color-bc-bg: #F8F9FD;
@@ -22,6 +25,15 @@
   --color-bc-pinkLight: #FCE4EC;
   --color-bc-greenLight: #E8F5E9;
   --color-bc-cream: #FFFDE7;
+
+  /* ── Admin Template colours ── */
+  --color-admin-primary: #E66239;
+  --color-admin-success: #00C951;
+  --color-admin-info: #00B8DB;
+  --color-admin-warning: #F0B100;
+  --color-admin-danger: #FB2C36;
+  --color-admin-secondary: #525252;
+  --color-admin-border: #E5E5E5;
 
   /* ── Shadows ── */
   --shadow-yellow-glow: 0px 8px 32px 0px rgba(247, 189, 13, 0.25);

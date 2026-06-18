@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { DollarSign, ShoppingCart, Users, AlertCircle, ShoppingBag, Package, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import AdminSalesPurchaseChart from "@/components/admin/charts/AdminSalesPurchaseChart";
+import AdminCustomerChart from "@/components/admin/charts/AdminCustomerChart";
 
 interface Stats {
   ordersCount: number;
@@ -23,15 +25,38 @@ interface PopularProduct {
   id: number;
   name: string;
   price: number;
-  images: string;
+  images: string | string[];
   totalQty: number;
+}
+
+interface LowStockProduct {
+  id: number;
+  name: string;
+  price: number;
+  stock: number;
+  images: string | string[];
+}
+
+interface ThreeColumnDetails {
+  profitThisMonth: number;
+  shippingFeesThisMonth: number;
+  discountsThisMonth: number;
+}
+
+interface CustomerOverview {
+  firstTimeCount: number;
+  returningCount: number;
+  suppliersCount: number;
 }
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [popularProducts, setPopularProducts] = useState<PopularProduct[]>([]);
-  const [statusBreakdown, setStatusBreakdown] = useState<{ status: string; count: number; revenue: number; }[]>([]);
+  const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([]);
+  const [monthlyRevenue, setMonthlyRevenue] = useState<{ thisYear: number[]; lastYear: number[]; } | null>(null);
+  const [threeColumnDetails, setThreeColumnDetails] = useState<ThreeColumnDetails | null>(null);
+  const [customerOverview, setCustomerOverview] = useState<CustomerOverview | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,16 +65,19 @@ export default function AdminDashboardPage() {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch('/api/admin/stats');
+      const res = await fetch("/api/admin/stats");
       if (res.ok) {
         const data = await res.json();
         setStats(data.stats);
         setRecentOrders(data.recentOrders || []);
         setPopularProducts(data.popularProducts || []);
-        setStatusBreakdown(data.statusBreakdown || []);
+        setLowStockProducts(data.lowStockProducts || []);
+        setMonthlyRevenue(data.monthlyRevenue || null);
+        setThreeColumnDetails(data.threeColumnDetails || null);
+        setCustomerOverview(data.customerOverview || null);
       }
     } catch (e) {
-      console.error('Failed to fetch admin stats', e);
+      console.error("Failed to fetch admin stats", e);
     } finally {
       setLoading(false);
     }
@@ -57,225 +85,461 @@ export default function AdminDashboardPage() {
 
   const getStatusColor = (status: string) => {
     const statusColors: Record<string, string> = {
-      EN_ATTENTE: 'bg-yellow-950/40 text-yellow-400 border-yellow-800/40',
-      PAYEE: 'bg-blue-950/40 text-blue-400 border-blue-800/40',
-      EN_PREPARATION: 'bg-purple-950/40 text-purple-400 border-purple-800/40',
-      EXPEDIEE: 'bg-indigo-950/40 text-indigo-400 border-indigo-800/40',
-      LIVREE: 'bg-green-950/40 text-green-400 border-green-800/40',
-      ANNULEE: 'bg-red-950/40 text-red-400 border-red-800/40',
+      EN_ATTENTE: "bg-warning-subtle text-warning border border-warning",
+      PAYEE: "bg-success-subtle text-success border border-success",
+      EN_PREPARATION: "bg-primary-subtle text-primary border border-primary",
+      EXPEDIEE: "bg-info-subtle text-info border border-info",
+      LIVREE: "bg-success-subtle text-success border border-success",
+      ANNULEE: "bg-danger-subtle text-danger border border-danger",
     };
-    return statusColors[status] || 'bg-gray-950/40 text-gray-400 border-gray-800/40';
+    return statusColors[status] || "bg-light text-secondary border";
+  };
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      EN_ATTENTE: "En attente",
+      PAYEE: "Payée",
+      EN_PREPARATION: "En prép.",
+      EXPEDIEE: "Expédiée",
+      LIVREE: "Livrée",
+      ANNULEE: "Annulée",
+    };
+    return labels[status] || status;
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="w-10 h-10 border-4 border-bc-yellow border-t-transparent rounded-full animate-spin"></div>
+      <div className="d-flex align-items-center justify-content-center py-10" style={{ minHeight: "60vh" }}>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Chargement...</span>
+        </div>
       </div>
     );
   }
 
+  // Calculate percentages for customers
+  const firstTimeCount = customerOverview?.firstTimeCount || 0;
+  const returningCount = customerOverview?.returningCount || 0;
+  const totalClients = firstTimeCount + returningCount;
+  const firstTimePercent = totalClients > 0 ? Math.round((firstTimeCount / totalClients) * 100) : 0;
+  const returningPercent = totalClients > 0 ? Math.round((returningCount / totalClients) * 100) : 0;
+
   return (
-    <div className="space-y-8 font-instrument">
-      
-      {/* Page Header */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white font-montserrat tracking-tight">Vue d&apos;ensemble</h1>
-        <p className="text-gray-400 text-xs mt-1">Résumé des activités commerciales de Bénin Cadeau</p>
+    <>
+      {/* PAGE HEADER */}
+      <div className="row">
+        <div className="col-12">
+          <div className="mb-6">
+            <h1 className="fs-3 mb-1 text-dark">Dashboard</h1>
+            <p className="text-secondary">Résumé en temps réel des indicateurs de Bénin Cadeau</p>
+          </div>
+        </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        {/* Sales */}
-        <div className="bg-[#191E3A] border border-[#1B2E4B] rounded-2xl p-6 flex items-center justify-between shadow-sm">
-          <div className="space-y-1">
-            <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider block">Chiffre d&apos;affaires</span>
-            <span className="text-2xl font-black text-white font-montserrat">
-              {stats?.totalRevenue.toLocaleString('fr-FR') || 0} <span className="text-xs">FCFA</span>
-            </span>
-          </div>
-          <div className="w-12 h-12 rounded-xl bg-green-500/10 border border-green-500/20 text-green-500 flex items-center justify-center">
-            <TrendingUp size={24} />
-          </div>
-        </div>
-
-        {/* Orders */}
-        <div className="bg-[#191E3A] border border-[#1B2E4B] rounded-2xl p-6 flex items-center justify-between shadow-sm">
-          <div className="space-y-1">
-            <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider block">Commandes</span>
-            <span className="text-2xl font-black text-white font-montserrat">
-              {stats?.ordersCount || 0}
-            </span>
-          </div>
-          <div className="w-12 h-12 rounded-xl bg-bc-yellow/10 border border-bc-yellow/20 text-bc-yellow flex items-center justify-center">
-            <ShoppingBag size={24} />
-          </div>
-        </div>
-
-        {/* Customers */}
-        <div className="bg-[#191E3A] border border-[#1B2E4B] rounded-2xl p-6 flex items-center justify-between shadow-sm">
-          <div className="space-y-1">
-            <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider block">Clients</span>
-            <span className="text-2xl font-black text-white font-montserrat">
-              {stats?.customersCount || 0}
-            </span>
-          </div>
-          <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
-            <Users size={24} />
-          </div>
-        </div>
-
-        {/* Pending Orders */}
-        <div className="bg-[#191E3A] border border-[#1B2E4B] rounded-2xl p-6 flex items-center justify-between shadow-sm">
-          <div className="space-y-1">
-            <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider block">Commandes Actives</span>
-            <span className="text-2xl font-black text-white font-montserrat">
-              {stats?.pendingOrdersCount || 0}
-            </span>
-          </div>
-          <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
-            <AlertCircle size={24} />
-          </div>
-        </div>
-
-      </div>
-
-      {/* Chiffre d'affaires Graphe Centerpiece */}
-      <div className="bg-[#191E3A] border border-[#1B2E4B] rounded-3xl p-6 shadow-sm space-y-6">
-        <h2 className="text-lg font-bold font-montserrat text-white flex items-center gap-2">
-          <TrendingUp className="text-bc-yellow" size={20} /> Graphique du Chiffre d&apos;affaires par Statut
-        </h2>
-        
-        <div className="h-64 flex items-end gap-3 sm:gap-6 pt-10 pb-4 px-2 border-b border-[#1B2E4B]">
-          {['EN_ATTENTE', 'PAYEE', 'EN_PREPARATION', 'EXPEDIEE', 'LIVREE', 'ANNULEE'].map((statusKey) => {
-            const bd = statusBreakdown.find(s => s.status === statusKey) || { status: statusKey, count: 0, revenue: 0 };
-            const maxRevenue = Math.max(...statusBreakdown.map(s => s.revenue), 1);
-            const heightPct = Math.max(4, Math.min(100, (bd.revenue / maxRevenue) * 100));
-
-            const labels: Record<string, string> = {
-              EN_ATTENTE: 'En attente',
-              PAYEE: 'Payée',
-              EN_PREPARATION: 'En prép.',
-              EXPEDIEE: 'Expédiée',
-              LIVREE: 'Livrée',
-              ANNULEE: 'Annulée'
-            };
-
-            const barColors: Record<string, string> = {
-              EN_ATTENTE: 'from-yellow-500 to-yellow-600',
-              PAYEE: 'from-blue-500 to-blue-600',
-              EN_PREPARATION: 'from-purple-500 to-purple-600',
-              EXPEDIEE: 'from-indigo-500 to-indigo-600',
-              LIVREE: 'from-green-500 to-green-600',
-              ANNULEE: 'from-red-500 to-red-600'
-            };
-
-            return (
-              <div key={statusKey} className="flex-1 flex flex-col items-center group relative h-full justify-end">
-                {/* Tooltip */}
-                <div className="absolute bottom-[calc(100%+8px)] bg-gray-950/95 text-white rounded-xl p-3 text-[10px] font-bold shadow-lg border border-gray-800 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30 min-w-[130px] text-center">
-                  <p className="text-bc-yellow font-extrabold">{labels[statusKey]}</p>
-                  <p className="mt-1">{bd.revenue.toLocaleString('fr-FR')} FCFA</p>
-                  <p className="text-gray-400 font-semibold">{bd.count} commande{bd.count > 1 ? 's' : ''}</p>
-                </div>
-
-                {/* Vertical Bar */}
-                <div
-                  style={{ height: `${heightPct}%` }}
-                  className={`w-full max-w-[44px] rounded-t-lg bg-gradient-to-t ${barColors[statusKey]} cursor-pointer shadow-sm hover:brightness-110 transition-all duration-500`}
-                />
-
-                {/* X Axis Label */}
-                <span className="text-[10px] sm:text-xs font-semibold text-gray-400 mt-2 block whitespace-nowrap">
-                  {labels[statusKey]}
-                </span>
+      {/* STAT CARDS (Exact Template Row 1) */}
+      <div className="row g-3 mb-3">
+        {/* Card 1: Total Sales */}
+        <div className="col-lg-3 col-12">
+          <div className="card p-4 bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded-2">
+            <div className="d-flex gap-3">
+              <div className="icon-shape icon-md bg-primary text-white rounded-2">
+                <i className="ti ti-report-analytics fs-4"></i>
               </div>
-            );
-          })}
+              <div>
+                <h2 className="mb-3 fs-6 text-dark">Total Ventes</h2>
+                <h3 className="fw-bold mb-0 text-dark">
+                  {stats?.totalRevenue.toLocaleString("fr-FR") || 0} FCFA
+                </h3>
+                <p className="text-primary mb-0 small">Chiffre d&apos;affaires global</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 2: Total Purchase (Commandes) */}
+        <div className="col-lg-3 col-12">
+          <div className="card p-4 bg-success bg-opacity-10 border border-success border-opacity-25 rounded-2">
+            <div className="d-flex gap-3">
+              <div className="icon-shape icon-md bg-success text-white rounded-2">
+                <i className="ti ti-repeat fs-4"></i>
+              </div>
+              <div>
+                <h2 className="mb-3 fs-6 text-dark">Total Commandes</h2>
+                <h3 className="fw-bold mb-0 text-dark">
+                  {stats?.ordersCount || 0}
+                </h3>
+                <p className="text-success mb-0 small">Volume total enregistré</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 3: Total Expenses (Clients) */}
+        <div className="col-lg-3 col-12">
+          <div className="card p-4 bg-info bg-opacity-10 border border-info border-opacity-25 rounded-2">
+            <div className="d-flex gap-3">
+              <div className="icon-shape icon-md bg-info text-white rounded-2">
+                <i className="ti ti-users fs-4"></i>
+              </div>
+              <div>
+                <h2 className="mb-3 fs-6 text-dark">Clients Inscrits</h2>
+                <h3 className="fw-bold mb-0 text-dark">
+                  {stats?.customersCount || 0}
+                </h3>
+                <p className="text-info mb-0 small">Clients enregistrés</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 4: Invoice Due (Commandes Actives) */}
+        <div className="col-lg-3 col-12">
+          <div className="card p-4 bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-2">
+            <div className="d-flex gap-3">
+              <div className="icon-shape icon-md bg-warning text-white rounded-2">
+                <i className="ti ti-notes fs-4"></i>
+              </div>
+              <div>
+                <h2 className="mb-3 fs-6 text-dark">Commandes Actives</h2>
+                <h3 className="fw-bold mb-0 text-dark">
+                  {stats?.pendingOrdersCount || 0}
+                </h3>
+                <p className="text-warning mb-0 small">En cours de traitement</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Double Column content */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {/* Recent Orders (Left) */}
-        <div className="bg-[#191E3A] border border-[#1B2E4B] rounded-3xl p-6 shadow-sm lg:col-span-7 space-y-6">
-          <h2 className="text-lg font-bold font-montserrat text-white">Dernières commandes</h2>
-          
-          {recentOrders.length === 0 ? (
-            <p className="text-gray-500 text-sm py-4">Aucune commande enregistrée pour le moment.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-[#1B2E4B] text-gray-400">
-                    <th className="pb-3 font-semibold">N° Commande</th>
-                    <th className="pb-3 font-semibold">Client</th>
-                    <th className="pb-3 font-semibold">Montant</th>
-                    <th className="pb-3 font-semibold">Statut</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#1B2E4B]">
-                  {recentOrders.map((order) => (
-                    <tr key={order.id} className="text-gray-300 hover:bg-[#1B2E4B]/20">
-                      <td className="py-4 font-bold text-bc-yellow">{order.orderNumber}</td>
-                      <td className="py-4">{order.clientName}</td>
-                      <td className="py-4 font-semibold">{order.totalAmount.toLocaleString('fr-FR')} FCFA</td>
-                      <td className="py-4">
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${getStatusColor(order.status)}`}>
-                          {order.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      {/* THREE COLUMN DETAILS (Exact Template Row 2) */}
+      <div className="row g-3 mb-3">
+        {/* Detail 1: Total Profit (Ventes du mois) */}
+        <div className="col-lg-4 col-12">
+          <div className="card">
+            <div className="card-body p-4">
+              <div className="d-flex justify-content-between border-bottom pb-5 mb-3">
+                <div>
+                  <h3 className="fw-bold h4 text-dark">
+                    {(threeColumnDetails?.profitThisMonth || 0).toLocaleString("fr-FR")} FCFA
+                  </h3>
+                  <span className="text-secondary">Ventes ce mois</span>
+                </div>
+                <div>
+                  <i className="ti ti-layers-subtract fs-1 text-primary"></i>
+                </div>
+              </div>
+              <div className="d-flex justify-content-between align-items-center small">
+                <div className="text-muted">
+                  Ventes du mois en cours
+                </div>
+                <div>
+                  <Link href="/admin/commandes" className="link-primary text-decoration-underline">
+                    Détails
+                  </Link>
+                </div>
+              </div>
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Top Selling Products (Right) */}
-        <div className="bg-[#191E3A] border border-[#1B2E4B] rounded-3xl p-6 shadow-sm lg:col-span-5 space-y-6">
-          <h2 className="text-lg font-bold font-montserrat text-white">Produits les plus vendus</h2>
+        {/* Detail 2: Total Payment Returns (Livraison ce mois) */}
+        <div className="col-lg-4 col-12">
+          <div className="card">
+            <div className="card-body p-4">
+              <div className="d-flex justify-content-between border-bottom pb-5 mb-3">
+                <div>
+                  <h3 className="fw-bold h4 text-dark">
+                    {(threeColumnDetails?.shippingFeesThisMonth || 0).toLocaleString("fr-FR")} FCFA
+                  </h3>
+                  <span className="text-secondary">Frais de livraison perçus</span>
+                </div>
+                <div>
+                  <i className="ti ti-credit-card fs-1 text-danger"></i>
+                </div>
+              </div>
+              <div className="d-flex justify-content-between align-items-center small">
+                <div className="text-muted">
+                  Frais de livraison (Mois en cours)
+                </div>
+                <div>
+                  <Link href="/admin/livraisons" className="link-primary text-decoration-underline">
+                    Zones
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-          {popularProducts.length === 0 ? (
-            <p className="text-gray-500 text-sm py-4">Aucune vente enregistrée pour le moment.</p>
-          ) : (
-            <div className="space-y-4">
-              {popularProducts.map((product) => {
-                let images: string[] = [];
-                try {
-                  images = typeof product.images === 'string'
-                    ? JSON.parse(product.images)
-                    : (product.images as unknown as string[]);
-                } catch {
-                  images = ['/1-19.png'];
-                }
+        {/* Detail 3: Total Expenses (Codes Promos appliqués) */}
+        <div className="col-lg-4 col-12">
+          <div className="card">
+            <div className="card-body p-4">
+              <div className="d-flex justify-content-between border-bottom pb-5 mb-3">
+                <div>
+                  <h3 className="fw-bold h4 text-dark">
+                    {(threeColumnDetails?.discountsThisMonth || 0).toLocaleString("fr-FR")} FCFA
+                  </h3>
+                  <span className="text-secondary">Réductions appliquées</span>
+                </div>
+                <div>
+                  <i className="ti ti-cash-banknote fs-1 text-warning"></i>
+                </div>
+              </div>
+              <div className="d-flex justify-content-between align-items-center small">
+                <div className="text-muted">
+                  Remises codes promo (Ce mois)
+                </div>
+                <div>
+                  <Link href="/admin/promocodes" className="link-primary text-decoration-underline">
+                    Codes promo
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-                return (
-                  <div key={product.id} className="flex items-center justify-between bg-[#1b203f] p-4 rounded-2xl border border-[#232a5c]">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-lg bg-gray-950 overflow-hidden flex-shrink-0">
-                        <img src={images[0] || '/1-19.png'} alt={product.name} className="w-full h-full object-cover" />
-                      </div>
-                      <div>
-                        <span className="font-semibold text-white block text-sm leading-tight line-clamp-1">{product.name}</span>
-                        <span className="text-xs text-gray-400">Prix : {product.price.toLocaleString('fr-FR')} FCFA</span>
+      {/* CHARTS SECTION (Exact Template Row 3) */}
+      <div className="row g-3 mb-3">
+        {/* Sales vs Purchase Column Chart */}
+        <div className="col-12 col-lg-6">
+          <div className="card h-100">
+            <div className="card-header d-flex justify-content-between align-items-center bg-transparent px-4 py-3">
+              <h3 className="h5 mb-0 text-dark">Ventes mensuelles</h3>
+              <div>
+                <select className="form-select form-select-sm" defaultValue="Année en cours">
+                  <option value="Année en cours">Comparaison annuelle</option>
+                </select>
+              </div>
+            </div>
+            <div className="card-body p-4">
+              {monthlyRevenue && (
+                <AdminSalesPurchaseChart
+                  thisYear={monthlyRevenue.thisYear}
+                  lastYear={monthlyRevenue.lastYear}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Overall Information / Radial Donut Chart */}
+        <div className="col-12 col-lg-6">
+          <div className="card h-100">
+            <div className="card-header d-flex justify-content-between align-items-center bg-transparent px-4 py-3">
+              <h3 className="h5 mb-0 text-dark">Aperçu global</h3>
+              <div>
+                <select className="form-select form-select-sm" defaultValue="Clients">
+                  <option value="Clients">Fidélité clients</option>
+                </select>
+              </div>
+            </div>
+            <div className="card-body p-4">
+              <h3 className="h6 text-dark mb-4">Répartition des clients</h3>
+              <div className="row align-items-center">
+                <div className="col-sm-6">
+                  {customerOverview && (
+                    <AdminCustomerChart
+                      firstTimeCount={firstTimeCount}
+                      returningCount={returningCount}
+                    />
+                  )}
+                </div>
+                <div className="col-sm-6">
+                  <div className="row">
+                    <div className="col-6 border-end">
+                      <div className="text-center">
+                        <h2 className="mb-1 text-dark fw-bold">{firstTimeCount}</h2>
+                        <p className="text-success mb-2 small" style={{ fontSize: "11px" }}>Nouveaux</p>
+                        <span className="badge bg-success" style={{ fontSize: "10px" }}>
+                          <i className="ti ti-arrow-up-left me-1"></i>{firstTimePercent}%
+                        </span>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <span className="block text-sm font-black text-bc-yellow font-montserrat">{product.totalQty} vendus</span>
+                    <div className="col-6">
+                      <div className="text-center">
+                        <h2 className="mb-1 text-dark fw-bold">{returningCount}</h2>
+                        <p className="text-warning mb-2 small" style={{ fontSize: "11px" }}>Fidèles</p>
+                        <span className="badge bg-success" style={{ fontSize: "10px" }}>
+                          <i className="ti ti-arrow-up-left me-1"></i>{returningPercent}%
+                        </span>
+                      </div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+                </div>
+              </div>
 
+              {/* Bottom indicators */}
+              <div className="row text-center border-top mt-4 pt-4">
+                <div className="col-4 border-end">
+                  <h3 className="fw-bold mb-2 text-dark fs-5">{customerOverview?.suppliersCount || 0}</h3>
+                  <small className="text-secondary" style={{ fontSize: "11px" }}>Produits</small>
+                </div>
+                <div className="col-4 border-end">
+                  <h3 className="fw-bold mb-2 text-dark fs-5">{stats?.customersCount || 0}</h3>
+                  <small className="text-secondary" style={{ fontSize: "11px" }}>Clients</small>
+                </div>
+                <div className="col-4">
+                  <h3 className="fw-bold mb-2 text-dark fs-5">{stats?.ordersCount || 0}</h3>
+                  <small className="text-secondary" style={{ fontSize: "11px" }}>Commandes</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-    </div>
+      {/* LISTS SECTION (Exact Template Row 4) */}
+      <div className="row g-3">
+        {/* Card 1: Top Selling Products */}
+        <div className="col-lg-4 col-12">
+          <div className="card h-100">
+            <div className="card-header bg-white d-flex justify-content-between align-items-center px-4 py-3">
+              <h4 className="mb-0 h5 text-dark">Produits populaires</h4>
+              <Link href="/admin/produits" className="text-xs text-primary font-bold text-decoration-none">
+                Inventaire <i className="ti ti-chevron-right"></i>
+              </Link>
+            </div>
+
+            <ul className="list-group list-group-flush">
+              {popularProducts.length === 0 ? (
+                <p className="text-muted text-center py-5">Aucun produit vendu pour le moment.</p>
+              ) : (
+                popularProducts.map((product) => {
+                  let images: string[] = [];
+                  try {
+                    images =
+                      typeof product.images === "string"
+                        ? JSON.parse(product.images)
+                        : (product.images as string[]);
+                  } catch {
+                    images = ["/assets/images/product-1.png"];
+                  }
+
+                  return (
+                    <li key={product.id} className="list-group-item d-flex align-items-center gap-3">
+                      <img
+                        src={images[0] || "/assets/images/product-1.png"}
+                        alt={product.name}
+                        className="rounded"
+                        width="48"
+                        height="48"
+                        style={{ objectFit: "cover" }}
+                      />
+                      <div className="flex-grow-1 min-w-0">
+                        <p className="mb-1 text-dark text-truncate fw-medium">{product.name}</p>
+                        <div className="d-flex align-items-center gap-2 text-muted">
+                          <small className="fw-semibold text-secondary">
+                            {product.price.toLocaleString("fr-FR")} FCFA
+                          </small>
+                          <small>•</small>
+                          <small>{product.totalQty} vendus</small>
+                        </div>
+                      </div>
+                      <span className="badge bg-primary-subtle text-primary border border-primary">
+                        Top
+                      </span>
+                    </li>
+                  );
+                })
+              )}
+            </ul>
+          </div>
+        </div>
+
+        {/* Card 2: Low Stock Products */}
+        <div className="col-lg-4 col-12">
+          <div className="card h-100">
+            <div className="card-header bg-white d-flex justify-content-between align-items-center px-4 py-3">
+              <h4 className="mb-0 h5 text-dark">Stocks faibles</h4>
+              <Link href="/admin/produits" className="text-xs text-primary font-bold text-decoration-none">
+                Voir tout
+              </Link>
+            </div>
+
+            <ul className="list-group list-group-flush">
+              {lowStockProducts.length === 0 ? (
+                <p className="text-muted text-center py-5">Aucun produit en stock.</p>
+              ) : (
+                lowStockProducts.map((product) => {
+                  let images: string[] = [];
+                  try {
+                    images =
+                      typeof product.images === "string"
+                        ? JSON.parse(product.images)
+                        : (product.images as string[]);
+                  } catch {
+                    images = ["/assets/images/product-1.png"];
+                  }
+
+                  return (
+                    <li key={product.id} className="list-group-item d-flex align-items-center gap-3">
+                      <img
+                        src={images[0] || "/assets/images/product-1.png"}
+                        alt={product.name}
+                        className="rounded"
+                        width="48"
+                        height="48"
+                        style={{ objectFit: "cover" }}
+                      />
+                      <div className="flex-grow-1 min-w-0">
+                        <p className="mb-1 text-dark text-truncate fw-medium">{product.name}</p>
+                        <small className="text-secondary">ID: #{product.id}</small>
+                      </div>
+                      <div className="d-flex flex-column gap-0 align-items-center">
+                        <span className={`fw-bold ${product.stock === 0 ? "text-danger" : "text-primary"}`}>
+                          {product.stock.toString().padStart(2, "0")}
+                        </span>
+                        <small className="text-muted" style={{ fontSize: "10px" }}>En stock</small>
+                      </div>
+                    </li>
+                  );
+                })
+              )}
+            </ul>
+          </div>
+        </div>
+
+        {/* Card 3: Recent Sales (Commandes Récentes) */}
+        <div className="col-lg-4 col-12">
+          <div className="card h-100">
+            <div className="card-header bg-white d-flex justify-content-between align-items-center px-4 py-3">
+              <h4 className="mb-0 h5 text-dark">Dernières commandes</h4>
+              <Link href="/admin/commandes" className="text-xs text-primary font-bold text-decoration-none">
+                Voir tout
+              </Link>
+            </div>
+
+            <ul className="list-group list-group-flush">
+              {recentOrders.length === 0 ? (
+                <p className="text-muted text-center py-5">Aucune commande récente.</p>
+              ) : (
+                recentOrders.map((order) => (
+                  <li key={order.id} className="list-group-item d-flex align-items-center gap-3">
+                    <div className="flex-grow-1 min-w-0">
+                      <p className="mb-1 text-dark text-truncate fw-medium">Commande {order.orderNumber}</p>
+                      <div className="d-flex align-items-center gap-2 text-muted">
+                        <small className="fw-semibold text-secondary">{order.clientName}</small>
+                        <small>•</small>
+                        <small>{order.totalAmount.toLocaleString("fr-FR")} FCFA</small>
+                      </div>
+                    </div>
+                    <span
+                      className={`badge ${getStatusColor(order.status)}`}
+                      style={{ fontSize: "10px", padding: "4px 8px" }}
+                    >
+                      {getStatusLabel(order.status)}
+                    </span>
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
+

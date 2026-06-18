@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, X, Loader2 } from 'lucide-react';
 import { useAdminToast } from '@/app/admin/layout';
 
 interface Category {
@@ -28,6 +27,10 @@ export default function AdminCategoriesPage() {
   const [displayOrder, setDisplayOrder] = useState('0');
   const [active, setActive] = useState(true);
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -38,9 +41,11 @@ export default function AdminCategoriesPage() {
       if (res.ok) {
         const data = await res.json();
         setCategories(data.categories || []);
+        setCurrentPage(1);
       }
     } catch (e) {
       console.error(e);
+      showToast("Erreur lors du chargement des catégories.", "error");
     } finally {
       setLoading(false);
     }
@@ -49,6 +54,8 @@ export default function AdminCategoriesPage() {
   const handleSlugify = (text: string) => {
     setName(text);
     setSlug(text.toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // remove accents
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)+/g, '')
     );
@@ -153,183 +160,248 @@ export default function AdminCategoriesPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="w-10 h-10 border-4 border-bc-yellow border-t-transparent rounded-full animate-spin"></div>
+      <div className="d-flex align-items-center justify-content-center py-10" style={{ minHeight: "60vh" }}>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Chargement...</span>
+        </div>
       </div>
     );
   }
 
+  const totalPages = Math.ceil(categories.length / itemsPerPage);
+  const paginatedCategories = categories.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
-    <div className="space-y-8 font-instrument">
-      
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white font-montserrat tracking-tight">Gestion des Catégories</h1>
-          <p className="text-gray-400 text-xs mt-1">Organiser le catalogue en rayons et ordonner l&apos;affichage</p>
-        </div>
-        <button
-          onClick={openAddModal}
-          className="flex items-center gap-1.5 px-5 py-3 rounded-xl bg-bc-yellow hover:bg-yellow-400 text-bc-purple font-bold text-sm shadow-sm cursor-pointer"
-        >
-          <Plus size={18} /> Nouvelle Catégorie
-        </button>
-      </div>
-
-      {/* Table Container */}
-      <div className="bg-[#191E3A] border border-[#1B2E4B] rounded-3xl overflow-hidden shadow-sm max-w-4xl">
-        {categories.length === 0 ? (
-          <p className="p-8 text-gray-500 text-sm text-center">Aucune catégorie enregistrée.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead>
-                <tr className="border-b border-[#1B2E4B] text-gray-400 bg-[#141a35]">
-                  <th className="py-4 px-6 font-semibold">Ordre d&apos;affichage</th>
-                  <th className="py-4 px-6 font-semibold">Nom</th>
-                  <th className="py-4 px-6 font-semibold">Slug (URL)</th>
-                  <th className="py-4 px-6 font-semibold">Statut</th>
-                  <th className="py-4 px-6 font-semibold text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#1B2E4B] text-gray-300">
-                {categories.map((category) => (
-                  <tr key={category.id} className="hover:bg-[#1B2E4B]/20">
-                    <td className="py-4 px-6 font-bold text-bc-yellow">{category.displayOrder}</td>
-                    <td className="py-4 px-6 font-semibold">{category.name}</td>
-                    <td className="py-4 px-6 text-gray-400">/{category.slug}</td>
-                    <td className="py-4 px-6">
-                      <button
-                        onClick={() => handleToggleActive(category)}
-                        className={`px-2 py-0.5 rounded text-[10px] font-bold border cursor-pointer uppercase ${
-                          category.active
-                            ? 'bg-green-950/40 text-green-400 border-green-800/40'
-                            : 'bg-red-950/40 text-red-400 border-red-800/40'
-                        }`}
-                      >
-                        {category.active ? 'Actif' : 'Inactif'}
-                      </button>
-                    </td>
-                    <td className="py-4 px-6 text-center space-x-2">
-                      <button
-                        onClick={() => openEditModal(category)}
-                        className="p-2 bg-[#1b2e4b] hover:bg-[#253b5e] text-bc-yellow rounded-xl transition-all cursor-pointer inline-flex items-center"
-                        title="Modifier"
-                      >
-                        <Edit2 size={14} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(category.id)}
-                        className="p-2 bg-[#2d1b28] hover:bg-red-900/30 text-red-400 rounded-xl transition-all cursor-pointer inline-flex items-center"
-                        title="Supprimer (Désactiver)"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75">
-          <div className="relative w-full max-w-md bg-[#191E3A] rounded-[28px] border border-[#1B2E4B] overflow-hidden flex flex-col">
-            
-            <div className="h-16 border-b border-[#1B2E4B] flex items-center justify-between px-6 bg-[#141a35]">
-              <span className="font-montserrat font-extrabold text-white text-base">
-                {editingCategory ? 'Modifier la Catégorie' : 'Ajouter une Catégorie'}
-              </span>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-gray-400 hover:text-white"
-              >
-                <X size={20} />
+    <>
+      {/* HEADER ROW */}
+      <div className="row">
+        <div className="col-12">
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h1 className="fs-3 mb-1 text-dark">Gestion des Catégories</h1>
+              <p className="mb-0 text-secondary">Organisez le catalogue public en rayons thématiques</p>
+            </div>
+            <div>
+              <button onClick={openAddModal} className="btn btn-primary">
+                <i className="ti ti-plus me-1"></i> Nouvelle Catégorie
               </button>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs font-semibold text-gray-300">
-              
-              {/* Name */}
-              <div>
-                <label className="block text-gray-400 mb-1.5">Nom de la Catégorie *</label>
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => handleSlugify(e.target.value)}
-                  placeholder="Cadeaux corporatifs"
-                  className="w-full bg-[#11172a] border border-[#232e41] rounded-xl py-2.5 px-3 text-white focus:outline-none focus:ring-bc-yellow"
-                />
-              </div>
+      {/* TABLE CONTAINER */}
+      <div className="row">
+        <div className="col-12">
+          <div className="card table-responsive">
+            {categories.length === 0 ? (
+              <p className="p-4 text-muted text-center mb-0">Aucune catégorie enregistrée.</p>
+            ) : (
+              <table className="table mb-0 text-nowrap table-hover">
+                <thead className="table-light border-light">
+                  <tr>
+                    <th className="text-dark">Ordre d&apos;affichage</th>
+                    <th className="text-dark">Nom</th>
+                    <th className="text-dark">Slug (URL)</th>
+                    <th className="text-dark">Statut</th>
+                    <th className="text-dark text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="align-middle">
+                  {paginatedCategories.map((category) => (
+                    <tr key={category.id}>
+                      <td className="fw-bold text-primary">{category.displayOrder}</td>
+                      <td className="fw-bold text-dark">{category.name}</td>
+                      <td className="text-secondary">/{category.slug}</td>
+                      <td>
+                        <span
+                          onClick={() => handleToggleActive(category)}
+                          className={`badge cursor-pointer ${
+                            category.active
+                              ? 'bg-success bg-opacity-10 text-success border border-success'
+                              : 'bg-danger bg-opacity-10 text-danger border border-danger'
+                          }`}
+                          style={{ fontSize: "11px", padding: "5px 10px" }}
+                        >
+                          {category.active ? 'Actif' : 'Inactif'}
+                        </span>
+                      </td>
+                      <td className="text-center">
+                        <span
+                          onClick={() => openEditModal(category)}
+                          className="text-primary me-3 cursor-pointer"
+                        >
+                          <i className="ti ti-edit fs-5"></i>
+                        </span>
+                        <span
+                          onClick={() => handleDelete(category.id)}
+                          className="link-danger cursor-pointer"
+                        >
+                          <i className="ti ti-trash fs-5"></i>
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                {totalPages > 1 && (
+                  <tfoot>
+                    <tr>
+                      <td className="border-bottom-0 text-secondary align-middle">
+                        Affichage de {paginatedCategories.length} sur {categories.length} catégories
+                      </td>
+                      <td colSpan={4} className="border-bottom-0">
+                        <nav aria-label="Page navigation" className="d-flex justify-content-end">
+                          <ul className="pagination mb-0">
+                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                              <button
+                                className="page-link"
+                                onClick={() => setCurrentPage(currentPage - 1)}
+                                disabled={currentPage === 1}
+                              >
+                                Précédent
+                              </button>
+                            </li>
+                            {[...Array(totalPages)].map((_, i) => (
+                              <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                                <button className="page-link" onClick={() => setCurrentPage(i + 1)}>
+                                  {i + 1}
+                                </button>
+                              </li>
+                            ))}
+                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                              <button
+                                className="page-link"
+                                onClick={() => setCurrentPage(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                              >
+                                Suivant
+                              </button>
+                            </li>
+                          </ul>
+                        </nav>
+                      </td>
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            )}
+          </div>
+        </div>
+      </div>
 
-              {/* Slug */}
-              <div>
-                <label className="block text-gray-400 mb-1.5">Slug unique (URL) *</label>
-                <input
-                  type="text"
-                  required
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  placeholder="cadeaux-corporatifs"
-                  className="w-full bg-[#11172a] border border-[#232e41] rounded-xl py-2.5 px-3 text-white focus:outline-none focus:ring-bc-yellow"
-                />
-              </div>
-
-              {/* Display Order */}
-              <div>
-                <label className="block text-gray-400 mb-1.5">Ordre d&apos;affichage *</label>
-                <input
-                  type="number"
-                  required
-                  value={displayOrder}
-                  onChange={(e) => setDisplayOrder(e.target.value)}
-                  placeholder="1"
-                  className="w-full bg-[#11172a] border border-[#232e41] rounded-xl py-2.5 px-3 text-white focus:outline-none"
-                />
-              </div>
-
-              {/* Active */}
-              <div className="pt-2">
-                <label className="flex items-center gap-2 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={active}
-                    onChange={(e) => setActive(e.target.checked)}
-                    className="accent-bc-yellow w-4 h-4"
-                  />
-                  <span className="text-white">Rendre cette catégorie Active</span>
-                </label>
-              </div>
-
-              {/* Submit Buttons */}
-              <div className="flex justify-end gap-3 pt-4 border-t border-[#1B2E4B] mt-6">
+      {/* MODAL FORM */}
+      {isModalOpen && (
+        <div
+          className="modal show d-block"
+          tabIndex={-1}
+          role="dialog"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}
+        >
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              {/* Header */}
+              <div className="modal-header">
+                <h5 className="modal-title text-dark fw-bold">
+                  {editingCategory ? 'Modifier la Catégorie' : 'Ajouter une Catégorie'}
+                </h5>
                 <button
                   type="button"
+                  className="btn-close"
+                  aria-label="Close"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-5 py-2.5 rounded-xl bg-[#1b2e4b] hover:bg-[#253b5e] text-white cursor-pointer"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-bc-yellow hover:bg-yellow-400 text-bc-purple font-bold cursor-pointer disabled:opacity-50"
-                >
-                  {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Sauvegarder
-                </button>
+                ></button>
               </div>
 
-            </form>
+              {/* Form */}
+              <form onSubmit={handleSubmit}>
+                <div className="modal-body text-dark">
+                  {/* Name */}
+                  <div className="mb-3">
+                    <label htmlFor="catName" className="form-label text-dark fw-medium">
+                      Nom de la Catégorie *
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="catName"
+                      placeholder="Ex: Cadeaux personnalisés"
+                      required
+                      value={name}
+                      onChange={(e) => handleSlugify(e.target.value)}
+                    />
+                  </div>
 
+                  {/* Slug */}
+                  <div className="mb-3">
+                    <label htmlFor="catSlug" className="form-label text-dark fw-medium">
+                      Slug Unique (URL) *
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="catSlug"
+                      placeholder="cadeaux-personnalises"
+                      required
+                      value={slug}
+                      onChange={(e) => setSlug(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Display Order */}
+                  <div className="mb-3">
+                    <label htmlFor="catOrder" className="form-label text-dark fw-medium">
+                      Ordre d&apos;affichage *
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      id="catOrder"
+                      placeholder="1"
+                      required
+                      value={displayOrder}
+                      onChange={(e) => setDisplayOrder(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Active Checkbox */}
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id="catActive"
+                      checked={active}
+                      onChange={(e) => setActive(e.target.checked)}
+                    />
+                    <label className="form-check-label text-secondary" htmlFor="catActive">
+                      Rendre cette catégorie visible dans la boutique
+                    </label>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    Annuler
+                  </button>
+                  <button type="submit" className="btn btn-primary" disabled={submitting}>
+                    {submitting ? (
+                      <span className="spinner-border spinner-border-sm me-1" role="status"></span>
+                    ) : null}
+                    Sauvegarder
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
-
-    </div>
+    </>
   );
 }
