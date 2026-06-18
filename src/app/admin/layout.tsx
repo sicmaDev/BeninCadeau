@@ -332,8 +332,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     }`}
                     style={{
                       position: "absolute",
-                      inset: "auto 0px 0px auto",
+                      inset: "0px 0px auto auto",
                       transform: "translate(0px, 40px)",
+                      minWidth: "320px",
                       display: notificationOpen ? "block" : "none",
                     }}
                   >
@@ -346,11 +347,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                             className="avatar avatar-sm rounded-circle"
                           />
                           <div className="flex-grow-1 small">
-                            <p className="mb-0 fw-bold text-dark">Nouvelle commande reçue</p>
-                            <p className="mb-1 text-secondary">La commande #BC-9923 a été passée.</p>
-                            <div className="text-secondary" style={{ fontSize: "10px" }}>
-                              Il y a 5 min
-                            </div>
+                            <p className="mb-0 text-dark fw-semibold">Nouvelle commande reçue</p>
+                            <p className="mb-1 text-muted">La commande #BC-9923 a été passée.</p>
+                            <div className="text-secondary">Il y a 5 min</div>
                           </div>
                         </div>
                       </li>
@@ -362,13 +361,30 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                             className="avatar avatar-sm rounded-circle"
                           />
                           <div className="flex-grow-1 small">
-                            <p className="mb-0 fw-bold text-dark">Nouveau client inscrit</p>
-                            <p className="mb-1 text-secondary">Marie Soglo a créé un compte client.</p>
-                            <div className="text-secondary" style={{ fontSize: "10px" }}>
-                              Il y a 30 min
-                            </div>
+                            <p className="mb-0 text-dark fw-semibold">Nouveau client inscrit</p>
+                            <p className="mb-1 text-muted">Marie Soglo a créé un compte client.</p>
+                            <div className="text-secondary">Il y a 30 min</div>
                           </div>
                         </div>
+                      </li>
+                      <li className="p-3 border-bottom">
+                        <div className="d-flex gap-3">
+                          <img
+                            src="/assets/images/avatar/avatar-2.jpg"
+                            alt=""
+                            className="avatar avatar-sm rounded-circle"
+                          />
+                          <div className="flex-grow-1 small">
+                            <p className="mb-0 text-dark fw-semibold">Paiement confirmé</p>
+                            <p className="mb-1 text-muted">Le paiement de 299 $ a été reçu.</p>
+                            <div className="text-secondary">Il y a 1 heure</div>
+                          </div>
+                        </div>
+                      </li>
+                      <li className="px-4 py-3 text-center">
+                        <a href="#!" className="text-primary text-decoration-none fw-semibold">
+                          Voir toutes les notifications
+                        </a>
                       </li>
                     </ul>
                   </div>
@@ -395,9 +411,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     className={`dropdown-menu dropdown-menu-end p-0 ${profileOpen ? "show" : ""}`}
                     style={{
                       position: "absolute",
-                      inset: "auto 0px 0px auto",
+                      inset: "0px 0px auto auto",
                       transform: "translate(0px, 40px)",
-                      minWidth: "200px",
+                      minWidth: "280px",
                       display: profileOpen ? "block" : "none",
                     }}
                   >
@@ -417,9 +433,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                         <Link href="/" className="text-decoration-none text-dark">
                           Boutique publique
                         </Link>
+                        <Link href="#!" className="text-decoration-none text-dark">
+                          Paramètres du compte
+                        </Link>
                         <button
                           onClick={handleLogout}
-                          className="w-full text-start bg-transparent border-0 p-0 text-danger"
+                          className="text-decoration-none text-danger border-0 bg-transparent p-0 text-start"
+                          style={{ fontSize: "inherit", lineHeight: "inherit" }}
                         >
                           Déconnexion
                         </button>
