@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, X, Loader2, Truck } from 'lucide-react';
+import { useAdminToast } from '@/app/admin/layout';
 
 interface ShippingZone {
   id: number;
@@ -10,6 +11,7 @@ interface ShippingZone {
 }
 
 export default function AdminShippingZonesPage() {
+  const { showToast } = useAdminToast();
   const [zones, setZones] = useState<ShippingZone[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -75,13 +77,14 @@ export default function AdminShippingZonesPage() {
 
       if (res.ok) {
         setIsModalOpen(false);
+        showToast(editingZone ? "Zone modifiée avec succès." : "Zone créée avec succès.", "success");
         fetchZones();
       } else {
         const data = await res.json();
-        alert(data.error || 'Erreur lors de la sauvegarde.');
+        showToast(data.error || 'Erreur lors de la sauvegarde.', 'error');
       }
     } catch (err) {
-      alert('Erreur réseau.');
+      showToast('Erreur réseau.', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -96,13 +99,14 @@ export default function AdminShippingZonesPage() {
       });
 
       if (res.ok) {
+        showToast("Zone supprimée avec succès.", "success");
         fetchZones();
       } else {
         const data = await res.json();
-        alert(data.error || "Erreur lors de la suppression.");
+        showToast(data.error || "Erreur lors de la suppression.", "error");
       }
     } catch (err) {
-      alert("Erreur réseau.");
+      showToast("Erreur réseau.", "error");
     }
   };
 

@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Eye, Calendar, User, Phone, MapPin, Truck, ShieldAlert, X, DollarSign, ArrowUpDown } from 'lucide-react';
+import { Eye, Calendar, User, Phone, MapPin, Truck, ShieldAlert, X, DollarSign, ArrowUpDown, ChevronDown } from 'lucide-react';
+import { useAdminToast } from '@/app/admin/layout';
 
 interface OrderItem {
   id: number;
@@ -38,6 +39,7 @@ interface Order {
 }
 
 export default function AdminOrdersPage() {
+  const { showToast } = useAdminToast();
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [selectedStatus, setSelectedStatus] = useState('ALL');
@@ -104,12 +106,13 @@ export default function AdminOrdersPage() {
         } else {
           setFilteredOrders(updatedOrders.filter(o => o.status === selectedStatus));
         }
+        showToast("Statut de la commande mis à jour.", "success");
       } else {
-        alert("Erreur lors de la mise à jour du statut.");
+        showToast("Erreur lors de la mise à jour du statut.", "error");
       }
     } catch (err) {
       console.error(err);
-      alert("Erreur réseau.");
+      showToast("Erreur réseau.", "error");
     } finally {
       setUpdatingStatus(false);
     }

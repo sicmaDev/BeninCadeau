@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -17,9 +17,30 @@ import {
   Lock,
   Mail,
   Loader2,
-  Package
+  Package,
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
+
+// Types pour le système de Toasts
+interface Toast {
+  id: number;
+  message: string;
+  type: 'success' | 'error';
+}
+
+interface ToastContextType {
+  showToast: (message: string, type: 'success' | 'error') => void;
+}
+
+// Création du Contexte
+const ToastContext = createContext<ToastContextType>({
+  showToast: () => {},
+});
+
+// Hook personnalisé pour consommer le Toast
+export const useAdminToast = () => useContext(ToastContext);
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -31,12 +52,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [toasts, setToasts] = useState<Toast[]>([]);
 
   // Login Form States
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
-  const [loginError, setLoginError] = useState('');
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    const id = Date.now();
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4500);
+  };
 
   const checkAdminSession = async () => {
     try {
@@ -64,7 +93,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginError('');
     setLoginLoading(true);
 
     try {
@@ -79,17 +107,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       if (res.ok) {
         if (data.user && data.user.role === 'ADMIN') {
           setIsAdmin(true);
+          showToast("Connexion réussie ! Bienvenue sur le back-office.", "success");
           router.refresh();
         } else {
-          setLoginError("Accès refusé : vous devez être administrateur.");
-          // Log out immediately if customer logs in here
+          showToast("Accès refusé : vous devez être administrateur.", "error");
           await fetch('/api/auth/logout', { method: 'POST' });
         }
       } else {
-        setLoginError(data.error || "Identifiants invalides.");
+        showToast(data.error || "Identifiants de connexion invalides.", "error");
       }
     } catch (err) {
-      setLoginError("Une erreur réseau est survenue.");
+      showToast("Une erreur réseau est survenue.", "error");
     } finally {
       setLoginLoading(false);
     }
@@ -99,9 +127,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
       setIsAdmin(false);
+      showToast("Déconnexion réussie.", "success");
       router.push('/');
     } catch (err) {
-      console.error('Logout failed', err);
+      showToast("Erreur lors de la déconnexion.", "error");
     }
   };
 
@@ -126,140 +155,85 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     );
   }
 
-  // Si non admin, afficher le formulaire de connexion Admin
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-[#0E1726] flex items-center justify-center px-4 font-instrument">
-        <div className="max-w-md w-full bg-[#191e3a] rounded-3xl shadow-card p-8 border border-[#1b2e4b] space-y-6">
-          
-          <div className="text-center space-y-2">
-            <img src="/1-19.png" alt="Bénin Cadeau Logo" className="w-20 h-20 mx-auto object-contain" />
-            <h1 className="text-2xl font-black text-white font-montserrat tracking-tight">Espace Administrateur</h1>
-            <p className="text-gray-400 text-xs font-medium">Connectez-vous pour accéder au back-office</p>
-          </div>
-
-          {loginError && (
-            <div className="bg-red-950/50 border border-red-800 text-red-400 rounded-xl p-3 text-xs font-semibold text-center">
-              {loginError}
-            </div>
-          )}
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Adresse E-mail</label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
-                  <Mail size={16} />
-                </span>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@benincadeau.com"
-                  className="pl-10 block w-full bg-[#1b2e4b] border border-[#253b5e] rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-bc-yellow text-sm font-medium"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Mot de Passe</label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
-                  <Lock size={16} />
-                </span>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="pl-10 block w-full bg-[#1b2e4b] border border-[#253b5e] rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-bc-yellow text-sm font-medium"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loginLoading}
-              className="w-full flex justify-center items-center py-3.5 px-4 rounded-xl font-bold bg-bc-yellow hover:bg-yellow-400 text-bc-purple transition-all duration-200 cursor-pointer disabled:opacity-50 text-sm"
-            >
-              {loginLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                "Se connecter"
-              )}
-            </button>
-          </form>
-
-          <div className="text-center pt-2">
-            <Link href="/" className="text-xs text-bc-yellow hover:underline font-semibold">
-              ← Retour au site public
-            </Link>
-          </div>
-
-        </div>
-      </div>
-    );
-  }
-
-  // Dashboard avec Sidebar
   return (
-    <div className="min-h-screen bg-[#0E1726] flex font-instrument text-[#E0E6ED]">
+    <ToastContext.Provider value={{ showToast }}>
       
-      {/* Sidebar for Desktop */}
-      <aside className="hidden md:flex flex-col w-64 bg-[#191E3A] border-r border-[#1B2E4B] flex-shrink-0 h-screen sticky top-0">
-        <div className="h-20 flex items-center px-6 border-b border-[#1B2E4B] gap-3">
-          <img src="/1-19.png" alt="Logo" className="w-10 h-10 object-contain" />
-          <span className="font-montserrat font-extrabold text-white text-lg tracking-tight">Admin BC</span>
-        </div>
+      {!isAdmin ? (
+        /* Formulaire de connexion Admin */
+        <div className="min-h-screen bg-[#0E1726] flex items-center justify-center px-4 font-instrument">
+          <div className="max-w-md w-full bg-[#191e3a] rounded-3xl shadow-card p-8 border border-[#1b2e4b] space-y-6">
+            
+            <div className="text-center space-y-2">
+              <img src="/1-19.png" alt="Bénin Cadeau Logo" className="w-20 h-20 mx-auto object-contain" />
+              <h1 className="text-2xl font-black text-white font-montserrat tracking-tight">Espace Administrateur</h1>
+              <p className="text-gray-400 text-xs font-medium">Connectez-vous pour accéder au back-office</p>
+            </div>
 
-        <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-          {menuItems.map((item) => {
-            const isActive = pathname === item.path;
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.name}
-                href={item.path}
-                className={cn(
-                  'flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold transition-all',
-                  isActive
-                    ? 'bg-bc-yellow text-bc-purple font-extrabold shadow-sm'
-                    : 'text-gray-400 hover:bg-[#1B2E4B] hover:text-white'
-                )}
-              >
-                <Icon size={18} />
-                <span>{item.name}</span>
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="p-4 border-t border-[#1B2E4B]">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-red-400 hover:bg-red-950/20 hover:text-red-300 rounded-xl text-sm font-bold transition-all cursor-pointer"
-          >
-            <LogOut size={18} />
-            <span>Déconnexion</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* Mobile Sidebar overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden">
-          <div className="fixed inset-0 bg-black/60" onClick={() => setSidebarOpen(false)}></div>
-          <div className="relative flex flex-col w-64 bg-[#191E3A] h-full border-r border-[#1B2E4B] z-10 animate-slideRight">
-            <div className="h-20 flex items-center justify-between px-6 border-b border-[#1B2E4B]">
-              <div className="flex items-center gap-3">
-                <img src="/1-19.png" alt="Logo" className="w-10 h-10 object-contain" />
-                <span className="font-montserrat font-extrabold text-white text-lg tracking-tight">Admin BC</span>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Adresse E-mail</label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                    <Mail size={16} />
+                  </span>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@benincadeau.com"
+                    className="pl-10 block w-full bg-[#1b2e4b] border border-[#253b5e] rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-bc-yellow text-sm font-medium"
+                  />
+                </div>
               </div>
-              <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-white">
-                <X size={20} />
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Mot de Passe</label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                    <Lock size={16} />
+                  </span>
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="pl-10 block w-full bg-[#1b2e4b] border border-[#253b5e] rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-bc-yellow text-sm font-medium"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loginLoading}
+                className="w-full flex justify-center items-center py-3.5 px-4 rounded-xl font-bold bg-bc-yellow hover:bg-yellow-400 text-bc-purple transition-all duration-200 cursor-pointer disabled:opacity-50 text-sm"
+              >
+                {loginLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  "Se connecter"
+                )}
               </button>
+            </form>
+
+            <div className="text-center pt-2">
+              <Link href="/" className="text-xs text-bc-yellow hover:underline font-semibold">
+                ← Retour au site public
+              </Link>
+            </div>
+
+          </div>
+        </div>
+      ) : (
+        /* Tableau de bord avec Sidebar */
+        <div className="min-h-screen bg-[#0E1726] flex font-instrument text-[#E0E6ED]">
+          
+          {/* Sidebar for Desktop */}
+          <aside className="hidden md:flex flex-col w-64 bg-[#191E3A] border-r border-[#1B2E4B] flex-shrink-0 h-screen sticky top-0">
+            <div className="h-20 flex items-center px-6 border-b border-[#1B2E4B] gap-3">
+              <img src="/1-19.png" alt="Logo" className="w-10 h-10 object-contain" />
+              <span className="font-montserrat font-extrabold text-white text-lg tracking-tight">Admin BC</span>
             </div>
 
             <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
@@ -270,7 +244,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   <Link
                     key={item.name}
                     href={item.path}
-                    onClick={() => setSidebarOpen(false)}
                     className={cn(
                       'flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold transition-all',
                       isActive
@@ -287,55 +260,133 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
             <div className="p-4 border-t border-[#1B2E4B]">
               <button
-                onClick={() => {
-                  setSidebarOpen(false);
-                  handleLogout();
-                }}
+                onClick={handleLogout}
                 className="w-full flex items-center space-x-3 px-4 py-3 text-red-400 hover:bg-red-950/20 hover:text-red-300 rounded-xl text-sm font-bold transition-all cursor-pointer"
               >
                 <LogOut size={18} />
                 <span>Déconnexion</span>
               </button>
             </div>
+          </aside>
+
+          {/* Mobile Sidebar overlay */}
+          {sidebarOpen && (
+            <div className="fixed inset-0 z-50 flex md:hidden">
+              <div className="fixed inset-0 bg-black/60" onClick={() => setSidebarOpen(false)}></div>
+              <div className="relative flex flex-col w-64 bg-[#191E3A] h-full border-r border-[#1B2E4B] z-10 animate-slideRight">
+                <div className="h-20 flex items-center justify-between px-6 border-b border-[#1B2E4B]">
+                  <div className="flex items-center gap-3">
+                    <img src="/1-19.png" alt="Logo" className="w-10 h-10 object-contain" />
+                    <span className="font-montserrat font-extrabold text-white text-lg tracking-tight">Admin BC</span>
+                  </div>
+                  <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-white">
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
+                  {menuItems.map((item) => {
+                    const isActive = pathname === item.path;
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.name}
+                        href={item.path}
+                        onClick={() => setSidebarOpen(false)}
+                        className={cn(
+                          'flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold transition-all',
+                          isActive
+                            ? 'bg-bc-yellow text-bc-purple font-extrabold shadow-sm'
+                            : 'text-gray-400 hover:bg-[#1B2E4B] hover:text-white'
+                        )}
+                      >
+                        <Icon size={18} />
+                        <span>{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                </nav>
+
+                <div className="p-4 border-t border-[#1B2E4B]">
+                  <button
+                    onClick={() => {
+                      setSidebarOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full flex items-center space-x-3 px-4 py-3 text-red-400 hover:bg-red-950/20 hover:text-red-300 rounded-xl text-sm font-bold transition-all cursor-pointer"
+                  >
+                    <LogOut size={18} />
+                    <span>Déconnexion</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Main content area */}
+          <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+            
+            {/* Top Header */}
+            <header className="h-20 bg-[#191E3A] border-b border-[#1B2E4B] flex items-center justify-between px-6 sticky top-0 z-40">
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="md:hidden text-gray-400 hover:text-white focus:outline-none"
+                >
+                  <Menu size={24} />
+                </button>
+                <h2 className="text-xl font-bold font-montserrat text-white tracking-tight hidden sm:block">
+                  Bénin Cadeau Back-Office
+                </h2>
+              </div>
+
+              <div className="flex items-center space-x-4">
+                <Link href="/" className="text-xs text-bc-yellow border border-bc-yellow/30 hover:bg-bc-yellow/10 rounded-lg px-3 py-1.5 transition-all font-semibold uppercase tracking-wider">
+                  Aller sur le site public
+                </Link>
+                <span className="h-6 w-px bg-[#1B2E4B] hidden sm:block"></span>
+                <div className="flex items-center space-x-2 text-sm font-semibold text-gray-300">
+                  <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
+                  <span className="hidden sm:inline">Statut : Connecté Admin</span>
+                </div>
+              </div>
+            </header>
+
+            {/* Dynamic page content */}
+            <main className="flex-grow p-6 overflow-y-auto">
+              {children}
+            </main>
           </div>
+
         </div>
       )}
 
-      {/* Main content area */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
-        
-        {/* Top Header */}
-        <header className="h-20 bg-[#191E3A] border-b border-[#1B2E4B] flex items-center justify-between px-6 sticky top-0 z-40">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="md:hidden text-gray-400 hover:text-white focus:outline-none"
-            >
-              <Menu size={24} />
-            </button>
-            <h2 className="text-xl font-bold font-montserrat text-white tracking-tight hidden sm:block">
-              Bénin Cadeau Back-Office
-            </h2>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <Link href="/" className="text-xs text-bc-yellow border border-bc-yellow/30 hover:bg-bc-yellow/10 rounded-lg px-3 py-1.5 transition-all font-semibold uppercase tracking-wider">
-              Aller sur le site public
-            </Link>
-            <span className="h-6 w-px bg-[#1B2E4B] hidden sm:block"></span>
-            <div className="flex items-center space-x-2 text-sm font-semibold text-gray-300">
-              <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
-              <span className="hidden sm:inline">Statut : Connecté Admin</span>
+      {/* Container global de notifications Toast */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm w-full font-instrument">
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            className={cn(
+              "p-4 rounded-2xl shadow-card border text-sm font-semibold flex items-start justify-between gap-3 animate-slideRight border-l-4",
+              t.type === 'success'
+                ? "bg-[#1c352d] border-[#254f3b] text-green-400 border-l-green-500"
+                : "bg-[#3b1b22] border-[#5a242f] text-red-400 border-l-red-500"
+            )}
+          >
+            <div className="flex items-start gap-2 pt-0.5">
+              {t.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+              <span className="leading-tight text-white">{t.message}</span>
             </div>
+            <button
+              onClick={() => setToasts((prev) => prev.filter((item) => item.id !== t.id))}
+              className="text-gray-400 hover:text-white p-0.5 rounded transition-colors"
+            >
+              <X size={16} />
+            </button>
           </div>
-        </header>
-
-        {/* Dynamic page content */}
-        <main className="flex-grow p-6 overflow-y-auto">
-          {children}
-        </main>
+        ))}
       </div>
 
-    </div>
+    </ToastContext.Provider>
   );
 }

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Eye, EyeOff, Search, X, Loader2 } from 'lucide-react';
+import { useAdminToast } from '@/app/admin/layout';
 
 interface Category {
   id: number;
@@ -25,6 +26,7 @@ interface Product {
 }
 
 export default function AdminProductsPage() {
+  const { showToast } = useAdminToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -48,6 +50,35 @@ export default function AdminProductsPage() {
   const [customFieldPlaceholder, setCustomFieldPlaceholder] = useState('');
   const [active, setActive] = useState(true);
   const [categoryId, setCategoryId] = useState('');
+  const [uploading, setUploading] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setImagesInput(prev => prev ? `${prev}, ${data.url}` : data.url);
+        showToast('Image transférée avec succès.', 'success');
+      } else {
+        showToast(data.error || 'Erreur lors du transfert.', 'error');
+      }
+    } catch (err) {
+      showToast('Erreur réseau.', 'error');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   useEffect(() => {
     fetchProductsAndCategories();
@@ -169,13 +200,14 @@ export default function AdminProductsPage() {
 
       if (res.ok) {
         setIsModalOpen(false);
+        showToast(editingProduct ? 'Produit modifié avec succès.' : 'Produit créé avec succès.', 'success');
         fetchProductsAndCategories();
       } else {
         const data = await res.json();
-        alert(data.error || 'Une erreur est survenue.');
+        showToast(data.error || 'Une erreur est survenue.', 'error');
       }
     } catch (err) {
-      alert('Erreur réseau.');
+      showToast('Erreur réseau.', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -196,12 +228,13 @@ export default function AdminProductsPage() {
       });
 
       if (res.ok) {
+        showToast("Statut du produit mis à jour.", "success");
         fetchProductsAndCategories();
       } else {
-        alert("Impossible de modifier le statut du produit.");
+        showToast("Impossible de modifier le statut du produit.", "error");
       }
     } catch (err) {
-      alert("Erreur réseau.");
+      showToast("Erreur réseau.", "error");
     }
   };
 
@@ -214,12 +247,13 @@ export default function AdminProductsPage() {
       });
 
       if (res.ok) {
+        showToast("Produit désactivé avec succès.", "success");
         fetchProductsAndCategories();
       } else {
-        alert("Erreur lors de la désactivation du produit.");
+        showToast("Erreur lors de la désactivation du produit.", "error");
       }
     } catch (err) {
-      alert("Erreur réseau.");
+      showToast("Erreur réseau.", "error");
     }
   };
 
@@ -443,14 +477,25 @@ export default function AdminProductsPage() {
 
                 {/* Images commas */}
                 <div className="sm:col-span-2">
-                  <label className="block text-gray-400 mb-1.5">URLs des images (séparées par une virgule)</label>
-                  <input
-                    type="text"
-                    value={imagesInput}
-                    onChange={(e) => setImagesInput(e.target.value)}
-                    placeholder="http://img1.jpg, http://img2.jpg"
-                    className="w-full bg-[#11172a] border border-[#232e41] rounded-xl py-2.5 px-3 text-white focus:outline-none"
-                  />
+                  <label className="block text-gray-400 mb-1.5">URLs des images (séparées par une virgule ou téléversées)</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={imagesInput}
+                      onChange={(e) => setImagesInput(e.target.value)}
+                      placeholder="http://img1.jpg, http://img2.jpg"
+                      className="flex-1 bg-[#11172a] border border-[#232e41] rounded-xl py-2.5 px-3 text-white focus:outline-none"
+                    />
+                    <label className="px-4 py-2.5 rounded-xl bg-[#1b2e4b] hover:bg-[#253b5e] text-bc-yellow font-bold cursor-pointer text-xs flex items-center justify-center whitespace-nowrap">
+                      {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Téléverser'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
                 </div>
 
                 {/* Description */}

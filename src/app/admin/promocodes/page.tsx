@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, X, Loader2, Tag, Calendar, Percent } from 'lucide-react';
+import { useAdminToast } from '@/app/admin/layout';
 
 interface PromoCode {
   id: number;
@@ -13,6 +14,7 @@ interface PromoCode {
 }
 
 export default function AdminPromoCodesPage() {
+  const { showToast } = useAdminToast();
   const [promocodes, setPromocodes] = useState<PromoCode[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -93,13 +95,14 @@ export default function AdminPromoCodesPage() {
 
       if (res.ok) {
         setIsModalOpen(false);
+        showToast(editingPromo ? "Code promo modifié." : "Code promo créé.", "success");
         fetchPromoCodes();
       } else {
         const data = await res.json();
-        alert(data.error || 'Erreur lors de la sauvegarde.');
+        showToast(data.error || 'Erreur lors de la sauvegarde.', 'error');
       }
     } catch (err) {
-      alert('Erreur réseau.');
+      showToast('Erreur réseau.', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -119,12 +122,13 @@ export default function AdminPromoCodesPage() {
       });
 
       if (res.ok) {
+        showToast("Statut mis à jour.", "success");
         fetchPromoCodes();
       } else {
-        alert("Impossible de modifier le statut.");
+        showToast("Impossible de modifier le statut.", "error");
       }
     } catch (err) {
-      alert("Erreur réseau.");
+      showToast("Erreur réseau.", "error");
     }
   };
 
@@ -137,13 +141,14 @@ export default function AdminPromoCodesPage() {
       });
 
       if (res.ok) {
+        showToast("Code promo supprimé.", "success");
         fetchPromoCodes();
       } else {
         const data = await res.json();
-        alert(data.error || "Erreur lors de la suppression.");
+        showToast(data.error || "Erreur lors de la suppression.", "error");
       }
     } catch (err) {
-      alert("Erreur réseau.");
+      showToast("Erreur réseau.", "error");
     }
   };
 

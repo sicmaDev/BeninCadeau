@@ -31,6 +31,7 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [popularProducts, setPopularProducts] = useState<PopularProduct[]>([]);
+  const [statusBreakdown, setStatusBreakdown] = useState<{ status: string; count: number; revenue: number; }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function AdminDashboardPage() {
         setStats(data.stats);
         setRecentOrders(data.recentOrders || []);
         setPopularProducts(data.popularProducts || []);
+        setStatusBreakdown(data.statusBreakdown || []);
       }
     } catch (e) {
       console.error('Failed to fetch admin stats', e);
@@ -137,6 +139,61 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
+      </div>
+
+      {/* Chiffre d'affaires Graphe Centerpiece */}
+      <div className="bg-[#191E3A] border border-[#1B2E4B] rounded-3xl p-6 shadow-sm space-y-6">
+        <h2 className="text-lg font-bold font-montserrat text-white flex items-center gap-2">
+          <TrendingUp className="text-bc-yellow" size={20} /> Graphique du Chiffre d&apos;affaires par Statut
+        </h2>
+        
+        <div className="h-64 flex items-end gap-3 sm:gap-6 pt-10 pb-4 px-2 border-b border-[#1B2E4B]">
+          {['EN_ATTENTE', 'PAYEE', 'EN_PREPARATION', 'EXPEDIEE', 'LIVREE', 'ANNULEE'].map((statusKey) => {
+            const bd = statusBreakdown.find(s => s.status === statusKey) || { status: statusKey, count: 0, revenue: 0 };
+            const maxRevenue = Math.max(...statusBreakdown.map(s => s.revenue), 1);
+            const heightPct = Math.max(4, Math.min(100, (bd.revenue / maxRevenue) * 100));
+
+            const labels: Record<string, string> = {
+              EN_ATTENTE: 'En attente',
+              PAYEE: 'Payée',
+              EN_PREPARATION: 'En prép.',
+              EXPEDIEE: 'Expédiée',
+              LIVREE: 'Livrée',
+              ANNULEE: 'Annulée'
+            };
+
+            const barColors: Record<string, string> = {
+              EN_ATTENTE: 'from-yellow-500 to-yellow-600',
+              PAYEE: 'from-blue-500 to-blue-600',
+              EN_PREPARATION: 'from-purple-500 to-purple-600',
+              EXPEDIEE: 'from-indigo-500 to-indigo-600',
+              LIVREE: 'from-green-500 to-green-600',
+              ANNULEE: 'from-red-500 to-red-600'
+            };
+
+            return (
+              <div key={statusKey} className="flex-1 flex flex-col items-center group relative h-full justify-end">
+                {/* Tooltip */}
+                <div className="absolute bottom-[calc(100%+8px)] bg-gray-950/95 text-white rounded-xl p-3 text-[10px] font-bold shadow-lg border border-gray-800 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30 min-w-[130px] text-center">
+                  <p className="text-bc-yellow font-extrabold">{labels[statusKey]}</p>
+                  <p className="mt-1">{bd.revenue.toLocaleString('fr-FR')} FCFA</p>
+                  <p className="text-gray-400 font-semibold">{bd.count} commande{bd.count > 1 ? 's' : ''}</p>
+                </div>
+
+                {/* Vertical Bar */}
+                <div
+                  style={{ height: `${heightPct}%` }}
+                  className={`w-full max-w-[44px] rounded-t-lg bg-gradient-to-t ${barColors[statusKey]} cursor-pointer shadow-sm hover:brightness-110 transition-all duration-500`}
+                />
+
+                {/* X Axis Label */}
+                <span className="text-[10px] sm:text-xs font-semibold text-gray-400 mt-2 block whitespace-nowrap">
+                  {labels[statusKey]}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Double Column content */}

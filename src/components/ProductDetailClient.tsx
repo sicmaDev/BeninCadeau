@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { ShoppingCart, MessageCircle, Plus, Minus, Check, ChevronRight } from 'lucide-react';
+import { ShoppingCart, MessageCircle, Plus, Minus, Check, ChevronRight, Sparkles, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Product {
   id: number;
@@ -32,7 +33,7 @@ interface ProductDetailClientProps {
   product: Product;
 }
 
-const WHATSAPP_NUMBER = "22955250000"; // Numéro par défaut, modifiable dans le code
+const WHATSAPP_NUMBER = "22955250000"; // Numéro par défaut
 
 export default function ProductDetailClient({ product }: ProductDetailClientProps) {
   // Parser les images
@@ -53,7 +54,6 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   const incrementQty = () => setQuantity(prev => prev + 1);
   const decrementQty = () => setQuantity(prev => (prev > 1 ? prev - 1 : 1));
 
-  // Ajouter au panier local (localStorage)
   const handleAddToCart = () => {
     const cartItem: CartItem = {
       productId: product.id,
@@ -70,7 +70,6 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       const existingCart = localStorage.getItem('bc_cart');
       const cart: CartItem[] = existingCart ? JSON.parse(existingCart) : [];
 
-      // Vérifier si le produit existe déjà avec la même personnalisation
       const existingIndex = cart.findIndex((item: CartItem) => 
         item.productId === cartItem.productId && 
         item.customizationMessage === cartItem.customizationMessage
@@ -85,7 +84,6 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       localStorage.setItem('bc_cart', JSON.stringify(cart));
       setAddedToCart(true);
       
-      // Dispatch d'un événement custom pour notifier le header s'il écoute le panier
       window.dispatchEvent(new Event('cart-updated'));
 
       setTimeout(() => {
@@ -96,7 +94,6 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
     }
   };
 
-  // WhatsApp Message Generator
   const getWhatsAppLink = () => {
     let message = `Bonjour Bénin Cadeau, je souhaite commander le produit suivant :\n`;
     message += `- *Nom* : ${product.name}\n`;
@@ -113,139 +110,176 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 font-instrument">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 font-instrument">
       
       {/* Galerie d'images */}
-      <div className="space-y-4">
-        <div className="w-full aspect-square rounded-3xl bg-white overflow-hidden shadow-sm border border-gray-100 relative">
-          <img
-            src={activeImage}
-            alt={product.name}
-            className="w-full h-full object-cover transition-all duration-300"
-          />
+      <div className="space-y-6">
+        <div className="w-full aspect-square rounded-[32px] bg-gray-50 overflow-hidden shadow-card border border-gray-100 relative group">
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={activeImage}
+              initial={{ opacity: 0, scale: 1.02 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              src={activeImage}
+              alt={product.name}
+              className="w-full h-full object-cover"
+            />
+          </AnimatePresence>
+          {product.isCustomizable && (
+            <div className="absolute top-5 left-5 bg-purple-gradient text-white text-[10px] font-montserrat font-bold tracking-widest uppercase px-4 py-1.5 rounded-full shadow-lg z-10">
+              Unique & Personnalisable
+            </div>
+          )}
         </div>
         {imagesList.length > 1 && (
-          <div className="flex gap-4 overflow-x-auto py-2">
+          <div className="flex gap-4 overflow-x-auto py-2 no-scrollbar">
             {imagesList.map((img, idx) => (
-              <button
+              <motion.button
                 key={idx}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={() => setActiveImage(img)}
-                className={`w-20 h-20 rounded-xl overflow-hidden border-2 bg-white flex-shrink-0 transition-all ${
-                  activeImage === img ? 'border-bc-purple shadow-sm scale-95' : 'border-transparent opacity-70 hover:opacity-100'
+                className={`w-20 h-20 rounded-2xl overflow-hidden border-2 bg-white flex-shrink-0 transition-all ${
+                  activeImage === img ? 'border-bc-purple shadow-md' : 'border-transparent opacity-60 hover:opacity-100'
                 }`}
               >
                 <img src={img} alt={`${product.name} - ${idx}`} className="w-full h-full object-cover" />
-              </button>
+              </motion.button>
             ))}
           </div>
         )}
       </div>
 
       {/* Informations Produit */}
-      <div className="flex flex-col justify-between space-y-6">
-        <div>
+      <div className="flex flex-col justify-between space-y-8">
+        <div className="space-y-6">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-bc-navy font-montserrat tracking-tight leading-tight">
             {product.name}
           </h1>
           
-          <div className="mt-4 flex items-baseline">
-            <span className="text-3xl font-black text-bc-purple font-montserrat">
+          <div className="flex items-center gap-4">
+            <span className="text-3xl font-black text-bc-purple font-montserrat px-5 py-2 bg-bc-yellow/10 rounded-2xl border border-bc-yellow/20">
               {product.price.toLocaleString('fr-FR')} FCFA
             </span>
           </div>
 
-          <div className="mt-6 border-t border-b border-gray-100 py-4 space-y-2">
+          <div className="bg-gray-50/70 border border-gray-100 rounded-3xl p-6 space-y-3 shadow-inner">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400 font-medium">Livraison estimée :</span>
-              <span className="font-semibold text-bc-navy">{product.estimatedDelivery}</span>
+              <span className="text-gray-400 font-semibold uppercase tracking-wider text-[11px]">Délai de fabrication :</span>
+              <span className="font-bold text-bc-navy flex items-center gap-1.5">
+                <Sparkles size={14} className="text-bc-yellow" /> {product.estimatedDelivery}
+              </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400 font-medium">Disponibilité :</span>
-              <span className="font-semibold text-green-600">En stock ({product.stock} unités)</span>
+              <span className="text-gray-400 font-semibold uppercase tracking-wider text-[11px]">Statut :</span>
+              <span className="font-bold text-emerald-600 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" /> Disponible ({product.stock} pièces)
+              </span>
             </div>
           </div>
 
-          <div className="mt-6">
-            <h3 className="text-sm font-bold text-bc-navy uppercase tracking-wider mb-2">Description</h3>
-            <p className="text-gray-600 leading-relaxed whitespace-pre-line text-sm">
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold text-bc-navy uppercase tracking-widest font-montserrat border-b border-gray-100 pb-2 inline-block">
+              Description de la création
+            </h3>
+            <p className="text-gray-600 leading-relaxed whitespace-pre-line text-sm md:text-base text-justify font-instrument">
               {product.description}
             </p>
           </div>
 
           {/* Formulaire de personnalisation si disponible */}
           {product.isCustomizable && (
-            <div className="mt-6 bg-purple-50 rounded-2xl p-5 border border-purple-100">
-              <label htmlFor="custom-text" className="block text-sm font-bold text-bc-purple uppercase tracking-wider mb-2">
-                Texte de personnalisation
+            <div className="bg-bc-purpleLight/40 rounded-3xl p-6 border border-bc-purple/10 space-y-3">
+              <label htmlFor="custom-text" className="block text-xs font-bold text-bc-purple uppercase tracking-widest font-montserrat">
+                Votre Message de Personnalisation
               </label>
               <textarea
                 id="custom-text"
                 rows={3}
                 value={customText}
                 onChange={(e) => setCustomText(e.target.value)}
-                placeholder={product.customFieldPlaceholder || "Entrez votre message ici..."}
-                className="w-full bg-white rounded-xl border border-purple-200 py-3 px-4 text-bc-heading focus:ring-bc-purple focus:border-bc-purple outline-none text-sm"
+                placeholder={product.customFieldPlaceholder || "Entrez le prénom, la date ou le message court à inscrire..."}
+                className="w-full bg-white rounded-2xl border border-bc-purple/10 py-3.5 px-4 text-bc-heading focus:ring-2 focus:ring-bc-purple focus:border-bc-purple outline-none text-sm font-medium transition-all placeholder:text-gray-400"
               />
-              <p className="text-[11px] text-gray-500 mt-2">
-                Ce texte sera gravé, imprimé ou brodé sur votre cadeau selon le type de produit.
+              <p className="text-[11px] text-gray-500 font-medium leading-relaxed">
+                Ce texte sera soigneusement brodé, gravé ou imprimé selon la nature de l&apos;article.
               </p>
             </div>
           )}
         </div>
 
         {/* Quantité & Actions */}
-        <div className="space-y-4 pt-6 border-t border-gray-100">
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-bold text-bc-navy uppercase tracking-wider">Quantité</span>
-            <div className="flex items-center bg-gray-50 rounded-xl border border-gray-200 p-1">
-              <button
+        <div className="space-y-6 pt-8 border-t border-gray-100">
+          <div className="flex items-center gap-5">
+            <span className="text-xs font-bold text-bc-navy uppercase tracking-widest font-montserrat">Quantité</span>
+            <div className="flex items-center bg-gray-50 rounded-2xl border border-gray-200 p-1.5 shadow-inner">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
                 type="button"
                 onClick={decrementQty}
-                className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white text-bc-purple transition-all font-bold"
+                className="w-9 h-9 flex items-center justify-center rounded-xl bg-white hover:bg-gray-100 text-bc-purple shadow-sm transition-all font-bold cursor-pointer"
               >
-                <Minus size={16} />
-              </button>
-              <span className="w-12 text-center font-bold text-bc-navy text-lg">{quantity}</span>
-              <button
+                <Minus size={14} />
+              </motion.button>
+              <span className="w-12 text-center font-montserrat font-bold text-bc-navy text-base">{quantity}</span>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
                 type="button"
                 onClick={incrementQty}
-                className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white text-bc-purple transition-all font-bold"
+                className="w-9 h-9 flex items-center justify-center rounded-xl bg-white hover:bg-gray-100 text-bc-purple shadow-sm transition-all font-bold cursor-pointer"
               >
-                <Plus size={16} />
-              </button>
+                <Plus size={14} />
+              </motion.button>
             </div>
           </div>
 
-          {addedToCart && (
-            <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl p-4 flex items-center justify-between text-sm font-medium animate-fadeIn">
-              <div className="flex items-center">
-                <Check size={18} className="mr-2 text-green-600 bg-green-100 rounded-full p-0.5" />
-                Produit ajouté au panier !
-              </div>
-              <Link href="/panier" className="text-bc-purple hover:underline font-bold flex items-center gap-0.5">
-                Voir mon panier <ChevronRight size={14} />
-              </Link>
-            </div>
-          )}
+          <AnimatePresence>
+            {addedToCart && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="glass-panel border-emerald-200 bg-emerald-50/70 text-emerald-800 rounded-2xl p-4 flex items-center justify-between text-sm font-medium"
+              >
+                <div className="flex items-center">
+                  <Check size={18} className="mr-2.5 text-white bg-emerald-500 rounded-full p-0.5" />
+                  Produit ajouté au panier !
+                </div>
+                <Link href="/panier" className="text-bc-purple hover:underline font-bold flex items-center gap-0.5 text-xs uppercase tracking-wider font-montserrat">
+                  Voir mon panier <ChevronRight size={14} />
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Ajouter au panier */}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleAddToCart}
-              className="w-full flex items-center justify-center py-4 px-6 rounded-2xl font-bold bg-bc-yellow hover:bg-yellow-400 text-bc-purple transition-colors shadow-sm cursor-pointer"
+              className="w-full flex items-center justify-center py-4 px-6 rounded-2xl font-montserrat font-bold text-sm uppercase tracking-wider bg-gold-gradient hover:bg-yellow-500 text-bc-purpleDark transition-all shadow-yellow-glow cursor-pointer"
             >
-              <ShoppingCart size={18} className="mr-2" /> Ajouter au panier
-            </button>
+              <ShoppingCart size={16} className="mr-2" /> Ajouter au panier
+            </motion.button>
 
             {/* Commander via WhatsApp */}
-            <a
+            <motion.a
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               href={getWhatsAppLink()}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full flex items-center justify-center py-4 px-6 rounded-2xl font-bold bg-[#25D366] hover:bg-[#20ba5a] text-white transition-colors shadow-sm cursor-pointer"
+              className="w-full flex items-center justify-center py-4 px-6 rounded-2xl font-montserrat font-bold text-sm uppercase tracking-wider bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#20ba5a] hover:to-[#0e6f63] text-white transition-all shadow-md cursor-pointer"
             >
-              <MessageCircle size={18} className="mr-2" /> Commander via WhatsApp
-            </a>
+              <MessageCircle size={16} className="mr-2" /> Commander via WhatsApp
+            </motion.a>
+          </div>
+
+          <div className="flex items-center justify-center gap-2 text-[11px] text-gray-400 font-medium">
+            <ShieldCheck size={14} className="text-bc-yellow" /> Transaction sécurisée & service client disponible 7j/7
           </div>
         </div>
 
@@ -254,3 +288,4 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
     </div>
   );
 }
+

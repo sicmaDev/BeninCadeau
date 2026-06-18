@@ -24,6 +24,11 @@ export async function GET(req: Request) {
       whereClause.status = status as OrderStatus;
     }
 
+    const userId = searchParams.get('userId');
+    if (userId) {
+      whereClause.userId = parseInt(userId, 10);
+    }
+
     const orders = await prisma.order.findMany({
       where: whereClause,
       orderBy: { createdAt: 'desc' },

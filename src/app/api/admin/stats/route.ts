@@ -78,6 +78,17 @@ export async function GET() {
       }
     }
 
+    // 7. Répartition des commandes par statut pour le graphique
+    const statusBreakdown = await prisma.order.groupBy({
+      by: ['status'],
+      _count: {
+        id: true,
+      },
+      _sum: {
+        totalAmount: true,
+      },
+    });
+
     return NextResponse.json({
       stats: {
         ordersCount,
@@ -87,6 +98,11 @@ export async function GET() {
       },
       recentOrders,
       popularProducts,
+      statusBreakdown: statusBreakdown.map((item) => ({
+        status: item.status,
+        count: item._count.id,
+        revenue: item._sum.totalAmount || 0,
+      })),
     });
   } catch (error) {
     console.error('Fetch admin stats error:', error);

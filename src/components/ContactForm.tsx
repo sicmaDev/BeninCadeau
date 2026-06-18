@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from 'react';
+import { Send, User, Tag, Phone, Mail, FileText, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export function ContactForm() {
   const [formData, setFormData] = useState({
@@ -66,80 +68,156 @@ export function ContactForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {status === 'success' && (
-        <div className="p-4 bg-green-50 text-green-800 rounded-xl border border-green-200 text-sm font-medium">
-          Votre message a été envoyé avec succès ! Notre équipe vous répondra dans les plus brefs délais.
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-5 bg-emerald-50 text-emerald-800 rounded-2xl border border-emerald-100 text-sm font-medium flex items-start gap-3 shadow-sm"
+        >
+          <CheckCircle2 className="text-emerald-600 flex-shrink-0 mt-0.5" size={18} />
+          <div>
+            <span className="font-bold block mb-0.5">Message envoyé avec succès !</span>
+            Notre équipe a bien reçu votre demande et vous répondra dans les plus brefs délais.
+          </div>
+        </motion.div>
       )}
 
       {status === 'error' && (
-        <div className="p-4 bg-red-50 text-red-800 rounded-xl border border-red-200 text-sm font-medium">
-          {errorMessage}
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-5 bg-red-50 text-red-800 rounded-2xl border border-red-100 text-sm font-medium flex items-start gap-3 shadow-sm"
+        >
+          <AlertTriangle className="text-red-600 flex-shrink-0 mt-0.5" size={18} />
+          <div>
+            <span className="font-bold block mb-0.5">Une erreur est survenue</span>
+            {errorMessage}
+          </div>
+        </motion.div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-bc-cream rounded-lg p-6">
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            placeholder="Votre nom"
-            className="w-full bg-transparent border-none focus:outline-none font-inter font-medium text-xl text-gray-500 placeholder-gray-400"
-          />
+        {/* Nom */}
+        <div className="space-y-2">
+          <label className="block text-xs font-bold text-bc-navy uppercase tracking-wider font-montserrat">
+            Votre Nom <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
+              <User size={16} />
+            </span>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              placeholder="Ex: Jean Dupont"
+              className="pl-11 block w-full rounded-2xl border border-gray-200 bg-white/50 py-3.5 px-4 text-bc-heading focus:ring-bc-purple focus:border-bc-purple outline-none text-sm font-medium transition-all"
+            />
+          </div>
         </div>
-        <div className="bg-bc-cream rounded-lg p-6">
-          <input
-            type="text"
-            name="subject"
-            value={formData.subject}
-            onChange={handleChange}
-            placeholder="Votre sujet"
-            className="w-full bg-transparent border-none focus:outline-none font-inter font-medium text-xl text-gray-500 placeholder-gray-400"
-          />
+
+        {/* Email */}
+        <div className="space-y-2">
+          <label className="block text-xs font-bold text-bc-navy uppercase tracking-wider font-montserrat">
+            Votre Email <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
+              <Mail size={16} />
+            </span>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              placeholder="Ex: jean.dupont@email.com"
+              className="pl-11 block w-full rounded-2xl border border-gray-200 bg-white/50 py-3.5 px-4 text-bc-heading focus:ring-bc-purple focus:border-bc-purple outline-none text-sm font-medium transition-all"
+            />
+          </div>
         </div>
-        <div className="bg-bc-cream rounded-lg p-6">
-          <input
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            placeholder="Téléphone"
-            className="w-full bg-transparent border-none focus:outline-none font-inter font-medium text-xl text-gray-500 placeholder-gray-400"
-          />
+
+        {/* Téléphone */}
+        <div className="space-y-2">
+          <label className="block text-xs font-bold text-bc-navy uppercase tracking-wider font-montserrat">
+            Téléphone
+          </label>
+          <div className="relative">
+            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
+              <Phone size={16} />
+            </span>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="Ex: +229 90 00 00 00"
+              className="pl-11 block w-full rounded-2xl border border-gray-200 bg-white/50 py-3.5 px-4 text-bc-heading focus:ring-bc-purple focus:border-bc-purple outline-none text-sm font-medium transition-all"
+            />
+          </div>
         </div>
-        <div className="bg-bc-cream rounded-lg p-6">
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            placeholder="Email"
-            className="w-full bg-transparent border-none focus:outline-none font-inter font-medium text-xl text-gray-500 placeholder-gray-400"
-          />
+
+        {/* Sujet */}
+        <div className="space-y-2">
+          <label className="block text-xs font-bold text-bc-navy uppercase tracking-wider font-montserrat">
+            Sujet
+          </label>
+          <div className="relative">
+            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
+              <Tag size={16} />
+            </span>
+            <input
+              type="text"
+              name="subject"
+              value={formData.subject}
+              onChange={handleChange}
+              placeholder="Ex: Demande de devis pack personnalisé"
+              className="pl-11 block w-full rounded-2xl border border-gray-200 bg-white/50 py-3.5 px-4 text-bc-heading focus:ring-bc-purple focus:border-bc-purple outline-none text-sm font-medium transition-all"
+            />
+          </div>
         </div>
       </div>
 
-      <div className="bg-bc-cream rounded-lg p-6 h-64">
-        <textarea
-          name="message"
-          value={formData.message}
-          onChange={handleChange}
-          required
-          placeholder="Votre message"
-          className="w-full h-full bg-transparent border-none focus:outline-none font-inter font-bold text-xl text-bc-heading placeholder-bc-heading resize-none"
-        ></textarea>
+      {/* Message */}
+      <div className="space-y-2">
+        <label className="block text-xs font-bold text-bc-navy uppercase tracking-wider font-montserrat">
+          Message <span className="text-red-500">*</span>
+        </label>
+        <div className="relative">
+          <span className="absolute top-4 left-4 text-gray-400">
+            <FileText size={16} />
+          </span>
+          <textarea
+            name="message"
+            value={formData.message}
+            onChange={handleChange}
+            required
+            rows={5}
+            placeholder="Écrivez votre message ici..."
+            className="pl-11 block w-full rounded-2xl border border-gray-200 bg-white/50 py-3.5 px-4 text-bc-heading focus:ring-bc-purple focus:border-bc-purple outline-none text-sm font-medium transition-all resize-none"
+          ></textarea>
+        </div>
       </div>
 
-      <button
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
         type="submit"
         disabled={status === 'sending'}
-        className="bg-bc-purple text-white font-instrument font-medium text-2xl px-12 py-4 rounded-md hover:bg-bc-purpleDark transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        className="w-full sm:w-auto inline-flex items-center justify-center bg-gold-gradient text-bc-purpleDark font-montserrat font-bold text-sm uppercase tracking-wider px-10 py-4 rounded-2xl shadow-yellow-glow hover:bg-yellow-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
       >
-        {status === 'sending' ? 'Envoi en cours...' : 'Envoyer le message'}
-      </button>
+        {status === 'sending' ? (
+          <>
+            <span className="w-4 h-4 border-2 border-bc-purpleDark border-t-transparent rounded-full animate-spin mr-2"></span>
+            Envoi en cours...
+          </>
+        ) : (
+          <>
+            Envoyer le message <Send size={15} className="ml-2" />
+          </>
+        )}
+      </motion.button>
     </form>
   );
 }

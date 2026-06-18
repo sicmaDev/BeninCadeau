@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Instrument_Sans, Inter, Montserrat } from "next/font/google";
 import "./globals.css";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
+import { DynamicBackground } from "@/components/DynamicBackground";
 
 const instrumentSans = Instrument_Sans({
   variable: "--font-instrument-sans",
@@ -39,6 +40,7 @@ export default function RootLayout({
       className={`${instrumentSans.variable} ${inter.variable} ${montserrat.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bc-bg relative">
+        <DynamicBackground />
         {children}
         <FloatingWhatsApp />
       </body>

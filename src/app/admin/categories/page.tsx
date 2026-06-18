@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, X, Loader2 } from 'lucide-react';
+import { useAdminToast } from '@/app/admin/layout';
 
 interface Category {
   id: number;
@@ -12,6 +13,7 @@ interface Category {
 }
 
 export default function AdminCategoriesPage() {
+  const { showToast } = useAdminToast();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -93,13 +95,14 @@ export default function AdminCategoriesPage() {
 
       if (res.ok) {
         setIsModalOpen(false);
+        showToast(editingCategory ? "Catégorie modifiée avec succès." : "Catégorie créée avec succès.", "success");
         fetchCategories();
       } else {
         const data = await res.json();
-        alert(data.error || 'Erreur lors de la sauvegarde.');
+        showToast(data.error || 'Erreur lors de la sauvegarde.', 'error');
       }
     } catch (err) {
-      alert('Erreur réseau.');
+      showToast('Erreur réseau.', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -119,12 +122,13 @@ export default function AdminCategoriesPage() {
       });
 
       if (res.ok) {
+        showToast("Statut de la catégorie mis à jour.", "success");
         fetchCategories();
       } else {
-        alert("Impossible de modifier le statut.");
+        showToast("Impossible de modifier le statut.", "error");
       }
     } catch (err) {
-      alert("Erreur réseau.");
+      showToast("Erreur réseau.", "error");
     }
   };
 
@@ -137,12 +141,13 @@ export default function AdminCategoriesPage() {
       });
 
       if (res.ok) {
+        showToast("Catégorie désactivée avec succès.", "success");
         fetchCategories();
       } else {
-        alert("Erreur lors de la désactivation de la catégorie.");
+        showToast("Erreur lors de la désactivation de la catégorie.", "error");
       }
     } catch (err) {
-      alert("Erreur réseau.");
+      showToast("Erreur réseau.", "error");
     }
   };
 
