@@ -38,6 +38,89 @@ export async function GET() {
       },
     });
 
+    // Calculs de comparaison avec le mois précédent
+    const now = new Date();
+    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    const ordersThisMonth = await prisma.order.count({
+      where: { createdAt: { gte: startOfThisMonth } },
+    });
+    const ordersLastMonth = await prisma.order.count({
+      where: {
+        createdAt: {
+          gte: startOfLastMonth,
+          lt: startOfThisMonth,
+        },
+      },
+    });
+
+    const customersThisMonth = await prisma.user.count({
+      where: {
+        role: 'CUSTOMER',
+        createdAt: { gte: startOfThisMonth },
+      },
+    });
+    const customersLastMonth = await prisma.user.count({
+      where: {
+        role: 'CUSTOMER',
+        createdAt: {
+          gte: startOfLastMonth,
+          lt: startOfThisMonth,
+        },
+      },
+    });
+
+    const revenueThisMonthAggregate = await prisma.order.aggregate({
+      where: {
+        createdAt: { gte: startOfThisMonth },
+        status: { not: 'ANNULEE' },
+      },
+      _sum: {
+        totalAmount: true,
+      },
+    });
+    const revenueLastMonthAggregate = await prisma.order.aggregate({
+      where: {
+        createdAt: {
+          gte: startOfLastMonth,
+          lt: startOfThisMonth,
+        },
+        status: { not: 'ANNULEE' },
+      },
+      _sum: {
+        totalAmount: true,
+      },
+    });
+    const revenueThisMonth = revenueThisMonthAggregate._sum.totalAmount || 0;
+    const revenueLastMonth = revenueLastMonthAggregate._sum.totalAmount || 0;
+
+    const pendingOrdersThisMonth = await prisma.order.count({
+      where: {
+        status: { in: ['EN_ATTENTE', 'PAYEE', 'EN_PREPARATION'] },
+        createdAt: { gte: startOfThisMonth },
+      },
+    });
+    const pendingOrdersLastMonth = await prisma.order.count({
+      where: {
+        status: { in: ['EN_ATTENTE', 'PAYEE', 'EN_PREPARATION'] },
+        createdAt: {
+          gte: startOfLastMonth,
+          lt: startOfThisMonth,
+        },
+      },
+    });
+
+    const getPercentChange = (current: number, previous: number) => {
+      if (previous === 0) return current > 0 ? 100 : 0;
+      return Math.round(((current - previous) / previous) * 100);
+    };
+
+    const revenueChangePercent = getPercentChange(revenueThisMonth, revenueLastMonth);
+    const ordersChangePercent = getPercentChange(ordersThisMonth, ordersLastMonth);
+    const customersChangePercent = getPercentChange(customersThisMonth, customersLastMonth);
+    const pendingOrdersChangePercent = getPercentChange(pendingOrdersThisMonth, pendingOrdersLastMonth);
+
     // 5. 5 dernières commandes
     const recentOrders = await prisma.order.findMany({
       take: 5,
@@ -104,7 +187,6 @@ export async function GET() {
 
     // 9. Chiffre d'affaires historique pour comparaisons (Annuelle, Mensuelle, Hebdomadaire)
     const currentYear = new Date().getFullYear();
-    const now = new Date();
 
     // 9.1 Comparaison Annuelle (Ventes mensuelles de l'année en cours vs année précédente)
     const ordersHistorical = await prisma.order.findMany({
@@ -135,8 +217,6 @@ export async function GET() {
     });
 
     // 9.2 Comparaison Mensuelle (Ventes quotidiennes du mois en cours vs mois précédent)
-    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const daysInThisMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     const daysInLastMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
 
@@ -205,7 +285,7 @@ export async function GET() {
       }
     });
 
-    // 10. Trois indicateurs détaillés (Profit, Livraison, Code Promos) pour le mois en cours
+    // 10. Trois indicateurs détaillés (Profit, Livraison, Code Promos) pour le mois en cours et comparaison
     const currentMonthOrders = await prisma.order.findMany({
       where: {
         createdAt: { gte: startOfThisMonth },
@@ -234,6 +314,42 @@ export async function GET() {
         }
       }
     });
+
+    const lastMonthOrders = await prisma.order.findMany({
+      where: {
+        createdAt: {
+          gte: startOfLastMonth,
+          lt: startOfThisMonth,
+        },
+        status: { not: 'ANNULEE' },
+      },
+      include: {
+        promoCode: true,
+      },
+    });
+
+    let profitLastMonth = 0;
+    let shippingFeesLastMonth = 0;
+    let discountsLastMonth = 0;
+
+    lastMonthOrders.forEach((order) => {
+      profitLastMonth += order.totalAmount;
+      shippingFeesLastMonth += order.shippingFee;
+      if (order.promoCode) {
+        if (order.promoCode.discountType === 'FIXED') {
+          discountsLastMonth += order.promoCode.discountValue;
+        } else if (order.promoCode.discountType === 'PERCENTAGE') {
+          const val = order.promoCode.discountValue;
+          if (val < 100) {
+            discountsLastMonth += Math.round((order.totalAmount / (100 - val)) * val);
+          }
+        }
+      }
+    });
+
+    const profitChangePercent = getPercentChange(profitThisMonth, profitLastMonth);
+    const shippingChangePercent = getPercentChange(shippingFeesThisMonth, shippingFeesLastMonth);
+    const discountsChangePercent = getPercentChange(discountsThisMonth, discountsLastMonth);
 
     // 11. Customer Overview Segment (First-time vs Returning customers)
     // Helper function to segment customer loyalty
@@ -279,6 +395,10 @@ export async function GET() {
         customersCount,
         totalRevenue,
         pendingOrdersCount,
+        revenueChangePercent,
+        ordersChangePercent,
+        customersChangePercent,
+        pendingOrdersChangePercent,
       },
       recentOrders,
       popularProducts,
@@ -300,6 +420,9 @@ export async function GET() {
         profitThisMonth,
         shippingFeesThisMonth,
         discountsThisMonth,
+        profitChangePercent,
+        shippingChangePercent,
+        discountsChangePercent,
       },
       customerOverview: {
         global: segmentGlobal,

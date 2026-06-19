@@ -487,7 +487,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               })}
             </ul>
 
-            <div className="p-3 border-top mt-auto">
+            <div className="border-top mt-auto d-flex align-items-center px-3" style={{ height: "70px" }}>
               <button
                 onClick={handleLogout}
                 className="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2"
@@ -505,7 +505,21 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             className={`content d-flex flex-column min-vh-100 py-10 ${sidebarCollapsed ? "full" : ""}`}
           >
             <div className="container-fluid flex-grow-1">{children}</div>
-            <footer className="admin-footer text-center bg-white">
+            <footer
+              className="admin-footer text-center border-top bg-white px-3"
+              style={{
+                position: "fixed",
+                bottom: 0,
+                right: 0,
+                left: sidebarCollapsed ? "60px" : "240px",
+                height: "70px",
+                zIndex: 1020,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "left 0.3s ease",
+              }}
+            >
               <p className="mb-0 small text-secondary">
                 © {new Date().getFullYear()} Bénin Cadeau Back-Office. Tous droits réservés.
               </p>

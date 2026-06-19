@@ -2,7 +2,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, MessageCircle, ArrowRight, MapPin, User, Calendar, AlertCircle, Sparkles, ShieldCheck } from 'lucide-react';
-import { prisma } from '../../../../utils/db';
+import { prisma } from '@/utils/db';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { CopyrightRow } from '@/components/CopyrightRow';

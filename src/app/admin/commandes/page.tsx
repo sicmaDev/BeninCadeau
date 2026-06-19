@@ -209,12 +209,12 @@ export default function AdminOrdersPage() {
               <table className="table mb-0 text-nowrap table-hover">
                 <thead className="table-light border-light">
                   <tr>
-                    <th className="text-dark">N° Commande</th>
-                    <th className="text-dark">Date</th>
-                    <th className="text-dark">Client</th>
-                    <th className="text-dark">Montant</th>
-                    <th className="text-dark">Statut</th>
-                    <th className="text-dark text-center">Action</th>
+                    <th className="text-dark" style={{ width: "15%" }}>N° Commande</th>
+                    <th className="text-dark" style={{ width: "15%" }}>Date</th>
+                    <th className="text-dark" style={{ width: "30%" }}>Client</th>
+                    <th className="text-dark" style={{ width: "15%" }}>Montant</th>
+                    <th className="text-dark" style={{ width: "15%" }}>Statut</th>
+                    <th className="text-dark text-center" style={{ width: "10%" }}>Action</th>
                   </tr>
                 </thead>
                 <tbody className="align-middle">

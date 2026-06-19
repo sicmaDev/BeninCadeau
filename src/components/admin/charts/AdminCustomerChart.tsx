@@ -31,38 +31,30 @@ export default function AdminCustomerChart({ firstTimeCount, returningCount }: A
 
   const options: ApexOptions = {
     chart: {
-      height: 200,
+      height: 280,
       type: "radialBar",
     },
     // Template Colors: green and dark orange
     colors: ["#5BE49B", "#E66239"],
     plotOptions: {
       radialBar: {
+        startAngle: -135,
+        endAngle: 135,
         dataLabels: {
-          name: {
-            fontSize: "22px",
-            fontFamily: "Poppins, sans-serif",
-          },
-          value: {
-            fontSize: "16px",
-            fontFamily: "Poppins, sans-serif",
-          },
-          total: {
-            show: false,
-          },
+          show: false,
         },
         hollow: {
-          margin: 3,
-          size: "40%",
+          margin: 5,
+          size: "50%",
           background: "transparent",
           position: "front",
         },
         track: {
           show: true,
-          background: "#f0f0f0",
-          strokeWidth: "45%",
+          background: "#f3f4f6",
+          strokeWidth: "100%",
           opacity: 1,
-          margin: 5,
+          margin: 6,
         },
       },
     },
@@ -82,8 +74,8 @@ export default function AdminCustomerChart({ firstTimeCount, returningCount }: A
   };
 
   return (
-    <div style={{ minHeight: "200px" }}>
-      <Chart options={options} series={series} type="radialBar" height={200} />
+    <div style={{ minHeight: "280px" }} className="d-flex align-items-center justify-content-center">
+      <Chart options={options} series={series} type="radialBar" height={280} width="100%" />
     </div>
   );
 }

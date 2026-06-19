@@ -3,10 +3,17 @@
 import { motion } from 'framer-motion';
 import { MessageCircle } from 'lucide-react';
 
+import { usePathname } from 'next/navigation';
+
 export function FloatingWhatsApp() {
+  const pathname = usePathname();
   const whatsappNumber = "22963904000";
   const whatsappMessage = encodeURIComponent("Bonjour Bénin Cadeau, je souhaite obtenir des informations concernant vos offres.");
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <motion.div

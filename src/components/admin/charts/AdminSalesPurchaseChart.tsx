@@ -67,8 +67,8 @@ export default function AdminSalesPurchaseChart({ thisYear, lastYear }: AdminSal
       show: true,
       fontFamily: "Poppins, sans-serif",
       fontWeight: 500,
-      position: "top",
-      horizontalAlign: "right",
+      position: "bottom",
+      horizontalAlign: "center",
       markers: {
         size: 5,
         shape: "square",
@@ -80,8 +80,8 @@ export default function AdminSalesPurchaseChart({ thisYear, lastYear }: AdminSal
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: "70%",
-        borderRadius: 3,
+        columnWidth: "85%",
+        borderRadius: 4,
         borderRadiusApplication: "end",
       },
     },
@@ -89,9 +89,7 @@ export default function AdminSalesPurchaseChart({ thisYear, lastYear }: AdminSal
       enabled: false,
     },
     stroke: {
-      show: true,
-      width: 2,
-      colors: ["transparent"],
+      show: false,
     },
     xaxis: {
       categories: categories,
@@ -105,6 +103,8 @@ export default function AdminSalesPurchaseChart({ thisYear, lastYear }: AdminSal
       labels: {
         style: {
           fontFamily: "Poppins, sans-serif",
+          fontSize: "12px",
+          colors: "#64748b",
         },
       },
     },
@@ -112,6 +112,8 @@ export default function AdminSalesPurchaseChart({ thisYear, lastYear }: AdminSal
       labels: {
         style: {
           fontFamily: "Poppins, sans-serif",
+          fontSize: "12px",
+          colors: "#64748b",
         },
         formatter: function (val) {
           return val >= 1000 ? (val / 1000).toLocaleString("fr-FR") + "k" : val.toLocaleString("fr-FR");

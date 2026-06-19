@@ -20,7 +20,7 @@
 	top: 0;
 	left: 0;
 	padding-top: 60px;
-	z-index: 1030;
+	z-index: 1040;
 	.nav-link {
 		color: $gray-800;
 		padding: 8px 10px;
@@ -94,21 +94,21 @@
 	margin-left: 60px;
 }
 .admin-footer {
-	position: fixed;
-	bottom: 0;
-	right: 0;
-	left: 240px;
-	height: 50px;
-	z-index: 1020;
-	border-top: 1px solid $gray-200;
-	background: $white;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: left .3s;
+	position: fixed !important;
+	bottom: 0 !important;
+	right: 0 !important;
+	left: 240px !important;
+	height: 70px !important;
+	z-index: 1020 !important;
+	border-top: 1px solid $gray-200 !important;
+	background: $white !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	transition: left .3s !important;
 }
 .content.full .admin-footer {
-	left: 60px;
+	left: 60px !important;
 }
 @media (max-width: 992px) {
 	.admin-footer {

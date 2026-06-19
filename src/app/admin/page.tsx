@@ -10,6 +10,10 @@ interface Stats {
   customersCount: number;
   totalRevenue: number;
   pendingOrdersCount: number;
+  revenueChangePercent?: number;
+  ordersChangePercent?: number;
+  customersChangePercent?: number;
+  pendingOrdersChangePercent?: number;
 }
 
 interface RecentOrder {
@@ -41,6 +45,9 @@ interface ThreeColumnDetails {
   profitThisMonth: number;
   shippingFeesThisMonth: number;
   discountsThisMonth: number;
+  profitChangePercent?: number;
+  shippingChangePercent?: number;
+  discountsChangePercent?: number;
 }
 
 interface CustomerSegment {
@@ -184,8 +191,8 @@ export default function AdminDashboardPage() {
       <div className="row">
         <div className="col-12">
           <div className="mb-6">
-            <h1 className="fs-3 mb-1 text-dark">Dashboard</h1>
-            <p className="text-secondary">Résumé en temps réel des indicateurs de Bénin Cadeau</p>
+            <h1 className="fs-1 fw-bold mb-2 text-dark">Dashboard</h1>
+            <p className="text-secondary fs-5">Résumé en temps réel des indicateurs de Bénin Cadeau</p>
           </div>
         </div>
       </div>
@@ -194,17 +201,22 @@ export default function AdminDashboardPage() {
       <div className="row g-3 mb-3">
         {/* Card 1: Total Sales */}
         <div className="col-lg-3 col-12">
-          <div className="card p-4 bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded-2">
+          <div className="card p-4 bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded-2 h-100">
             <div className="d-flex gap-3">
-              <div className="icon-shape icon-md bg-primary text-white rounded-2">
-                <i className="ti ti-report-analytics fs-4"></i>
+              <div className="icon-shape icon-md bg-primary text-white rounded-2 d-flex align-items-center justify-content-center" style={{ width: "48px", height: "48px", minWidth: "48px" }}>
+                <i className="ti ti-report-analytics fs-3"></i>
               </div>
               <div>
-                <h2 className="mb-3 fs-6 text-dark">Total Ventes</h2>
-                <h3 className="fw-bold mb-0 text-dark">
+                <h2 className="mb-1 fs-5 text-muted fw-semibold">Total Ventes</h2>
+                <h3 className="fs-2 fw-bold mb-1 text-dark">
                   {stats?.totalRevenue.toLocaleString("fr-FR") || 0} FCFA
                 </h3>
-                <p className="text-primary mb-0 small">Chiffre d&apos;affaires global</p>
+                <div className="d-flex align-items-center gap-1 mt-2">
+                  <span className={`fw-bold small ${stats?.revenueChangePercent && stats.revenueChangePercent >= 0 ? "text-success" : "text-danger"}`}>
+                    {stats?.revenueChangePercent && stats.revenueChangePercent >= 0 ? "+" : ""}{stats?.revenueChangePercent || 0}%
+                  </span>
+                  <span className="text-secondary small">depuis le mois dernier</span>
+                </div>
               </div>
             </div>
           </div>
@@ -212,17 +224,22 @@ export default function AdminDashboardPage() {
 
         {/* Card 2: Total Purchase (Commandes) */}
         <div className="col-lg-3 col-12">
-          <div className="card p-4 bg-success bg-opacity-10 border border-success border-opacity-25 rounded-2">
+          <div className="card p-4 bg-success bg-opacity-10 border border-success border-opacity-25 rounded-2 h-100">
             <div className="d-flex gap-3">
-              <div className="icon-shape icon-md bg-success text-white rounded-2">
-                <i className="ti ti-repeat fs-4"></i>
+              <div className="icon-shape icon-md bg-success text-white rounded-2 d-flex align-items-center justify-content-center" style={{ width: "48px", height: "48px", minWidth: "48px" }}>
+                <i className="ti ti-repeat fs-3"></i>
               </div>
               <div>
-                <h2 className="mb-3 fs-6 text-dark">Total Commandes</h2>
-                <h3 className="fw-bold mb-0 text-dark">
+                <h2 className="mb-1 fs-5 text-muted fw-semibold">Total Commandes</h2>
+                <h3 className="fs-2 fw-bold mb-1 text-dark">
                   {stats?.ordersCount || 0}
                 </h3>
-                <p className="text-success mb-0 small">Volume total enregistré</p>
+                <div className="d-flex align-items-center gap-1 mt-2">
+                  <span className={`fw-bold small ${stats?.ordersChangePercent && stats.ordersChangePercent >= 0 ? "text-success" : "text-danger"}`}>
+                    {stats?.ordersChangePercent && stats.ordersChangePercent >= 0 ? "+" : ""}{stats?.ordersChangePercent || 0}%
+                  </span>
+                  <span className="text-secondary small">depuis le mois dernier</span>
+                </div>
               </div>
             </div>
           </div>
@@ -230,17 +247,22 @@ export default function AdminDashboardPage() {
 
         {/* Card 3: Total Expenses (Clients) */}
         <div className="col-lg-3 col-12">
-          <div className="card p-4 bg-info bg-opacity-10 border border-info border-opacity-25 rounded-2">
+          <div className="card p-4 bg-info bg-opacity-10 border border-info border-opacity-25 rounded-2 h-100">
             <div className="d-flex gap-3">
-              <div className="icon-shape icon-md bg-info text-white rounded-2">
-                <i className="ti ti-users fs-4"></i>
+              <div className="icon-shape icon-md bg-info text-white rounded-2 d-flex align-items-center justify-content-center" style={{ width: "48px", height: "48px", minWidth: "48px" }}>
+                <i className="ti ti-users fs-3"></i>
               </div>
               <div>
-                <h2 className="mb-3 fs-6 text-dark">Clients Inscrits</h2>
-                <h3 className="fw-bold mb-0 text-dark">
+                <h2 className="mb-1 fs-5 text-muted fw-semibold">Clients Inscrits</h2>
+                <h3 className="fs-2 fw-bold mb-1 text-dark">
                   {stats?.customersCount || 0}
                 </h3>
-                <p className="text-info mb-0 small">Clients enregistrés</p>
+                <div className="d-flex align-items-center gap-1 mt-2">
+                  <span className={`fw-bold small ${stats?.customersChangePercent && stats.customersChangePercent >= 0 ? "text-success" : "text-danger"}`}>
+                    {stats?.customersChangePercent && stats.customersChangePercent >= 0 ? "+" : ""}{stats?.customersChangePercent || 0}%
+                  </span>
+                  <span className="text-secondary small">depuis le mois dernier</span>
+                </div>
               </div>
             </div>
           </div>
@@ -248,17 +270,22 @@ export default function AdminDashboardPage() {
 
         {/* Card 4: Invoice Due (Commandes Actives) */}
         <div className="col-lg-3 col-12">
-          <div className="card p-4 bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-2">
+          <div className="card p-4 bg-warning bg-opacity-10 border border-warning border-opacity-25 rounded-2 h-100">
             <div className="d-flex gap-3">
-              <div className="icon-shape icon-md bg-warning text-white rounded-2">
-                <i className="ti ti-notes fs-4"></i>
+              <div className="icon-shape icon-md bg-warning text-white rounded-2 d-flex align-items-center justify-content-center" style={{ width: "48px", height: "48px", minWidth: "48px" }}>
+                <i className="ti ti-notes fs-3"></i>
               </div>
               <div>
-                <h2 className="mb-3 fs-6 text-dark">Commandes Actives</h2>
-                <h3 className="fw-bold mb-0 text-dark">
+                <h2 className="mb-1 fs-5 text-muted fw-semibold">Commandes Actives</h2>
+                <h3 className="fs-2 fw-bold mb-1 text-dark">
                   {stats?.pendingOrdersCount || 0}
                 </h3>
-                <p className="text-warning mb-0 small">En cours de traitement</p>
+                <div className="d-flex align-items-center gap-1 mt-2">
+                  <span className={`fw-bold small ${stats?.pendingOrdersChangePercent && stats.pendingOrdersChangePercent >= 0 ? "text-warning" : "text-danger"}`}>
+                    {stats?.pendingOrdersChangePercent && stats.pendingOrdersChangePercent >= 0 ? "+" : ""}{stats?.pendingOrdersChangePercent || 0}%
+                  </span>
+                  <span className="text-secondary small">depuis le mois dernier</span>
+                </div>
               </div>
             </div>
           </div>
@@ -271,23 +298,26 @@ export default function AdminDashboardPage() {
         <div className="col-lg-4 col-12">
           <div className="card">
             <div className="card-body p-4">
-              <div className="d-flex justify-content-between border-bottom pb-5 mb-3">
+              <div className="d-flex justify-content-between border-bottom pb-3 mb-3 align-items-start">
                 <div>
-                  <h3 className="fw-bold h4 text-dark">
+                  <h3 className="fs-2 fw-bold text-dark mb-1">
                     {(threeColumnDetails?.profitThisMonth || 0).toLocaleString("fr-FR")} FCFA
                   </h3>
-                  <span className="text-secondary">Ventes ce mois</span>
+                  <span className="fs-5 text-muted fw-semibold">Ventes ce mois</span>
                 </div>
-                <div>
-                  <i className="ti ti-layers-subtract fs-1 text-primary"></i>
+                <div className="icon-shape icon-md bg-primary-subtle text-primary rounded-2 d-flex align-items-center justify-content-center" style={{ width: "40px", height: "40px", minWidth: "40px" }}>
+                  <i className="ti ti-layers-subtract fs-4"></i>
                 </div>
               </div>
-              <div className="d-flex justify-content-between align-items-center small">
-                <div className="text-muted">
-                  Ventes du mois en cours
+              <div className="d-flex justify-content-between align-items-center">
+                <div className="d-flex align-items-center gap-1">
+                  <span className={`fw-bold small ${threeColumnDetails?.profitChangePercent && threeColumnDetails.profitChangePercent >= 0 ? "text-success" : "text-danger"}`}>
+                    {threeColumnDetails?.profitChangePercent && threeColumnDetails.profitChangePercent >= 0 ? "+" : ""}{threeColumnDetails?.profitChangePercent || 0}%
+                  </span>
+                  <span className="text-muted small">vs mois dernier</span>
                 </div>
                 <div>
-                  <Link href="/admin/commandes" className="link-primary text-decoration-underline">
+                  <Link href="/admin/commandes" className="link-primary text-decoration-underline fw-bold small">
                     Détails
                   </Link>
                 </div>
@@ -300,23 +330,26 @@ export default function AdminDashboardPage() {
         <div className="col-lg-4 col-12">
           <div className="card">
             <div className="card-body p-4">
-              <div className="d-flex justify-content-between border-bottom pb-5 mb-3">
+              <div className="d-flex justify-content-between border-bottom pb-3 mb-3 align-items-start">
                 <div>
-                  <h3 className="fw-bold h4 text-dark">
+                  <h3 className="fs-2 fw-bold text-dark mb-1">
                     {(threeColumnDetails?.shippingFeesThisMonth || 0).toLocaleString("fr-FR")} FCFA
                   </h3>
-                  <span className="text-secondary">Frais de livraison perçus</span>
+                  <span className="fs-5 text-muted fw-semibold">Frais de livraison perçus</span>
                 </div>
-                <div>
-                  <i className="ti ti-credit-card fs-1 text-danger"></i>
+                <div className="icon-shape icon-md bg-danger-subtle text-danger rounded-2 d-flex align-items-center justify-content-center" style={{ width: "40px", height: "40px", minWidth: "40px" }}>
+                  <i className="ti ti-credit-card fs-4"></i>
                 </div>
               </div>
-              <div className="d-flex justify-content-between align-items-center small">
-                <div className="text-muted">
-                  Frais de livraison (Mois en cours)
+              <div className="d-flex justify-content-between align-items-center">
+                <div className="d-flex align-items-center gap-1">
+                  <span className={`fw-bold small ${threeColumnDetails?.shippingChangePercent && threeColumnDetails.shippingChangePercent >= 0 ? "text-success" : "text-danger"}`}>
+                    {threeColumnDetails?.shippingChangePercent && threeColumnDetails.shippingChangePercent >= 0 ? "+" : ""}{threeColumnDetails?.shippingChangePercent || 0}%
+                  </span>
+                  <span className="text-muted small">vs mois dernier</span>
                 </div>
                 <div>
-                  <Link href="/admin/livraisons" className="link-primary text-decoration-underline">
+                  <Link href="/admin/livraisons" className="link-primary text-decoration-underline fw-bold small">
                     Zones
                   </Link>
                 </div>
@@ -329,23 +362,26 @@ export default function AdminDashboardPage() {
         <div className="col-lg-4 col-12">
           <div className="card">
             <div className="card-body p-4">
-              <div className="d-flex justify-content-between border-bottom pb-5 mb-3">
+              <div className="d-flex justify-content-between border-bottom pb-3 mb-3 align-items-start">
                 <div>
-                  <h3 className="fw-bold h4 text-dark">
+                  <h3 className="fs-2 fw-bold text-dark mb-1">
                     {(threeColumnDetails?.discountsThisMonth || 0).toLocaleString("fr-FR")} FCFA
                   </h3>
-                  <span className="text-secondary">Réductions appliquées</span>
+                  <span className="fs-5 text-muted fw-semibold">Réductions appliquées</span>
                 </div>
-                <div>
-                  <i className="ti ti-cash-banknote fs-1 text-warning"></i>
+                <div className="icon-shape icon-md bg-warning-subtle text-warning rounded-2 d-flex align-items-center justify-content-center" style={{ width: "40px", height: "40px", minWidth: "40px" }}>
+                  <i className="ti ti-cash-banknote fs-4"></i>
                 </div>
               </div>
-              <div className="d-flex justify-content-between align-items-center small">
-                <div className="text-muted">
-                  Remises codes promo (Ce mois)
+              <div className="d-flex justify-content-between align-items-center">
+                <div className="d-flex align-items-center gap-1">
+                  <span className={`fw-bold small ${threeColumnDetails?.discountsChangePercent && threeColumnDetails.discountsChangePercent >= 0 ? "text-success" : "text-danger"}`}>
+                    {threeColumnDetails?.discountsChangePercent && threeColumnDetails.discountsChangePercent >= 0 ? "+" : ""}{threeColumnDetails?.discountsChangePercent || 0}%
+                  </span>
+                  <span className="text-muted small">vs mois dernier</span>
                 </div>
                 <div>
-                  <Link href="/admin/promocodes" className="link-primary text-decoration-underline">
+                  <Link href="/admin/promocodes" className="link-primary text-decoration-underline fw-bold small">
                     Codes promo
                   </Link>
                 </div>
@@ -361,7 +397,7 @@ export default function AdminDashboardPage() {
         <div className="col-12 col-lg-6">
           <div className="card h-100">
             <div className="card-header d-flex justify-content-between align-items-center bg-transparent px-4 py-3">
-              <h3 className="h5 mb-0 text-dark">Ventes mensuelles</h3>
+              <h3 className="fs-4 mb-0 text-dark fw-bold">Ventes mensuelles</h3>
               <div>
                 <select
                   className="form-select form-select-sm"
@@ -389,7 +425,7 @@ export default function AdminDashboardPage() {
         <div className="col-12 col-lg-6">
           <div className="card h-100">
             <div className="card-header d-flex justify-content-between align-items-center bg-transparent px-4 py-3">
-              <h3 className="h5 mb-0 text-dark">Aperçu global</h3>
+              <h3 className="fs-4 mb-0 text-dark fw-bold">Aperçu global</h3>
               <div>
                 <select
                   className="form-select form-select-sm"
@@ -403,7 +439,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
             <div className="card-body p-4">
-              <h3 className="h6 text-dark mb-4">Répartition des clients</h3>
+              <h4 className="fs-5 text-muted fw-semibold mb-4">Répartition des clients</h4>
               <div className="row align-items-center">
                 <div className="col-sm-6">
                   {customerOverview && (
@@ -417,18 +453,18 @@ export default function AdminDashboardPage() {
                   <div className="row">
                     <div className="col-6 border-end">
                       <div className="text-center">
-                        <h2 className="mb-1 text-dark fw-bold">{firstTimeCount}</h2>
-                        <p className="text-success mb-2 small" style={{ fontSize: "11px" }}>Nouveaux</p>
-                        <span className="badge bg-success" style={{ fontSize: "10px" }}>
+                        <h2 className="fs-2 fw-bold text-dark mb-1">{firstTimeCount}</h2>
+                        <p className="text-muted fw-semibold mb-2 small">Nouveaux</p>
+                        <span className="badge bg-success py-1 px-2" style={{ fontSize: "11px" }}>
                           <i className="ti ti-arrow-up-left me-1"></i>{firstTimePercent}%
                         </span>
                       </div>
                     </div>
                     <div className="col-6">
                       <div className="text-center">
-                        <h2 className="mb-1 text-dark fw-bold">{returningCount}</h2>
-                        <p className="text-warning mb-2 small" style={{ fontSize: "11px" }}>Fidèles</p>
-                        <span className="badge bg-success" style={{ fontSize: "10px" }}>
+                        <h2 className="fs-2 fw-bold text-dark mb-1">{returningCount}</h2>
+                        <p className="text-muted fw-semibold mb-2 small">Fidèles</p>
+                        <span className="badge bg-success py-1 px-2" style={{ fontSize: "11px" }}>
                           <i className="ti ti-arrow-up-left me-1"></i>{returningPercent}%
                         </span>
                       </div>
@@ -440,16 +476,16 @@ export default function AdminDashboardPage() {
               {/* Bottom indicators */}
               <div className="row text-center border-top mt-4 pt-4">
                 <div className="col-4 border-end">
-                  <h3 className="fw-bold mb-2 text-dark fs-5">{customerOverview?.suppliersCount || 0}</h3>
-                  <small className="text-secondary" style={{ fontSize: "11px" }}>Produits</small>
+                  <h3 className="fs-2 fw-bold text-dark mb-1">{customerOverview?.suppliersCount || 0}</h3>
+                  <small className="text-muted fw-semibold fs-6">Produits</small>
                 </div>
                 <div className="col-4 border-end">
-                  <h3 className="fw-bold mb-2 text-dark fs-5">{stats?.customersCount || 0}</h3>
-                  <small className="text-secondary" style={{ fontSize: "11px" }}>Clients</small>
+                  <h3 className="fs-2 fw-bold text-dark mb-1">{stats?.customersCount || 0}</h3>
+                  <small className="text-muted fw-semibold fs-6">Clients</small>
                 </div>
                 <div className="col-4">
-                  <h3 className="fw-bold mb-2 text-dark fs-5">{stats?.ordersCount || 0}</h3>
-                  <small className="text-secondary" style={{ fontSize: "11px" }}>Commandes</small>
+                  <h3 className="fs-2 fw-bold text-dark mb-1">{stats?.ordersCount || 0}</h3>
+                  <small className="text-muted fw-semibold fs-6">Commandes</small>
                 </div>
               </div>
             </div>
@@ -463,7 +499,7 @@ export default function AdminDashboardPage() {
         <div className="col-lg-4 col-12">
           <div className="card h-100">
             <div className="card-header bg-white d-flex justify-content-between align-items-center px-4 py-3">
-              <h4 className="mb-0 h5 text-dark">Produits populaires</h4>
+              <h3 className="mb-0 fs-4 text-dark fw-bold">Produits populaires</h3>
               <Link href="/admin/produits" className="text-xs text-primary font-bold text-decoration-none">
                 Inventaire <i className="ti ti-chevron-right"></i>
               </Link>
@@ -519,7 +555,7 @@ export default function AdminDashboardPage() {
         <div className="col-lg-4 col-12">
           <div className="card h-100">
             <div className="card-header bg-white d-flex justify-content-between align-items-center px-4 py-3">
-              <h4 className="mb-0 h5 text-dark">Stocks faibles</h4>
+              <h3 className="mb-0 fs-4 text-dark fw-bold">Stocks faibles</h3>
               <Link href="/admin/produits" className="text-xs text-primary font-bold text-decoration-none">
                 Voir tout
               </Link>
@@ -572,7 +608,7 @@ export default function AdminDashboardPage() {
         <div className="col-lg-4 col-12">
           <div className="card h-100">
             <div className="card-header bg-white d-flex justify-content-between align-items-center px-4 py-3">
-              <h4 className="mb-0 h5 text-dark">Dernières commandes</h4>
+              <h3 className="mb-0 fs-4 text-dark fw-bold">Dernières commandes</h3>
               <Link href="/admin/commandes" className="text-xs text-primary font-bold text-decoration-none">
                 Voir tout
               </Link>
