@@ -33,7 +33,7 @@ export default function AdminCustomersPage() {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 10;
 
   // Detail Modal States
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -211,7 +211,7 @@ export default function AdminCustomersPage() {
                   </tr>
                 </thead>
                 <tbody className="align-middle">
-                  {paginatedCustomers.map((c) => (
+                  {paginatedCustomers.map((c, index) => (
                     <tr key={c.id}>
                       <td>
                         <div className="d-flex align-items-center">

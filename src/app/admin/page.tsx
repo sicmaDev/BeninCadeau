@@ -43,10 +43,25 @@ interface ThreeColumnDetails {
   discountsThisMonth: number;
 }
 
-interface CustomerOverview {
+interface CustomerSegment {
   firstTimeCount: number;
   returningCount: number;
+}
+
+interface CustomerOverview {
+  global: CustomerSegment;
+  thisYear: CustomerSegment;
+  thisMonth: CustomerSegment;
   suppliersCount: number;
+}
+
+interface MonthlyRevenueData {
+  thisYear: number[];
+  lastYear: number[];
+  thisMonth: number[];
+  lastMonth: number[];
+  thisWeek: number[];
+  lastWeek: number[];
 }
 
 export default function AdminDashboardPage() {
@@ -54,10 +69,14 @@ export default function AdminDashboardPage() {
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [popularProducts, setPopularProducts] = useState<PopularProduct[]>([]);
   const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([]);
-  const [monthlyRevenue, setMonthlyRevenue] = useState<{ thisYear: number[]; lastYear: number[]; } | null>(null);
+  const [monthlyRevenue, setMonthlyRevenue] = useState<MonthlyRevenueData | null>(null);
   const [threeColumnDetails, setThreeColumnDetails] = useState<ThreeColumnDetails | null>(null);
   const [customerOverview, setCustomerOverview] = useState<CustomerOverview | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Filters state
+  const [salesInterval, setSalesInterval] = useState<"ANNUELLE" | "MENSUELLE" | "HEBDOMADAIRE">("ANNUELLE");
+  const [customerInterval, setCustomerInterval] = useState<"GLOBAL" | "YEAR" | "MONTH">("GLOBAL");
 
   useEffect(() => {
     fetchStats();
@@ -117,12 +136,47 @@ export default function AdminDashboardPage() {
     );
   }
 
-  // Calculate percentages for customers
-  const firstTimeCount = customerOverview?.firstTimeCount || 0;
-  const returningCount = customerOverview?.returningCount || 0;
+  // Calculate percentages for customers based on interval
+  const getCustomerData = () => {
+    if (!customerOverview) return { firstTime: 0, returning: 0 };
+    switch (customerInterval) {
+      case "YEAR":
+        return {
+          firstTime: customerOverview.thisYear?.firstTimeCount || 0,
+          returning: customerOverview.thisYear?.returningCount || 0,
+        };
+      case "MONTH":
+        return {
+          firstTime: customerOverview.thisMonth?.firstTimeCount || 0,
+          returning: customerOverview.thisMonth?.returningCount || 0,
+        };
+      case "GLOBAL":
+      default:
+        return {
+          firstTime: customerOverview.global?.firstTimeCount || 0,
+          returning: customerOverview.global?.returningCount || 0,
+        };
+    }
+  };
+
+  const { firstTime: firstTimeCount, returning: returningCount } = getCustomerData();
   const totalClients = firstTimeCount + returningCount;
   const firstTimePercent = totalClients > 0 ? Math.round((firstTimeCount / totalClients) * 100) : 0;
   const returningPercent = totalClients > 0 ? Math.round((returningCount / totalClients) * 100) : 0;
+
+  const getSalesChartData = () => {
+    if (!monthlyRevenue) return { prev: [], curr: [] };
+    switch (salesInterval) {
+      case "MENSUELLE":
+        return { prev: monthlyRevenue.lastMonth, curr: monthlyRevenue.thisMonth };
+      case "HEBDOMADAIRE":
+        return { prev: monthlyRevenue.lastWeek, curr: monthlyRevenue.thisWeek };
+      case "ANNUELLE":
+      default:
+        return { prev: monthlyRevenue.lastYear, curr: monthlyRevenue.thisYear };
+    }
+  };
+  const salesData = getSalesChartData();
 
   return (
     <>
@@ -309,16 +363,22 @@ export default function AdminDashboardPage() {
             <div className="card-header d-flex justify-content-between align-items-center bg-transparent px-4 py-3">
               <h3 className="h5 mb-0 text-dark">Ventes mensuelles</h3>
               <div>
-                <select className="form-select form-select-sm" defaultValue="Année en cours">
-                  <option value="Année en cours">Comparaison annuelle</option>
+                <select
+                  className="form-select form-select-sm"
+                  value={salesInterval}
+                  onChange={(e) => setSalesInterval(e.target.value as any)}
+                >
+                  <option value="ANNUELLE">Comparaison annuelle</option>
+                  <option value="MENSUELLE">Comparaison mensuelle</option>
+                  <option value="HEBDOMADAIRE">Comparaison hebdomadaire</option>
                 </select>
               </div>
             </div>
             <div className="card-body p-4">
               {monthlyRevenue && (
                 <AdminSalesPurchaseChart
-                  thisYear={monthlyRevenue.thisYear}
-                  lastYear={monthlyRevenue.lastYear}
+                  thisYear={salesData.curr}
+                  lastYear={salesData.prev}
                 />
               )}
             </div>
@@ -331,8 +391,14 @@ export default function AdminDashboardPage() {
             <div className="card-header d-flex justify-content-between align-items-center bg-transparent px-4 py-3">
               <h3 className="h5 mb-0 text-dark">Aperçu global</h3>
               <div>
-                <select className="form-select form-select-sm" defaultValue="Clients">
-                  <option value="Clients">Fidélité clients</option>
+                <select
+                  className="form-select form-select-sm"
+                  value={customerInterval}
+                  onChange={(e) => setCustomerInterval(e.target.value as any)}
+                >
+                  <option value="GLOBAL">Tous les clients</option>
+                  <option value="YEAR">Cette année</option>
+                  <option value="MONTH">Ce mois</option>
                 </select>
               </div>
             </div>

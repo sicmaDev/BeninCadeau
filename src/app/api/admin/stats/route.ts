@@ -102,8 +102,11 @@ export async function GET() {
       },
     });
 
-    // 9. Chiffre d'affaires mensuel (Année en cours vs Année précédente)
+    // 9. Chiffre d'affaires historique pour comparaisons (Annuelle, Mensuelle, Hebdomadaire)
     const currentYear = new Date().getFullYear();
+    const now = new Date();
+
+    // 9.1 Comparaison Annuelle (Ventes mensuelles de l'année en cours vs année précédente)
     const ordersHistorical = await prisma.order.findMany({
       where: {
         createdAt: {
@@ -131,14 +134,81 @@ export async function GET() {
       }
     });
 
-    // 10. Trois indicateurs détaillés (Profit, Livraison, Code Promos) pour le mois en cours
-    const startOfCurrentMonth = new Date();
-    startOfCurrentMonth.setDate(1);
-    startOfCurrentMonth.setHours(0, 0, 0, 0);
+    // 9.2 Comparaison Mensuelle (Ventes quotidiennes du mois en cours vs mois précédent)
+    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const daysInThisMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const daysInLastMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
 
+    const ordersMonthlyComparison = await prisma.order.findMany({
+      where: {
+        createdAt: { gte: startOfLastMonth },
+        status: { not: 'ANNULEE' }
+      },
+      select: {
+        totalAmount: true,
+        createdAt: true
+      }
+    });
+
+    const dailyRevenueThisMonth = Array(daysInThisMonth).fill(0);
+    const dailyRevenueLastMonth = Array(daysInLastMonth).fill(0);
+    const thisMonthVal = now.getMonth();
+    const lastMonthVal = startOfLastMonth.getMonth();
+    const thisYearVal = now.getFullYear();
+    const lastMonthYearVal = startOfLastMonth.getFullYear();
+
+    ordersMonthlyComparison.forEach((order) => {
+      const d = new Date(order.createdAt);
+      const m = d.getMonth();
+      const y = d.getFullYear();
+      const day = d.getDate(); // 1-31
+      if (y === thisYearVal && m === thisMonthVal) {
+        dailyRevenueThisMonth[day - 1] += order.totalAmount;
+      } else if (y === lastMonthYearVal && m === lastMonthVal) {
+        dailyRevenueLastMonth[day - 1] += order.totalAmount;
+      }
+    });
+
+    // 9.3 Comparaison Hebdomadaire (Ventes par jour de la semaine pour la semaine en cours vs semaine précédente)
+    const currentDay = now.getDay(); // 0 is Sunday, 1-6 is Mon-Sat
+    const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+    const startOfThisWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday);
+    startOfThisWeek.setHours(0, 0, 0, 0);
+
+    const startOfLastWeek = new Date(startOfThisWeek);
+    startOfLastWeek.setDate(startOfThisWeek.getDate() - 7);
+
+    const ordersWeeklyComparison = await prisma.order.findMany({
+      where: {
+        createdAt: { gte: startOfLastWeek },
+        status: { not: 'ANNULEE' }
+      },
+      select: {
+        totalAmount: true,
+        createdAt: true
+      }
+    });
+
+    const weeklyRevenueThisWeek = Array(7).fill(0);
+    const weeklyRevenueLastWeek = Array(7).fill(0);
+
+    ordersWeeklyComparison.forEach((order) => {
+      const d = new Date(order.createdAt);
+      const time = d.getTime();
+      const dayOfWeek = d.getDay(); // 0 (Sun) to 6 (Sat)
+      const index = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // 0 (Mon) to 6 (Sun)
+      if (time >= startOfThisWeek.getTime()) {
+        weeklyRevenueThisWeek[index] += order.totalAmount;
+      } else if (time >= startOfLastWeek.getTime() && time < startOfThisWeek.getTime()) {
+        weeklyRevenueLastWeek[index] += order.totalAmount;
+      }
+    });
+
+    // 10. Trois indicateurs détaillés (Profit, Livraison, Code Promos) pour le mois en cours
     const currentMonthOrders = await prisma.order.findMany({
       where: {
-        createdAt: { gte: startOfCurrentMonth },
+        createdAt: { gte: startOfThisMonth },
         status: { not: 'ANNULEE' },
       },
       include: {
@@ -166,23 +236,40 @@ export async function GET() {
     });
 
     // 11. Customer Overview Segment (First-time vs Returning customers)
-    const orderGroupedByClient = await prisma.order.groupBy({
-      by: ['clientEmail'],
-      _count: {
-        id: true,
+    // Helper function to segment customer loyalty
+    const getCustomerSegment = (ordersList: { clientEmail: string }[]) => {
+      const counts: Record<string, number> = {};
+      ordersList.forEach((o) => {
+        counts[o.clientEmail] = (counts[o.clientEmail] || 0) + 1;
+      });
+      let firstTimeCount = 0;
+      let returningCount = 0;
+      Object.values(counts).forEach((c) => {
+        if (c === 1) firstTimeCount++;
+        else returningCount++;
+      });
+      return { firstTimeCount, returningCount };
+    };
+
+    // 11.1 Global
+    const allOrders = await prisma.order.findMany({
+      where: { status: { not: 'ANNULEE' } },
+      select: { clientEmail: true },
+    });
+    const segmentGlobal = getCustomerSegment(allOrders);
+
+    // 11.2 Cette année
+    const ordersThisYear = await prisma.order.findMany({
+      where: {
+        createdAt: { gte: new Date(`${currentYear}-01-01T00:00:00.000Z`) },
+        status: { not: 'ANNULEE' }
       },
+      select: { clientEmail: true }
     });
+    const segmentThisYear = getCustomerSegment(ordersThisYear);
 
-    let firstTimeCount = 0;
-    let returningCount = 0;
-
-    orderGroupedByClient.forEach((group) => {
-      if (group._count.id === 1) {
-        firstTimeCount++;
-      } else if (group._count.id > 1) {
-        returningCount++;
-      }
-    });
+    // 11.3 Ce mois
+    const segmentThisMonth = getCustomerSegment(currentMonthOrders);
 
     const suppliersCount = await prisma.product.count(); // total products
 
@@ -204,6 +291,10 @@ export async function GET() {
       monthlyRevenue: {
         thisYear: monthlyRevenueThisYear,
         lastYear: monthlyRevenueLastYear,
+        thisMonth: dailyRevenueThisMonth,
+        lastMonth: dailyRevenueLastMonth,
+        thisWeek: weeklyRevenueThisWeek,
+        lastWeek: weeklyRevenueLastWeek,
       },
       threeColumnDetails: {
         profitThisMonth,
@@ -211,8 +302,9 @@ export async function GET() {
         discountsThisMonth,
       },
       customerOverview: {
-        firstTimeCount,
-        returningCount,
+        global: segmentGlobal,
+        thisYear: segmentThisYear,
+        thisMonth: segmentThisMonth,
         suppliersCount,
       },
     });

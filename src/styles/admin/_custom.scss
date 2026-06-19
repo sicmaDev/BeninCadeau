@@ -93,6 +93,28 @@
 .content.full {
 	margin-left: 60px;
 }
+.admin-footer {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	left: 240px;
+	height: 50px;
+	z-index: 1020;
+	border-top: 1px solid $gray-200;
+	background: $white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: left .3s;
+}
+.content.full .admin-footer {
+	left: 60px;
+}
+@media (max-width: 992px) {
+	.admin-footer {
+		left: 0 !important;
+	}
+}
 @media (max-width: 992px) {
 	.sidebar {
 		left: -240px;

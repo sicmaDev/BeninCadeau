@@ -46,7 +46,7 @@ export default function AdminOrdersPage() {
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 10;
 
   // Modal State
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -218,7 +218,7 @@ export default function AdminOrdersPage() {
                   </tr>
                 </thead>
                 <tbody className="align-middle">
-                  {currentItems.map((order) => (
+                  {currentItems.map((order, index) => (
                     <tr key={order.id}>
                       <td>
                         <span className="fw-bold text-primary">{order.orderNumber}</span>

@@ -17,7 +17,7 @@ export default function AdminShippingZonesPage() {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 10;
 
   // Form Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -160,14 +160,16 @@ export default function AdminShippingZonesPage() {
               <table className="table mb-0 text-nowrap table-hover">
                 <thead className="table-light border-light">
                   <tr>
+                    <th className="text-dark">#</th>
                     <th className="text-dark">Zone / Quartier</th>
                     <th className="text-dark">Frais de livraison</th>
                     <th className="text-dark text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="align-middle">
-                  {paginatedZones.map((zone) => (
+                  {paginatedZones.map((zone, index) => (
                     <tr key={zone.id}>
+                      <td className="text-secondary fw-semibold">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                       <td className="fw-bold text-dark">
                         <i className="ti ti-truck text-primary me-2"></i>
                         {zone.name}

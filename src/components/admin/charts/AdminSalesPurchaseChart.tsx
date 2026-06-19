@@ -18,16 +18,27 @@ export default function AdminSalesPurchaseChart({ thisYear, lastYear }: AdminSal
     setIsMounted(true);
   }, []);
 
-  const months = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"];
+  let categories = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"];
+  let prevLabel = "Année précédente";
+  let currLabel = "Année en cours";
 
-  // Re-scale values to thousands/millions to match formatting if needed, but formatter will handle it
+  if (thisYear.length === 7) {
+    categories = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+    prevLabel = "Semaine précédente";
+    currLabel = "Semaine en cours";
+  } else if (thisYear.length > 12) {
+    categories = Array.from({ length: thisYear.length }, (_, i) => (i + 1).toString());
+    prevLabel = "Mois précédent";
+    currLabel = "Mois en cours";
+  }
+
   const series = [
     {
-      name: "Année précédente",
+      name: prevLabel,
       data: lastYear,
     },
     {
-      name: "Année en cours",
+      name: currLabel,
       data: thisYear,
     },
   ];
@@ -83,7 +94,7 @@ export default function AdminSalesPurchaseChart({ thisYear, lastYear }: AdminSal
       colors: ["transparent"],
     },
     xaxis: {
-      categories: months,
+      categories: categories,
       axisBorder: {
         show: false,
         color: "#e2e8f0",

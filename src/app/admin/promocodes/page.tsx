@@ -20,7 +20,7 @@ export default function AdminPromoCodesPage() {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 10;
 
   // Form Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -206,6 +206,7 @@ export default function AdminPromoCodesPage() {
               <table className="table mb-0 text-nowrap table-hover">
                 <thead className="table-light border-light">
                   <tr>
+                    <th className="text-dark">#</th>
                     <th className="text-dark">Code</th>
                     <th className="text-dark">Type de réduction</th>
                     <th className="text-dark">Valeur de remise</th>
@@ -215,10 +216,11 @@ export default function AdminPromoCodesPage() {
                   </tr>
                 </thead>
                 <tbody className="align-middle">
-                  {paginatedPromoCodes.map((promo) => {
+                  {paginatedPromoCodes.map((promo, index) => {
                     const expired = isExpired(promo.expiresAt);
                     return (
                       <tr key={promo.id}>
+                        <td className="text-secondary fw-semibold">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                         <td className="fw-bold text-primary">
                           <i className="ti ti-ticket text-[18px] me-2"></i>
                           {promo.code}

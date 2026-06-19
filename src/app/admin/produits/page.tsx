@@ -34,7 +34,7 @@ export default function AdminProductsPage() {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 10;
 
   useEffect(() => {
     fetchProducts();
@@ -182,7 +182,7 @@ export default function AdminProductsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentItems.map((product) => {
+                  {currentItems.map((product, index) => {
                     let images: string[] = [];
                     try {
                       images = typeof product.images === 'string'
@@ -205,7 +205,7 @@ export default function AdminProductsPage() {
                             <span className="ms-3 text-dark fw-bold">{product.name}</span>
                           </div>
                         </td>
-                        <td className="text-secondary">#BC-{product.id}</td>
+                        <td className="text-secondary">#PR-{product.slug.substring(0, 3).toUpperCase()}-{product.id + 100}</td>
                         <td className="text-secondary">{product.category.name}</td>
                         <td className="text-dark fw-semibold">
                           {product.price.toLocaleString('fr-FR')} FCFA

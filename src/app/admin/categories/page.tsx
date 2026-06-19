@@ -29,7 +29,7 @@ export default function AdminCategoriesPage() {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 10;
 
   useEffect(() => {
     fetchCategories();
@@ -203,7 +203,6 @@ export default function AdminCategoriesPage() {
               <table className="table mb-0 text-nowrap table-hover">
                 <thead className="table-light border-light">
                   <tr>
-                    <th className="text-dark">Ordre d&apos;affichage</th>
                     <th className="text-dark">Nom</th>
                     <th className="text-dark">Slug (URL)</th>
                     <th className="text-dark">Statut</th>
@@ -211,9 +210,8 @@ export default function AdminCategoriesPage() {
                   </tr>
                 </thead>
                 <tbody className="align-middle">
-                  {paginatedCategories.map((category) => (
+                  {paginatedCategories.map((category, index) => (
                     <tr key={category.id}>
-                      <td className="fw-bold text-primary">{category.displayOrder}</td>
                       <td className="fw-bold text-dark">{category.name}</td>
                       <td className="text-secondary">/{category.slug}</td>
                       <td>
@@ -252,7 +250,7 @@ export default function AdminCategoriesPage() {
                       <td className="border-bottom-0 text-secondary align-middle">
                         Affichage de {paginatedCategories.length} sur {categories.length} catégories
                       </td>
-                      <td colSpan={4} className="border-bottom-0">
+                      <td colSpan={3} className="border-bottom-0">
                         <nav aria-label="Page navigation" className="d-flex justify-content-end">
                           <ul className="pagination mb-0">
                             <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>

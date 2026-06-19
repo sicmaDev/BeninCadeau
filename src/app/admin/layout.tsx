@@ -505,7 +505,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             className={`content d-flex flex-column min-vh-100 py-10 ${sidebarCollapsed ? "full" : ""}`}
           >
             <div className="container-fluid flex-grow-1">{children}</div>
-            <footer className="text-center py-3 border-top mt-auto bg-white">
+            <footer className="admin-footer text-center bg-white">
               <p className="mb-0 small text-secondary">
                 © {new Date().getFullYear()} Bénin Cadeau Back-Office. Tous droits réservés.
               </p>
