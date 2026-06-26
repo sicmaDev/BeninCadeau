@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronRight, ChevronDown, Sparkles, Gift, Heart, Send, ShoppingCart } from 'lucide-react';
+import { ChevronRight, ChevronDown, Sparkles, Gift, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { CopyrightRow } from '@/components/CopyrightRow';
+import { ProductCard } from '@/components/ProductCard';
 
 interface Category {
   id: number;
@@ -37,12 +38,13 @@ interface HomeClientProps {
 
 export function HomeClient({ categories, products }: HomeClientProps) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [activeSlide, setActiveSlide] = useState(0);
 
   const heroSlides = [
     {
       image: "/1-12.png",
       badge: "L'art d'offrir au Bénin",
-      title: "Bénin Cadeau : Offrez du bonheur, ",
+      title: "Offrez du bonheur, ",
       highlight: "célébrez chaque instant !",
       desc: "Chez Bénin Cadeau, nous transformons vos intentions en souvenirs précieux. Explorez nos collections de cadeaux raffinés et de paniers gourmands pensés pour éblouir vos proches."
     },
@@ -62,12 +64,10 @@ export function HomeClient({ categories, products }: HomeClientProps) {
     }
   ];
 
-  const [activeSlide, setActiveSlide] = useState(0);
-
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % heroSlides.length);
-    }, 6000);
+    }, 8000);
     return () => clearInterval(interval);
   }, [heroSlides.length]);
 
@@ -99,7 +99,6 @@ export function HomeClient({ categories, products }: HomeClientProps) {
     },
   ];
 
-  // Helper pour mapper des images / descriptions spécifiques aux catégories de la base de données
   const getCategoryMetaData = (slug: string) => {
     const meta: Record<string, { img: string; desc: string }> = {
       'cadeaux-personnalises': {
@@ -122,169 +121,177 @@ export function HomeClient({ categories, products }: HomeClientProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-bc-bg overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-zinc-50/30 overflow-x-hidden">
       <Header />
+      
       <main className="flex-grow">
         
-        {/* 1. HERO SECTION */}
-        <section className="relative w-full h-[700px] flex items-center overflow-hidden">
-          <div className="absolute inset-0 select-none pointer-events-none">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeSlide}
-                initial={{ opacity: 0, scale: 1.02 }}
-                animate={{ opacity: 1, scale: 1.05 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1 }}
-                className="absolute inset-0 w-full h-full"
-              >
-                <img
-                  src={heroSlides[activeSlide].image}
-                  alt="Bénin Cadeau Hero Slide"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-bc-purpleDark/95 via-bc-purple/70 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-t from-bc-bg via-transparent to-transparent" />
-              </motion.div>
-            </AnimatePresence>
-          </div>
+        {/* 1. HERO SECTION (Split light layout) */}
+        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 py-10 lg:py-16">
+          <div className="bg-zinc-100/50 rounded-[40px] border border-zinc-200/40 p-8 sm:p-12 lg:p-16 relative overflow-hidden">
+            
+            {/* Background elements */}
+            <div className="absolute top-1/4 left-1/3 w-64 h-64 bg-bc-yellow/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute bottom-10 right-10 w-80 h-80 bg-bc-purple/5 rounded-full blur-[120px] pointer-events-none" />
 
-          <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-bc-yellow/15 rounded-full blur-[100px] animate-pulse pointer-events-none" />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+              
+              {/* Text content */}
+              <div className="lg:col-span-6 space-y-6">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeSlide}
+                    initial={{ opacity: 0, x: -15 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 15 }}
+                    transition={{ duration: 0.5 }}
+                    className="space-y-6"
+                  >
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-zinc-200/60 text-bc-purple font-semibold text-xs tracking-wider uppercase shadow-sm">
+                      <Sparkles size={13} className="text-bc-yellow fill-current animate-pulse" /> {heroSlides[activeSlide].badge}
+                    </div>
+                    <h1 className="font-bold text-zinc-900 text-4xl sm:text-5xl lg:text-[54px] leading-[1.1] tracking-tight">
+                      {heroSlides[activeSlide].title}
+                      <span className="text-bc-purple">{heroSlides[activeSlide].highlight}</span>
+                    </h1>
+                    <p className="font-instrument text-zinc-500 text-sm sm:text-base lg:text-lg leading-relaxed max-w-xl">
+                      {heroSlides[activeSlide].desc}
+                    </p>
+                    <div className="pt-3 flex flex-wrap gap-3.5">
+                      <Link href="/catalogue">
+                        <motion.button
+                          whileHover={{ y: -2 }}
+                          whileTap={{ y: 0 }}
+                          className="px-7 py-3.5 rounded-full bg-bc-purple hover:bg-bc-purpleDark text-white font-semibold text-sm tracking-wide shadow-sm cursor-pointer transition-all"
+                        >
+                          Découvrir le catalogue
+                        </motion.button>
+                      </Link>
+                      <Link href="/contact">
+                        <motion.button
+                          whileHover={{ y: -2 }}
+                          whileTap={{ y: 0 }}
+                          className="px-7 py-3.5 rounded-full bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-700 font-semibold text-sm tracking-wide transition-all cursor-pointer shadow-sm"
+                        >
+                          Nous contacter
+                        </motion.button>
+                      </Link>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
 
-          <div className="relative max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-16 w-full z-10">
-            <div className="max-w-[800px]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeSlide}
-                  initial={{ opacity: 0, y: 25 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -25 }}
-                  transition={{ duration: 0.6 }}
-                  className="space-y-6"
-                >
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel text-bc-yellow font-montserrat font-bold text-xs uppercase tracking-widest">
-                    <Sparkles size={14} className="animate-pulse" /> {heroSlides[activeSlide].badge}
-                  </div>
-                  <h1 className="font-montserrat font-extrabold text-white text-4xl md:text-5xl lg:text-[62px] leading-[1.15] tracking-tight">
-                    {heroSlides[activeSlide].title}
-                    <span className="text-gold-gradient">{heroSlides[activeSlide].highlight}</span>
-                  </h1>
-                  <p className="font-instrument font-medium text-gray-200 text-base md:text-lg lg:text-xl leading-relaxed text-justify max-w-2xl">
-                    {heroSlides[activeSlide].desc}
-                  </p>
-                  <div className="pt-4 flex flex-wrap gap-4">
-                    <Link href="/catalogue">
-                      <motion.button
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="px-8 py-4 rounded-2xl bg-gold-gradient text-bc-purpleDark font-montserrat font-bold text-base uppercase tracking-wider shadow-yellow-glow cursor-pointer"
-                      >
-                        Découvrir le catalogue
-                      </motion.button>
-                    </Link>
-                    <Link href="/contact">
-                      <motion.button
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-montserrat font-bold text-base uppercase tracking-wider transition-colors cursor-pointer"
-                      >
-                        Nous contacter
-                      </motion.button>
-                    </Link>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
+                {/* Slider indicators */}
+                <div className="pt-6 flex space-x-2.5">
+                  {heroSlides.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveSlide(idx)}
+                      className={cn(
+                        "h-2 rounded-full transition-all duration-300 cursor-pointer",
+                        activeSlide === idx ? "w-7 bg-bc-purple" : "w-2 bg-zinc-300 hover:bg-zinc-400"
+                      )}
+                      aria-label={`Aller au slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Graphic content */}
+              <div className="lg:col-span-6 relative flex justify-center">
+                <div className="w-full max-w-[500px] aspect-[4/3] sm:aspect-square relative rounded-[32px] overflow-hidden border border-zinc-200/50 shadow-premium bg-zinc-50">
+                  <AnimatePresence mode="wait">
+                    <motion.img
+                      key={activeSlide}
+                      src={heroSlides[activeSlide].image}
+                      alt="Bénin Cadeau Hero Slide"
+                      initial={{ opacity: 0, scale: 1.05 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.6 }}
+                      className="w-full h-full object-cover"
+                    />
+                  </AnimatePresence>
+                </div>
+              </div>
+
             </div>
-          </div>
-
-          <div className="absolute bottom-8 left-4 sm:left-6 lg:left-16 flex space-x-3 z-20">
-            {heroSlides.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActiveSlide(idx)}
-                className={cn(
-                  "h-2.5 rounded-full transition-all duration-300 cursor-pointer",
-                  activeSlide === idx ? "w-8 bg-bc-yellow" : "w-2.5 bg-white/40 hover:bg-white/70"
-                )}
-                aria-label={`Go to slide ${idx + 1}`}
-              />
-            ))}
           </div>
         </section>
 
-        {/* 2. FLOATING CTA */}
-        <div className="relative z-20 max-w-[1150px] mx-auto px-4 -mt-[80px] mb-28">
+        {/* 2. FLOATING CTA (Harmonized, Clean) */}
+        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 mb-20 -mt-2.5">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="glass-panel rounded-[40px] shadow-premium flex flex-col md:flex-row items-center justify-between gap-8 p-8 md:p-12 relative overflow-hidden"
+            transition={{ duration: 0.5 }}
+            className="bg-white border border-zinc-200/60 rounded-[32px] shadow-sm flex flex-col lg:flex-row items-center justify-between gap-6 p-8 lg:p-10 relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-48 h-48 bg-bc-yellow/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute top-0 right-0 w-40 h-40 bg-bc-yellow/5 rounded-full blur-3xl pointer-events-none" />
             
-            <div className="flex items-center gap-6 flex-1 relative z-10">
-              <div className="w-16 h-16 rounded-2xl bg-bc-yellow/10 flex items-center justify-center text-bc-yellow flex-shrink-0">
-                <Gift size={32} />
+            <div className="flex items-center gap-5 flex-1 relative z-10">
+              <div className="w-12 h-12 rounded-2xl bg-bc-purpleLight text-bc-purple flex items-center justify-center flex-shrink-0">
+                <Gift size={24} />
               </div>
               <div>
-                <h2 className="font-montserrat font-extrabold text-xl md:text-2xl text-bc-navy leading-snug">
+                <h2 className="font-bold text-lg lg:text-xl text-zinc-800 leading-snug">
                   Un événement ou une fête à célébrer dès aujourd&apos;hui ?
                 </h2>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-xs text-zinc-500 mt-1 font-instrument">
                   Créez le cadeau sur-mesure idéal et faites-le livrer à domicile.
                 </p>
               </div>
             </div>
             
-            <Link href="/commander" className="relative z-10 w-full md:w-auto">
+            <Link href="/commander" className="relative z-10 w-full lg:w-auto flex-shrink-0">
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full md:w-auto px-8 py-4.5 rounded-2xl bg-purple-gradient hover:bg-bc-purpleDark text-white font-montserrat font-bold text-sm uppercase tracking-wider shadow-purple-glow cursor-pointer transition-all"
+                whileHover={{ y: -1 }}
+                className="w-full lg:w-auto px-6 py-3.5 rounded-2xl bg-bc-purple hover:bg-bc-purpleDark text-white font-semibold text-xs tracking-wider uppercase shadow-sm cursor-pointer transition-all"
               >
                 Créer un cadeau
               </motion.button>
             </Link>
           </motion.div>
-        </div>
+        </section>
 
         {/* 3. NOS PROPOSITIONS (CATEGORIES DYNAMIQUES) */}
-        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-16 mb-28 relative">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-            <h2 className="font-montserrat font-black text-3xl md:text-[40px] text-bc-navy uppercase tracking-tight">
+        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 mb-24">
+          <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
+            <h2 className="font-bold text-2xl sm:text-3xl text-zinc-900 uppercase tracking-tight">
               Nos propositions
             </h2>
-            <div className="w-20 h-1 bg-bc-yellow mx-auto rounded-full" />
-            <p className="text-gray-500 font-instrument text-base md:text-lg">
+            <div className="w-12 h-1 bg-bc-purple mx-auto rounded-full" />
+            <p className="text-zinc-500 font-instrument text-sm sm:text-base">
               Parcourez nos différentes sélections de cadeaux de prestige conçus pour illuminer le quotidien.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {categories.map((cat, i) => {
               const meta = getCategoryMetaData(cat.slug);
               return (
                 <Link key={cat.id} href={`/catalogue?category=${cat.slug}`}>
                   <motion.div
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 0, y: 15 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: i * 0.1 }}
-                    whileHover={{ y: -6 }}
-                    className="relative h-[280px] rounded-3xl overflow-hidden shadow-card border border-gray-100/50 group cursor-pointer"
+                    transition={{ duration: 0.4, delay: i * 0.08 }}
+                    whileHover={{ y: -4 }}
+                    className="bg-white rounded-3xl overflow-hidden shadow-sm border border-zinc-200/50 group cursor-pointer"
                   >
-                    <img
-                      src={meta.img}
-                      alt={cat.name}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-bc-purple/95 via-bc-purple/50 to-black/20" />
-                    <div className="absolute inset-0 p-6 flex flex-col justify-end text-white space-y-2">
-                      <h3 className="font-montserrat font-extrabold text-lg text-white">
+                    <div className="relative h-[200px] overflow-hidden bg-zinc-100">
+                      <img
+                        src={meta.img}
+                        alt={cat.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                    </div>
+                    <div className="p-6 space-y-2 border-t border-zinc-100">
+                      <h3 className="font-bold text-base text-zinc-800 flex items-center justify-between group-hover:text-bc-purple transition-colors">
                         {cat.name}
+                        <ChevronRight size={16} className="text-zinc-400 group-hover:text-bc-purple transition-colors" />
                       </h3>
-                      <p className="font-instrument text-xs text-gray-200 leading-relaxed opacity-90">
+                      <p className="font-instrument text-xs text-zinc-500 leading-relaxed">
                         {meta.desc}
                       </p>
                     </div>
@@ -295,234 +302,176 @@ export function HomeClient({ categories, products }: HomeClientProps) {
           </div>
         </section>
 
-        {/* 4. COMMENT ÇA MARCHE */}
-        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-16 mb-28">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-            <h2 className="font-montserrat font-black text-3xl md:text-[40px] text-bc-navy uppercase tracking-tight">
-              Comment ça marche ?
-            </h2>
-            <div className="w-20 h-1 bg-bc-yellow mx-auto rounded-full" />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-            <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-3 gap-6">
-              
-              {/* Step 1 */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                whileHover={{ scale: 1.02 }}
-                className="bg-white rounded-3xl p-6 border border-gray-100 shadow-card flex flex-col items-center text-center space-y-4"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-bc-greenLight text-emerald-700 font-montserrat font-black text-2xl flex items-center justify-center shadow-inner">
-                  01
-                </div>
-                <h3 className="font-montserrat font-bold text-base text-bc-navy">Choisissez</h3>
-                <p className="text-xs text-gray-500 leading-relaxed font-instrument">
-                  Sélectionnez le thème ou le panier d&apos;articles idéal selon l&apos;occasion.
-                </p>
-              </motion.div>
-
-              {/* Step 2 */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                whileHover={{ scale: 1.02 }}
-                className="bg-white rounded-3xl p-6 border border-gray-100 shadow-card flex flex-col items-center text-center space-y-4"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-bc-pinkLight text-rose-700 font-montserrat font-black text-2xl flex items-center justify-center shadow-inner">
-                  02
-                </div>
-                <h3 className="font-montserrat font-bold text-base text-bc-navy">Personnalisez</h3>
-                <p className="text-xs text-gray-500 leading-relaxed font-instrument">
-                  Ajoutez un texte, une date de livraison et un message d&apos;accompagnement unique.
-                </p>
-              </motion.div>
-
-              {/* Step 3 */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                whileHover={{ scale: 1.02 }}
-                className="bg-white rounded-3xl p-6 border border-gray-100 shadow-card flex flex-col items-center text-center space-y-4"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-bc-blueLight text-blue-700 font-montserrat font-black text-2xl flex items-center justify-center shadow-inner">
-                  03
-                </div>
-                <h3 className="font-montserrat font-bold text-base text-bc-navy">Offrez</h3>
-                <p className="text-xs text-gray-500 leading-relaxed font-instrument">
-                  Nous emballons et livrons le colis avec élégance directement chez votre proche.
-                </p>
-              </motion.div>
-
+        {/* 4. COMMENT ÇA MARCHE (Light, Modern) */}
+        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 mb-24">
+          <div className="bg-zinc-50 rounded-[40px] border border-zinc-200/40 p-8 sm:p-12 lg:p-16">
+            <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+              <h2 className="font-bold text-2xl sm:text-3xl text-zinc-900 uppercase tracking-tight">
+                Comment ça marche ?
+              </h2>
+              <div className="w-12 h-1 bg-bc-purple mx-auto rounded-full" />
             </div>
 
-            <div className="lg:col-span-5 relative rounded-[32px] overflow-hidden h-[450px] shadow-premium group">
-              <img
-                src="/3-84.png"
-                alt="Sourire et joie d'offrir"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-purple-gradient py-6 px-8 text-center border-t border-white/10">
-                <p className="font-instrument font-medium text-lg md:text-xl text-white leading-relaxed">
-                  &ldquo;Nous ne nous contentons pas d&apos;envoyer des cadeaux. Nous donnons vie à vos émotions.&rdquo;
-                </p>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-6">
+                
+                {/* Step 1 */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  className="bg-white rounded-3xl p-6 border border-zinc-100 shadow-sm flex flex-col items-center text-center space-y-3"
+                >
+                  <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-700 font-bold text-base flex items-center justify-center border border-emerald-100">
+                    01
+                  </div>
+                  <h3 className="font-bold text-sm text-zinc-800">Choisissez</h3>
+                  <p className="text-[11px] text-zinc-500 leading-relaxed font-instrument">
+                    Sélectionnez le thème ou le panier d&apos;articles idéal selon l&apos;occasion.
+                  </p>
+                </motion.div>
+
+                {/* Step 2 */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  className="bg-white rounded-3xl p-6 border border-zinc-100 shadow-sm flex flex-col items-center text-center space-y-3"
+                >
+                  <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-700 font-bold text-base flex items-center justify-center border border-rose-100">
+                    02
+                  </div>
+                  <h3 className="font-bold text-sm text-zinc-800">Personnalisez</h3>
+                  <p className="text-[11px] text-zinc-500 leading-relaxed font-instrument">
+                    Ajoutez un texte, une date de livraison et un message d&apos;accompagnement unique.
+                  </p>
+                </motion.div>
+
+                {/* Step 3 */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  className="bg-white rounded-3xl p-6 border border-zinc-100 shadow-sm flex flex-col items-center text-center space-y-3"
+                >
+                  <div className="w-12 h-12 rounded-full bg-sky-50 text-sky-700 font-bold text-base flex items-center justify-center border border-sky-100">
+                    03
+                  </div>
+                  <h3 className="font-bold text-sm text-zinc-800">Offrez</h3>
+                  <p className="text-[11px] text-zinc-500 leading-relaxed font-instrument">
+                    Nous emballons et livrons le colis avec élégance directement chez votre proche.
+                  </p>
+                </motion.div>
+
+              </div>
+
+              <div className="lg:col-span-5 relative rounded-[28px] overflow-hidden h-[360px] shadow-sm border border-zinc-200/50 group">
+                <img
+                  src="/3-84.png"
+                  alt="Sourire et joie d'offrir"
+                  className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700"
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-bc-purple/95 py-5 px-6 text-center border-t border-white/5">
+                  <p className="font-instrument italic text-sm text-zinc-100 leading-relaxed">
+                    &ldquo;Nous ne nous contentons pas d&apos;envoyer des cadeaux. Nous donnons vie à vos émotions.&rdquo;
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
         {/* 5. NOS PACKS VEDETTES (PRODUITS DYNAMIQUES) */}
-        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-16 mb-28">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-            <div className="space-y-4">
-              <h2 className="font-montserrat font-black text-3xl md:text-[40px] text-bc-navy uppercase tracking-tight">
+        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 mb-24">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-5">
+            <div className="space-y-3">
+              <h2 className="font-bold text-2xl sm:text-3xl text-zinc-900 uppercase tracking-tight">
                 Nos packs vedettes
               </h2>
-              <div className="w-20 h-1 bg-bc-yellow rounded-full" />
+              <div className="w-12 h-1 bg-bc-purple rounded-full" />
             </div>
             <Link href="/catalogue">
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                className="px-6 py-3.5 rounded-2xl bg-white border border-gray-200 text-bc-purple font-montserrat font-bold text-sm tracking-wide shadow-sm flex items-center gap-2 hover:bg-gray-50 cursor-pointer"
+                whileHover={{ y: -1 }}
+                className="px-5 py-3 rounded-full bg-white border border-zinc-200 text-zinc-700 font-semibold text-xs tracking-wider flex items-center gap-1.5 hover:bg-zinc-50 cursor-pointer shadow-sm transition-all"
               >
-                VOIR TOUT LE CATALOGUE <ChevronRight size={16} />
+                VOIR TOUT LE CATALOGUE <ChevronRight size={14} />
               </motion.button>
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-            {products.map((product, i) => {
-              let imagesList: string[] = [];
-              try {
-                imagesList = typeof product.images === 'string'
-                  ? JSON.parse(product.images)
-                  : (product.images as string[]);
-              } catch {
-                imagesList = ['/1-19.png'];
-              }
-
-              return (
-                <div
-                  key={product.id}
-                  className="bg-white rounded-3xl overflow-hidden shadow-card border border-gray-100/60 hover:shadow-premium hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group"
-                >
-                  <div>
-                    <div className="relative overflow-hidden aspect-[4/3] bg-gray-50">
-                      <img
-                        src={imagesList[0] || '/1-19.png'}
-                        alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      {product.isCustomizable && (
-                        <div className="absolute top-4 left-4 bg-purple-gradient text-white text-[9px] font-montserrat font-bold tracking-wider uppercase px-3.5 py-1 rounded-full shadow-md z-10">
-                          Personnalisable
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-6 space-y-3">
-                      <span className="text-[10px] font-montserrat font-extrabold text-bc-gold tracking-widest uppercase block">
-                        {product.category.name}
-                      </span>
-                      <h3 className="font-montserrat font-bold text-base text-bc-navy line-clamp-1 leading-snug group-hover:text-bc-purple transition-colors">
-                        {product.name}
-                      </h3>
-                      <p className="text-gray-400 text-[10px] font-semibold flex items-center">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5" />
-                        Fabrication : {product.estimatedDelivery}
-                      </p>
-                      <p className="text-gray-500 text-xs line-clamp-2 leading-relaxed font-instrument">
-                        {product.description}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="p-6 pt-0 border-t border-gray-50 flex items-center justify-between mt-auto">
-                    <div className="text-bc-purple font-montserrat font-black text-base">
-                      {product.price.toLocaleString('fr-FR')} <span className="text-[10px] font-bold">FCFA</span>
-                    </div>
-                    <Link
-                      href={`/produit/${product.slug}`}
-                      className="inline-flex items-center px-4.5 py-2.5 rounded-2xl text-xs font-montserrat font-bold text-bc-purple bg-bc-yellow hover:bg-yellow-400 transition-colors shadow-sm cursor-pointer"
-                    >
-                      Détails <ChevronRight size={12} className="ml-1" />
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10 max-w-6xl mx-auto">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
         </section>
 
-        {/* 7. TEMOIGNAGES */}
-        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-16 mb-28">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-            <h2 className="font-montserrat font-black text-3xl md:text-[40px] text-bc-navy uppercase tracking-tight">
+        {/* 6. TEMOIGNAGES (Clean Light Mode Card) */}
+        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 mb-24">
+          <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
+            <h2 className="font-bold text-2xl sm:text-3xl text-zinc-900 uppercase tracking-tight">
               Témoignages
             </h2>
-            <div className="w-20 h-1 bg-bc-yellow mx-auto rounded-full" />
+            <div className="w-12 h-1 bg-bc-purple mx-auto rounded-full" />
           </div>
 
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-3xl mx-auto">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-white rounded-3xl p-8 md:p-12 border border-gray-100 shadow-card flex flex-col md:flex-row items-center gap-8 relative"
+              className="bg-white rounded-[32px] p-8 md:p-10 border border-zinc-200/50 shadow-sm flex flex-col md:flex-row items-center gap-8 relative overflow-hidden"
             >
-              <div className="absolute top-6 right-8 text-bc-yellow/15 font-black font-montserrat text-8xl pointer-events-none">
+              <div className="absolute -top-4 -right-2 text-zinc-100 font-black text-9xl pointer-events-none select-none">
                 &ldquo;
               </div>
 
               <div className="relative flex-shrink-0">
-                <div className="w-[124px] h-[124px] bg-gold-gradient rounded-full absolute -top-1 -left-1 blur-sm opacity-60" />
                 <img
                   src="/11-157.png"
                   alt="Lara ANAGONOU"
-                  className="w-[120px] h-[120px] rounded-full object-cover relative z-10 border-4 border-white"
+                  className="w-[100px] h-[100px] rounded-full object-cover relative z-10 border-2 border-zinc-100 shadow-sm"
                 />
               </div>
               
-              <div className="flex-1 space-y-4">
+              <div className="flex-1 space-y-3 relative z-10">
                 <div className="flex text-bc-yellow">
                   {Array.from({ length: 5 }).map((_, idx) => (
-                    <Sparkles key={idx} size={14} className="fill-current" />
+                    <Sparkles key={idx} size={13} className="fill-current text-bc-yellow" />
                   ))}
                 </div>
-                <p className="font-instrument italic text-base text-bc-heading leading-relaxed text-justify">
+                <p className="font-instrument italic text-sm md:text-base text-zinc-600 leading-relaxed text-justify">
                   &ldquo;J&apos;ai commandé un pack anniversaire pour ma mère à distance et le service a été impeccable. L&apos;emballage était absolument somptueux et la livraison a été effectuée à l&apos;heure exacte demandée. Je recommande vivement Bénin Cadeau !&rdquo;
                 </p>
                 <div>
-                  <p className="font-montserrat font-bold text-base text-bc-navy">
+                  <p className="font-bold text-sm text-zinc-800">
                     Lara ANAGONOU
                   </p>
-                  <p className="text-xs text-gray-400">Client fidèle — Cotonou</p>
+                  <p className="text-[11px] text-zinc-400">Client fidèle — Cotonou</p>
                 </div>
               </div>
             </motion.div>
           </div>
         </section>
 
-        {/* 8. FAQ */}
-        <section className="max-w-[1000px] mx-auto px-4 sm:px-6 mb-28">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-            <h2 className="font-montserrat font-black text-3xl md:text-[40px] text-bc-navy uppercase tracking-tight">
+        {/* 7. FAQ (Clean Accordions) */}
+        <section className="max-w-[840px] mx-auto px-4 sm:px-6 mb-24">
+          <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
+            <h2 className="font-bold text-2xl sm:text-3xl text-zinc-900 uppercase tracking-tight">
               Foire aux questions
             </h2>
-            <div className="w-20 h-1 bg-bc-yellow mx-auto rounded-full" />
+            <div className="w-12 h-1 bg-bc-purple mx-auto rounded-full" />
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {faqs.map((faq, index) => (
               <div
                 key={index}
-                className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+                className="bg-white rounded-2xl border border-zinc-200/50 shadow-sm overflow-hidden"
               >
                 <button
-                  className="w-full flex justify-between items-center text-left py-5 px-6 font-montserrat font-bold text-base md:text-lg text-bc-navy hover:text-bc-purple transition-colors focus:outline-none"
+                  className="w-full flex justify-between items-center text-left py-4.5 px-5 font-bold text-sm sm:text-base text-zinc-800 hover:text-bc-purple transition-colors focus:outline-none"
                   onClick={() =>
                     setOpenFaqIndex(openFaqIndex === index ? null : index)
                   }
@@ -530,10 +479,10 @@ export function HomeClient({ categories, products }: HomeClientProps) {
                   <span>{faq.question}</span>
                   <ChevronDown
                     className={cn(
-                      'text-gray-400 transition-transform duration-300 flex-shrink-0',
+                      'text-zinc-400 transition-transform duration-300 flex-shrink-0',
                       openFaqIndex === index && 'rotate-180 text-bc-purple'
                     )}
-                    size={20}
+                    size={16}
                   />
                 </button>
                 <AnimatePresence>
@@ -542,11 +491,11 @@ export function HomeClient({ categories, products }: HomeClientProps) {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25 }}
+                      transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <div className="px-6 pb-6 pt-1 border-t border-gray-50">
-                        <p className="font-instrument text-sm md:text-base text-gray-500 leading-relaxed text-justify">
+                      <div className="px-5 pb-5 pt-0.5 border-t border-zinc-50">
+                        <p className="font-instrument text-xs sm:text-sm text-zinc-500 leading-relaxed text-justify">
                           {faq.answer}
                         </p>
                       </div>
@@ -558,28 +507,27 @@ export function HomeClient({ categories, products }: HomeClientProps) {
           </div>
         </section>
 
-        {/* 9. BIG CTA BANNER */}
-        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-16 mb-24">
-          <div className="relative h-[480px] rounded-[36px] overflow-hidden shadow-premium">
+        {/* 8. BIG CTA BANNER (Contrast layout) */}
+        <section className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 mb-20">
+          <div className="relative h-[400px] rounded-[36px] overflow-hidden border border-zinc-200/30 shadow-premium">
             <img
               src="/14-174.png"
               alt="Cadeaux haut de gamme"
-              className="w-full h-full object-cover scale-105"
+              className="w-full h-full object-cover scale-103"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-bc-purpleDark/95 via-bc-purple/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-bc-purpleDark/95 via-bc-purple/40 to-transparent" />
             
-            <div className="absolute inset-0 flex flex-col justify-center px-8 sm:px-16 max-w-2xl text-white space-y-6">
-              <h2 className="font-montserrat font-extrabold text-3xl md:text-4xl lg:text-[44px] leading-tight">
-                Prêt(e) à offrir <span className="text-gold-gradient">autrement ?</span>
+            <div className="absolute inset-0 flex flex-col justify-center px-6 sm:px-16 max-w-2xl text-white space-y-5">
+              <h2 className="font-bold text-3xl md:text-4xl leading-tight">
+                Prêt(e) à offrir <span className="text-bc-yellow">autrement ?</span>
               </h2>
-              <p className="font-instrument text-base md:text-lg text-gray-200 leading-relaxed">
+              <p className="font-instrument text-sm sm:text-base text-zinc-200 leading-relaxed">
                 Demandez un cadeau personnalisé maintenant et faites de chaque geste un moment inoubliable pour ceux que vous aimez.
               </p>
               <Link href="/commander" className="inline-block w-fit">
                 <motion.button
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
-                  className="px-8 py-4.5 rounded-2xl bg-gold-gradient text-bc-purpleDark font-montserrat font-bold text-base uppercase tracking-wider shadow-yellow-glow cursor-pointer"
+                  whileHover={{ y: -1 }}
+                  className="px-7 py-3.5 rounded-full bg-bc-yellow hover:bg-yellow-400 text-bc-purple font-bold text-xs tracking-wider uppercase shadow-sm cursor-pointer transition-all"
                 >
                   Passer une commande
                 </motion.button>

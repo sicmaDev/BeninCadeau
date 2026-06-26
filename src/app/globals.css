@@ -1,6 +1,6 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 @import url('https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css');
+@import "tailwindcss";
 
 @theme inline {
   /* ── Fonts ── */
@@ -10,21 +10,21 @@
   --font-poppins: 'Poppins', sans-serif;
 
   /* ── Brand colours (bc-*) ── */
-  --color-bc-bg: #F8F9FD;
+  --color-bc-bg: #FAFAFA;
   --color-bc-purple: #2A1160;
   --color-bc-purpleDark: #1E0A47;
-  --color-bc-purpleLight: #F3E8FF;
+  --color-bc-purpleLight: #F4EFFF;
   --color-bc-yellow: #F7BD0D;
   --color-bc-gold: #D4AF37;
   --color-bc-goldDark: #AA7C11;
-  --color-bc-goldLight: #FDF3CD;
-  --color-bc-heading: #2D2A32;
-  --color-bc-navy: #0B132B;
-  --color-bc-navyDark: #011E2D;
-  --color-bc-blueLight: #E3F2FD;
-  --color-bc-pinkLight: #FCE4EC;
-  --color-bc-greenLight: #E8F5E9;
-  --color-bc-cream: #FFFDE7;
+  --color-bc-goldLight: #FFFBEA;
+  --color-bc-heading: #18181B;
+  --color-bc-navy: #0F172A;
+  --color-bc-navyDark: #020617;
+  --color-bc-blueLight: #F0F9FF;
+  --color-bc-pinkLight: #FFF1F2;
+  --color-bc-greenLight: #F0FDF4;
+  --color-bc-cream: #FEFCE8;
 
   /* ── Admin Template colours ── */
   --color-admin-primary: #E66239;
@@ -36,10 +36,10 @@
   --color-admin-border: #E5E5E5;
 
   /* ── Shadows ── */
-  --shadow-yellow-glow: 0px 8px 32px 0px rgba(247, 189, 13, 0.25);
-  --shadow-purple-glow: 0px 8px 32px 0px rgba(42, 17, 96, 0.15);
-  --shadow-card: 0px 10px 30px -5px rgba(11, 19, 43, 0.06), 0px 4px 12px -2px rgba(11, 19, 43, 0.03);
-  --shadow-premium: 0px 20px 40px -15px rgba(42, 17, 96, 0.12);
+  --shadow-yellow-glow: 0px 4px 16px 0px rgba(247, 189, 13, 0.1);
+  --shadow-purple-glow: 0px 4px 16px 0px rgba(42, 17, 96, 0.06);
+  --shadow-card: 0px 2px 12px rgba(0, 0, 0, 0.03), 0px 1px 4px rgba(0, 0, 0, 0.015);
+  --shadow-premium: 0px 8px 30px -4px rgba(0, 0, 0, 0.05), 0px 4px 12px -2px rgba(0, 0, 0, 0.02);
 }
 
 /* ── Utility class for gradients ── */
@@ -56,22 +56,22 @@
 }
 
 @utility bg-dark-gradient {
-  background: linear-gradient(135deg, #011E2D 0%, #0B132B 100%);
+  background: linear-gradient(135deg, #020617 0%, #0F172A 100%);
 }
 
 /* ── Glassmorphism utilities ── */
 @utility glass-panel {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(228, 228, 231, 0.4);
 }
 
 @utility glass-panel-dark {
-  background: rgba(11, 19, 43, 0.8);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 @utility text-gold-gradient {
@@ -87,13 +87,14 @@
 /* ── Base styles ── */
 @layer base {
   body {
-    font-family: var(--font-instrument), sans-serif;
-    color: #3C3A40;
-    background-color: #F8F9FD;
+    font-family: var(--font-inter), sans-serif;
+    color: #3F3F46; /* zinc-700 */
+    background-color: #FAFAFA;
     overflow-x: hidden;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-montserrat), sans-serif;
+    font-family: var(--font-inter), sans-serif;
+    font-weight: 700;
   }
 }
 

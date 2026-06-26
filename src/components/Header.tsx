@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, ShoppingCart, User } from 'lucide-react';
+import { Menu, X, ShoppingCart, User, Search } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -12,6 +12,7 @@ export function Header() {
   const [cartCount, setCartCount] = useState(0);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [searchVal, setSearchVal] = useState('');
   const pathname = usePathname();
 
   useEffect(() => {
@@ -43,7 +44,6 @@ export function Header() {
     updateCount();
     window.addEventListener('cart-updated', updateCount);
 
-    // Fetch user info to check if they are logged in or admin
     fetch('/api/auth/me')
       .then(res => {
         if (res.ok) return res.json();
@@ -73,107 +73,126 @@ export function Header() {
     { name: 'Contact', path: '/contact' },
   ];
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchVal.trim()) {
+      window.location.href = `/catalogue?q=${encodeURIComponent(searchVal.trim())}`;
+    }
+  };
+
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 transition-all duration-300 font-instrument w-full",
+        "sticky top-0 z-50 transition-all duration-300 w-full",
         isScrolled
-          ? "glass-panel py-2 shadow-card"
-          : "bg-white py-4 border-b border-gray-100"
+          ? "bg-white/95 backdrop-blur-md py-2.5 border-b border-zinc-100 shadow-sm"
+          : "bg-white py-3.5 border-b border-zinc-100"
       )}
     >
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12">
-        <div className="flex items-center justify-between h-[68px]">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10">
+        <div className="flex items-center justify-between h-[60px]">
           
           {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center flex-shrink-0">
             <motion.img
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              whileHover={{ scale: 1.03 }}
+              transition={{ type: "spring", stiffness: 400, damping: 12 }}
               src="/1-19.png"
               alt="Bénin Cadeau"
-              className="w-[70px] h-[68px] object-contain cursor-pointer"
+              className="w-[60px] h-[58px] object-contain cursor-pointer"
             />
           </Link>
 
-          {/* Desktop Nav - right aligned */}
-          <div className="hidden lg:flex items-center space-x-10">
-            <nav className="flex space-x-10 items-center">
-              {navLinks.map((link) => {
-                const isActive = pathname === link.path;
-                return (
-                  <Link
-                    key={link.name}
-                    href={link.path}
-                    className="relative py-1 font-semibold text-[17px] tracking-wide text-bc-heading hover:text-bc-purple transition-colors whitespace-nowrap group"
-                  >
-                    <span>{link.name}</span>
-                    {isActive ? (
-                      <motion.div
-                        layoutId="activeNavIndicator"
-                        className="absolute bottom-0 left-0 right-0 h-[3px] bg-bc-yellow rounded-full"
-                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                      />
-                    ) : (
-                      <span className="absolute bottom-0 left-1/2 w-0 h-[3px] bg-bc-yellow/60 rounded-full transition-all duration-300 group-hover:w-full group-hover:left-0" />
-                    )}
-                  </Link>
-                );
-              })}
-              {userRole === 'ADMIN' && (
+          {/* Desktop Nav - center aligned */}
+          <nav className="hidden lg:flex items-center space-x-8">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.path;
+              return (
                 <Link
-                  href="/admin"
-                  className="font-bold text-[17px] text-red-500 hover:text-red-700 transition-colors whitespace-nowrap border border-red-200 hover:border-red-400 rounded-xl px-4 py-1.5 bg-red-50/50"
-                >
-                  Admin Panel
-                </Link>
-              )}
-            </nav>
-
-            {/* Icons */}
-            <div className="flex items-center space-x-6 border-l pl-6 border-gray-200">
-              {/* Account Link */}
-              <Link href="/compte" className="text-bc-navy hover:text-bc-purple transition-all hover:scale-110 relative p-1" title="Mon Compte">
-                <User size={23} />
-              </Link>
-
-              {/* Cart Indicator */}
-              <Link href="/panier" className="text-bc-navy hover:text-bc-purple transition-all hover:scale-110 relative p-1" title="Panier">
-                <ShoppingCart size={23} />
-                <AnimatePresence>
-                  {cartCount > 0 && (
-                    <motion.span
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      className="absolute -top-1.5 -right-1.5 bg-bc-yellow text-bc-purple font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-yellow-glow"
-                    >
-                      {cartCount}
-                    </motion.span>
+                  key={link.name}
+                  href={link.path}
+                  className={cn(
+                    "relative py-2 text-sm font-semibold tracking-wide transition-colors whitespace-nowrap",
+                    isActive ? "text-bc-purple font-bold" : "text-zinc-600 hover:text-bc-purple"
                   )}
-                </AnimatePresence>
+                >
+                  <span>{link.name}</span>
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeNavIndicator"
+                      className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-bc-yellow rounded-full"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
+            {userRole === 'ADMIN' && (
+              <Link
+                href="/admin"
+                className="text-xs font-bold text-red-500 hover:text-red-700 transition-colors whitespace-nowrap border border-red-200 hover:border-red-400 rounded-full px-3.5 py-1.5 bg-red-50/50"
+              >
+                Panel Admin
               </Link>
-            </div>
-          </div>
+            )}
+          </nav>
 
-          {/* Mobile Actions */}
-          <div className="flex lg:hidden items-center space-x-3">
-            
-            {/* Account Icon Mobile */}
-            <Link href="/compte" className="text-bc-navy hover:text-bc-purple p-2 transition-transform active:scale-95">
-              <User size={22} />
+          {/* Right side controls */}
+          <div className="hidden lg:flex items-center space-x-5">
+            {/* Search Pill */}
+            <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+              <input
+                type="text"
+                placeholder="Rechercher..."
+                value={searchVal}
+                onChange={(e) => setSearchVal(e.target.value)}
+                className="pl-9 pr-4 py-1.5 rounded-full border border-zinc-200 bg-zinc-50/50 hover:bg-zinc-50 focus:bg-white focus:outline-none focus:border-bc-purple text-xs w-40 focus:w-56 transition-all font-medium"
+              />
+              <Search size={14} className="absolute left-3 text-zinc-400 pointer-events-none" />
+            </form>
+
+            <div className="h-5 w-[1px] bg-zinc-200" />
+
+            {/* Account Icon */}
+            <Link href="/compte" className="text-zinc-700 hover:text-bc-purple transition-all p-1.5 rounded-full hover:bg-zinc-50 relative flex items-center justify-center" title="Mon Compte">
+              <User size={19} />
             </Link>
 
-            {/* Cart Icon Mobile */}
-            <Link href="/panier" className="text-bc-navy hover:text-bc-purple p-2 relative transition-transform active:scale-95">
-              <ShoppingCart size={22} />
+            {/* Cart Icon */}
+            <Link href="/panier" className="text-zinc-700 hover:text-bc-purple transition-all p-1.5 rounded-full hover:bg-zinc-50 relative flex items-center justify-center" title="Panier">
+              <ShoppingCart size={19} />
               <AnimatePresence>
                 {cartCount > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     exit={{ scale: 0 }}
-                    className="absolute top-1 right-1 bg-bc-yellow text-bc-purple font-black text-[9px] w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white"
+                    className="absolute -top-0.5 -right-0.5 bg-bc-yellow text-bc-purple font-black text-[9px] w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white shadow-sm"
+                  >
+                    {cartCount}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </Link>
+          </div>
+
+          {/* Mobile Actions */}
+          <div className="flex lg:hidden items-center space-x-2">
+            {/* Account Mobile */}
+            <Link href="/compte" className="text-zinc-700 hover:text-bc-purple p-2 rounded-full hover:bg-zinc-50 transition-colors">
+              <User size={19} />
+            </Link>
+
+            {/* Cart Mobile */}
+            <Link href="/panier" className="text-zinc-700 hover:text-bc-purple p-2 rounded-full hover:bg-zinc-50 transition-colors relative">
+              <ShoppingCart size={19} />
+              <AnimatePresence>
+                {cartCount > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="absolute top-1 right-1 bg-bc-yellow text-bc-purple font-black text-[8px] w-4 h-4 rounded-full flex items-center justify-center border border-white"
                   >
                     {cartCount}
                   </motion.span>
@@ -181,12 +200,17 @@ export function Header() {
               </AnimatePresence>
             </Link>
 
+            {/* Search Button Mobile (redirects to catalog) */}
+            <Link href="/catalogue" className="text-zinc-700 hover:text-bc-purple p-2 rounded-full hover:bg-zinc-50 transition-colors">
+              <Search size={19} />
+            </Link>
+
             {/* Burger Menu Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-bc-heading hover:text-bc-purple focus:outline-none p-2 rounded-xl transition-colors hover:bg-gray-100"
+              className="text-zinc-700 hover:text-bc-purple p-2 rounded-full hover:bg-zinc-50 transition-colors focus:outline-none"
             >
-              {isOpen ? <X size={26} /> : <Menu size={26} />}
+              {isOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
 
@@ -197,13 +221,13 @@ export function Header() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -15 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.2 }}
-            className="lg:hidden absolute top-full left-0 right-0 bg-white border-t border-gray-100 py-4 shadow-premium"
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.15 }}
+            className="lg:hidden absolute top-full left-0 right-0 bg-white border-b border-zinc-100 py-3 shadow-md"
           >
-            <div className="px-6 space-y-2">
+            <div className="px-5 space-y-1">
               {navLinks.map((link) => {
                 const isActive = pathname === link.path;
                 return (
@@ -212,10 +236,10 @@ export function Header() {
                     href={link.path}
                     onClick={() => setIsOpen(false)}
                     className={cn(
-                      'block px-4 py-3 rounded-xl text-base font-semibold transition-all',
+                      'block px-4 py-2.5 rounded-xl text-sm font-semibold transition-all',
                       isActive
                         ? 'text-bc-purple bg-bc-purpleLight font-bold'
-                        : 'text-bc-heading hover:text-bc-purple hover:bg-gray-50'
+                        : 'text-zinc-700 hover:text-bc-purple hover:bg-zinc-50'
                     )}
                   >
                     {link.name}
@@ -226,7 +250,7 @@ export function Header() {
                 <Link
                   href="/admin"
                   onClick={() => setIsOpen(false)}
-                  className="block px-4 py-3 rounded-xl text-base font-bold text-red-500 bg-red-50"
+                  className="block px-4 py-2.5 rounded-xl text-sm font-bold text-red-500 bg-red-50"
                 >
                   Tableau de bord Admin
                 </Link>
@@ -238,4 +262,3 @@ export function Header() {
     </header>
   );
 }
-

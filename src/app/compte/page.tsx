@@ -13,7 +13,7 @@ interface OrderItem {
   product: {
     name: string;
     slug: string;
-    images: string; // JSON string or array
+    images: string; 
   };
   quantity: number;
   price: number;
@@ -199,10 +199,10 @@ export default function AccountPage() {
       ANNULEE: { bg: 'bg-red-50 text-red-700 border-red-200/50', label: 'Annulée' },
     };
 
-    const current = statuses[status] || { bg: 'bg-gray-50 text-gray-700 border-gray-200', label: status };
+    const current = statuses[status] || { bg: 'bg-zinc-50 text-zinc-700 border-zinc-200', label: status };
 
     return (
-      <span className={`px-3 py-1 rounded-full text-[10px] font-montserrat font-bold uppercase tracking-wider border ${current.bg}`}>
+      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${current.bg}`}>
         {current.label}
       </span>
     );
@@ -210,27 +210,27 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-bc-bg flex items-center justify-center">
+      <div className="min-h-screen bg-zinc-50 flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
-          <div className="w-12 h-12 border-4 border-bc-yellow border-t-bc-purple rounded-full animate-spin"></div>
-          <p className="text-bc-heading font-montserrat font-bold text-sm tracking-wider uppercase">Chargement de votre espace...</p>
+          <div className="w-10 h-10 border-2 border-bc-purple border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-zinc-650 font-semibold text-xs tracking-wider uppercase">Chargement de votre espace...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-bc-bg">
+    <div className="min-h-screen flex flex-col bg-zinc-50/30">
       <Header />
-      <main className="flex-grow py-16 px-4 sm:px-6 lg:px-8 font-instrument pb-24">
-        <div className="max-w-[1200px] mx-auto">
+      <main className="flex-grow py-12 px-4 sm:px-6 lg:px-12 font-instrument pb-24">
+        <div className="max-w-[1280px] mx-auto">
           
           <div className="flex items-center gap-3 mb-10">
-            <h1 className="text-3xl font-extrabold text-bc-purple font-montserrat tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight">
               Mon Espace Client
             </h1>
             {user && (
-              <span className="bg-bc-purple/10 text-bc-purple font-montserrat font-bold text-xs px-3.5 py-1 rounded-full border border-bc-purple/20 uppercase tracking-wider">
+              <span className="bg-bc-purpleLight text-bc-purple font-semibold text-xs px-3 py-1 rounded-full border border-bc-purple/10 uppercase tracking-wider">
                 Tableau de bord
               </span>
             )}
@@ -239,16 +239,16 @@ export default function AccountPage() {
           {!user ? (
             /* AUTHENTICATION FORM */
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              className="max-w-md mx-auto bg-white rounded-[32px] shadow-premium overflow-hidden border border-gray-100/60"
+              className="max-w-md mx-auto bg-white rounded-3xl p-6 sm:p-8 border border-zinc-200/50 shadow-sm"
             >
-              <div className="p-8 sm:p-10">
-                <div className="text-center mb-8 space-y-2">
-                  <h2 className="text-2xl sm:text-3xl font-extrabold font-montserrat text-bc-purple">
+              <div className="space-y-6">
+                <div className="text-center space-y-1.5">
+                  <h2 className="text-xl sm:text-2xl font-bold text-zinc-900">
                     {isLogin ? 'Connexion' : 'Création de compte'}
                   </h2>
-                  <p className="text-xs text-gray-500 leading-relaxed max-w-[280px] mx-auto">
+                  <p className="text-xs text-zinc-500 leading-relaxed max-w-[280px] mx-auto">
                     {isLogin 
                       ? 'Accédez à votre historique et gérez vos commandes de prestige.' 
                       : 'Rejoignez le club Bénin Cadeau pour commander plus rapidement.'}
@@ -256,129 +256,103 @@ export default function AccountPage() {
                 </div>
 
                 {error && (
-                  <div className="bg-red-50 border border-red-200 text-red-600 rounded-2xl p-4 text-xs font-semibold mb-6 shadow-sm">
+                  <div className="bg-red-50 border border-red-200 text-red-650 rounded-2xl p-4 text-xs font-semibold shadow-sm">
                     {error}
                   </div>
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {!isLogin && (
-                    <div>
-                      <label className="block text-[10px] font-bold text-bc-navy uppercase tracking-widest font-montserrat mb-1.5 ml-1">Nom Complet</label>
-                      <div className="relative border border-gray-200 rounded-2xl p-3 flex items-center bg-gray-50/30 focus-within:bg-white focus-within:ring-2 focus-within:ring-bc-purple/10 focus-within:border-bc-purple transition-all">
-                        <span className="text-gray-400 mr-2.5 flex-shrink-0">
-                          <User size={16} />
-                        </span>
-                        <input
-                          type="text"
-                          required
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          placeholder="Ex: Jean DUPONT"
-                          className="w-full focus:outline-none text-bc-heading placeholder-gray-400 text-sm font-medium bg-transparent"
-                        />
-                      </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Nom Complet</label>
+                      <input
+                        type="text"
+                        required
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Ex: Jean DUPONT"
+                        className="w-full rounded-full border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs font-medium focus:bg-white focus:outline-none focus:border-bc-purple focus:ring-1 focus:ring-bc-purple transition-all"
+                      />
                     </div>
                   )}
 
-                  <div>
-                    <label className="block text-[10px] font-bold text-bc-navy uppercase tracking-widest font-montserrat mb-1.5 ml-1">Adresse E-mail</label>
-                    <div className="relative border border-gray-200 rounded-2xl p-3 flex items-center bg-gray-50/30 focus-within:bg-white focus-within:ring-2 focus-within:ring-bc-purple/10 focus-within:border-bc-purple transition-all">
-                      <span className="text-gray-400 mr-2.5 flex-shrink-0">
-                        <Mail size={16} />
-                      </span>
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Ex: jean.dupont@mail.com"
-                        className="w-full focus:outline-none text-bc-heading placeholder-gray-400 text-sm font-medium bg-transparent"
-                      />
-                    </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Adresse E-mail</label>
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Ex: jean.dupont@mail.com"
+                      className="w-full rounded-full border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs font-medium focus:bg-white focus:outline-none focus:border-bc-purple focus:ring-1 focus:ring-bc-purple transition-all"
+                    />
                   </div>
 
-                  <div>
-                    <label className="block text-[10px] font-bold text-bc-navy uppercase tracking-widest font-montserrat mb-1.5 ml-1">Mot de Passe</label>
-                    <div className="relative border border-gray-200 rounded-2xl p-3 flex items-center bg-gray-50/30 focus-within:bg-white focus-within:ring-2 focus-within:ring-bc-purple/10 focus-within:border-bc-purple transition-all">
-                      <span className="text-gray-400 mr-2.5 flex-shrink-0">
-                        <Lock size={16} />
-                      </span>
-                      <input
-                        type="password"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full focus:outline-none text-bc-heading placeholder-gray-400 text-sm font-medium bg-transparent"
-                      />
-                    </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Mot de Passe</label>
+                    <input
+                      type="password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full rounded-full border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs font-medium focus:bg-white focus:outline-none focus:border-bc-purple focus:ring-1 focus:ring-bc-purple transition-all"
+                    />
                   </div>
 
                   {!isLogin && (
                     <>
-                      <div>
-                        <label className="block text-[10px] font-bold text-bc-navy uppercase tracking-widest font-montserrat mb-1.5 ml-1">Téléphone (WhatsApp)</label>
-                        <div className="relative border border-gray-200 rounded-2xl p-3 flex items-center bg-gray-50/30 focus-within:bg-white focus-within:ring-2 focus-within:ring-bc-purple/10 focus-within:border-bc-purple transition-all">
-                          <span className="text-gray-400 mr-2.5 flex-shrink-0">
-                            <Phone size={16} />
-                          </span>
-                          <input
-                            type="tel"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            placeholder="Ex: +229 90 00 00 00"
-                            className="w-full focus:outline-none text-bc-heading placeholder-gray-400 text-sm font-medium bg-transparent"
-                          />
-                        </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Téléphone (WhatsApp)</label>
+                        <input
+                          type="tel"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder="Ex: +229 90 00 00 00"
+                          className="w-full rounded-full border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs font-medium focus:bg-white focus:outline-none focus:border-bc-purple focus:ring-1 focus:ring-bc-purple transition-all"
+                        />
                       </div>
 
-                      <div>
-                        <label className="block text-[10px] font-bold text-bc-navy uppercase tracking-widest font-montserrat mb-1.5 ml-1">Adresse de livraison par défaut</label>
-                        <div className="relative border border-gray-200 rounded-2xl p-3 flex items-center bg-gray-50/30 focus-within:bg-white focus-within:ring-2 focus-within:ring-bc-purple/10 focus-within:border-bc-purple transition-all">
-                          <span className="text-gray-400 mr-2.5 flex-shrink-0">
-                            <MapPin size={16} />
-                          </span>
-                          <input
-                            type="text"
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            placeholder="Ex: Maison X, Quartier Y, Cotonou"
-                            className="w-full focus:outline-none text-bc-heading placeholder-gray-400 text-sm font-medium bg-transparent"
-                          />
-                        </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Adresse de livraison par défaut</label>
+                        <input
+                          type="text"
+                          value={address}
+                          onChange={(e) => setAddress(e.target.value)}
+                          placeholder="Ex: Maison X, Quartier Y, Cotonou"
+                          className="w-full rounded-full border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs font-medium focus:bg-white focus:outline-none focus:border-bc-purple focus:ring-1 focus:ring-bc-purple transition-all"
+                        />
                       </div>
                     </>
                   )}
 
                   <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{ y: -1 }}
                     type="submit"
                     disabled={formLoading}
-                    className="w-full flex justify-center items-center py-4 px-4 rounded-2xl shadow-yellow-glow text-sm font-montserrat font-bold uppercase tracking-wider text-bc-purple bg-gold-gradient hover:bg-yellow-400 focus:outline-none transition-all duration-200 cursor-pointer disabled:opacity-50"
+                    className="w-full flex justify-center items-center py-3.5 px-4 rounded-full text-xs font-bold uppercase tracking-wider text-white bg-bc-purple hover:bg-bc-purpleDark focus:outline-none transition-all cursor-pointer disabled:opacity-50"
                   >
                     {formLoading ? (
-                      <Loader2 className="w-5 h-5 animate-spin text-bc-purple" />
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
                     ) : isLogin ? (
                       <>
-                        Se Connecter <ArrowRight size={16} className="ml-2" />
+                        Se Connecter <ArrowRight size={14} className="ml-1.5" />
                       </>
                     ) : (
                       <>
-                        Créer mon Compte <UserPlus size={16} className="ml-2" />
+                        Créer mon Compte <UserPlus size={14} className="ml-1.5" />
                       </>
                     )}
                   </motion.button>
                 </form>
 
-                <div className="mt-8 text-center">
+                <div className="text-center pt-2">
                   <button
                     onClick={() => {
                       setIsLogin(!isLogin);
                       setError('');
                     }}
-                    className="text-xs text-bc-purple hover:underline font-bold font-montserrat uppercase tracking-wider"
+                    className="text-xs text-bc-purple hover:underline font-bold uppercase tracking-wider"
                   >
                     {isLogin 
                       ? "Nouveau ? Créer un compte" 
@@ -389,23 +363,23 @@ export default function AccountPage() {
             </motion.div>
           ) : (
             /* CUSTOMER DASHBOARD */
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               
               {/* User Info Sidebar (Left) */}
-              <div className="lg:col-span-4 bg-white p-6 sm:p-8 rounded-[32px] shadow-card border border-gray-100/60 h-fit space-y-8">
+              <div className="lg:col-span-4 bg-white p-6 sm:p-8 rounded-3xl border border-zinc-200/50 shadow-sm h-fit space-y-6">
                 {profileSuccess && (
                   <div className="bg-green-50 border border-green-200 text-green-600 rounded-2xl p-4 text-xs font-semibold shadow-sm">
                     {profileSuccess}
                   </div>
                 )}
                 
-                <div className="flex items-center space-x-4 pb-6 border-b border-gray-100">
-                  <div className="w-16 h-16 rounded-2xl bg-purple-gradient text-white flex items-center justify-center font-bold text-xl font-montserrat shadow-purple-glow">
+                <div className="flex items-center space-x-3.5 pb-5 border-b border-zinc-100">
+                  <div className="w-12 h-12 rounded-full bg-bc-purple text-white flex items-center justify-center font-bold text-base shadow-sm">
                     {user.name ? user.name.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U'}
                   </div>
-                  <div className="space-y-1">
-                    <h3 className="text-lg font-bold text-bc-navy font-montserrat line-clamp-1 leading-tight">{user.name}</h3>
-                    <span className="px-2.5 py-0.5 rounded-full text-[9px] bg-purple-50 text-bc-purple border border-purple-100 font-extrabold uppercase tracking-widest inline-block">
+                  <div className="space-y-0.5">
+                    <h3 className="text-base font-bold text-zinc-900 line-clamp-1 leading-tight">{user.name}</h3>
+                    <span className="px-2 py-0.5 rounded-full text-[9px] bg-bc-purpleLight text-bc-purple border border-bc-purple/10 font-bold uppercase tracking-wider inline-block">
                       {user.role === 'ADMIN' ? 'Administrateur' : 'Client Privilégié'}
                     </span>
                   </div>
@@ -414,43 +388,43 @@ export default function AccountPage() {
                 {isEditingProfile ? (
                   <form onSubmit={handleUpdateProfile} className="space-y-4">
                     {profileError && (
-                      <div className="bg-red-50 border border-red-200 text-red-600 rounded-2xl p-4 text-xs font-semibold shadow-sm">
+                      <div className="bg-red-50 border border-red-200 text-red-650 rounded-2xl p-4 text-xs font-semibold shadow-sm">
                         {profileError}
                       </div>
                     )}
-                    <div>
-                      <label className="block text-[10px] font-bold text-bc-navy uppercase tracking-widest font-montserrat mb-1.5 ml-1">Nom Complet</label>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Nom Complet</label>
                       <input
                         type="text"
                         required
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3 px-4 text-bc-heading focus:ring-2 focus:ring-bc-purple focus:border-bc-purple outline-none text-sm font-medium transition-all"
+                        className="w-full rounded-full border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs font-medium focus:bg-white focus:outline-none focus:border-bc-purple focus:ring-1 focus:ring-bc-purple transition-all"
                       />
                     </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-bc-navy uppercase tracking-widest font-montserrat mb-1.5 ml-1">Téléphone (WhatsApp)</label>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Téléphone (WhatsApp)</label>
                       <input
                         type="tel"
                         value={editPhone}
                         onChange={(e) => setEditPhone(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3 px-4 text-bc-heading focus:ring-2 focus:ring-bc-purple focus:border-bc-purple outline-none text-sm font-medium transition-all"
+                        className="w-full rounded-full border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs font-medium focus:bg-white focus:outline-none focus:border-bc-purple focus:ring-1 focus:ring-bc-purple transition-all"
                       />
                     </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-bc-navy uppercase tracking-widest font-montserrat mb-1.5 ml-1">Adresse de livraison</label>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Adresse de livraison</label>
                       <input
                         type="text"
                         value={editAddress}
                         onChange={(e) => setEditAddress(e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3 px-4 text-bc-heading focus:ring-2 focus:ring-bc-purple focus:border-bc-purple outline-none text-sm font-medium transition-all"
+                        className="w-full rounded-full border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs font-medium focus:bg-white focus:outline-none focus:border-bc-purple focus:ring-1 focus:ring-bc-purple transition-all"
                       />
                     </div>
-                    <div className="flex gap-3 pt-2">
+                    <div className="flex gap-2 pt-2">
                       <button
                         type="submit"
                         disabled={profileSubmitting}
-                        className="flex-1 py-3 px-4 bg-bc-purple hover:bg-bc-purpleDark text-white rounded-2xl text-xs font-montserrat font-bold uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
+                        className="flex-1 py-2.5 px-4 bg-bc-purple hover:bg-bc-purpleDark text-white rounded-full text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
                       >
                         {profileSubmitting ? '...' : 'Enregistrer'}
                       </button>
@@ -460,7 +434,7 @@ export default function AccountPage() {
                           setIsEditingProfile(false);
                           setProfileError('');
                         }}
-                        className="flex-1 py-3 px-4 border border-gray-200 text-gray-500 hover:bg-gray-50 rounded-2xl text-xs font-montserrat font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                        className="flex-1 py-2.5 px-4 border border-zinc-250 text-zinc-550 hover:bg-zinc-50 rounded-full text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
                       >
                         Annuler
                       </button>
@@ -468,58 +442,56 @@ export default function AccountPage() {
                   </form>
                 ) : (
                   <>
-                    <div className="space-y-4">
-                      <div className="flex items-start space-x-3.5 text-sm">
-                        <Mail className="text-gray-400 mt-1 flex-shrink-0" size={16} />
+                    <div className="space-y-3.5">
+                      <div className="flex items-start space-x-3 text-xs">
+                        <Mail className="text-zinc-400 mt-1 flex-shrink-0" size={14} />
                         <div className="space-y-0.5">
-                          <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-widest font-montserrat">E-mail</span>
-                          <span className="font-semibold text-bc-heading">{user.email}</span>
+                          <span className="block text-[9px] text-zinc-400 font-bold uppercase tracking-wider">E-mail</span>
+                          <span className="font-semibold text-zinc-700">{user.email}</span>
                         </div>
                       </div>
 
-                      <div className="flex items-start space-x-3.5 text-sm">
-                        <Phone className="text-gray-400 mt-1 flex-shrink-0" size={16} />
+                      <div className="flex items-start space-x-3 text-xs">
+                        <Phone className="text-zinc-400 mt-1 flex-shrink-0" size={14} />
                         <div className="space-y-0.5">
-                          <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-widest font-montserrat">WhatsApp / Tél</span>
-                          <span className="font-semibold text-bc-heading">
+                          <span className="block text-[9px] text-zinc-400 font-bold uppercase tracking-wider">WhatsApp / Tél</span>
+                          <span className="font-semibold text-zinc-700 text-xs">
                             {user.phone || 'Non renseigné'}
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex items-start space-x-3.5 text-sm">
-                        <MapPin className="text-gray-400 mt-1 flex-shrink-0" size={16} />
+                      <div className="flex items-start space-x-3 text-xs">
+                        <MapPin className="text-zinc-400 mt-1 flex-shrink-0" size={14} />
                         <div className="space-y-0.5">
-                          <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-widest font-montserrat">Adresse de livraison</span>
-                          <span className="font-semibold text-bc-heading leading-relaxed">
+                          <span className="block text-[9px] text-zinc-400 font-bold uppercase tracking-wider">Adresse par défaut</span>
+                          <span className="font-semibold text-zinc-700 leading-relaxed">
                             {user.address || 'Non renseignée'}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-2.5 pt-2">
                       <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                        whileHover={{ y: -0.5 }}
                         onClick={() => {
                           setEditName(user.name || '');
                           setEditPhone(user.phone || '');
                           setEditAddress(user.address || '');
                           setIsEditingProfile(true);
                         }}
-                        className="w-full flex items-center justify-center py-3 px-4 bg-bc-purple/10 text-bc-purple hover:bg-bc-purple/20 rounded-2xl text-xs font-montserrat font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                        className="w-full flex items-center justify-center py-2.5 px-4 bg-zinc-50 border border-zinc-200/60 hover:bg-zinc-100 text-zinc-700 rounded-full text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
                       >
                         Modifier mon profil
                       </motion.button>
 
                       <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                        whileHover={{ y: -0.5 }}
                         onClick={handleLogout}
-                        className="w-full flex items-center justify-center py-3 px-4 border border-red-200 rounded-2xl text-xs font-montserrat font-bold uppercase tracking-wider text-red-600 hover:bg-red-50/50 transition-colors cursor-pointer"
+                        className="w-full flex items-center justify-center py-2.5 px-4 border border-red-200 rounded-full text-xs font-bold uppercase tracking-wider text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                       >
-                        <LogOut size={14} className="mr-2" /> Déconnexion
+                        <LogOut size={13} className="mr-1.5" /> Déconnexion
                       </motion.button>
                     </div>
                   </>
@@ -528,46 +500,46 @@ export default function AccountPage() {
 
               {/* Orders History Main Area (Right) */}
               <div className="lg:col-span-8">
-                <div className="bg-white p-6 sm:p-8 rounded-[32px] shadow-card border border-gray-100/60">
-                  <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-100">
-                    <h3 className="text-xl font-bold text-bc-purple font-montserrat flex items-center">
-                      <ShoppingBag className="mr-2.5 text-bc-yellow animate-pulse" size={20} /> Mes Commandes
+                <div className="bg-white p-6 sm:p-8 rounded-3xl border border-zinc-200/50 shadow-sm">
+                  <div className="flex items-center justify-between mb-8 pb-4 border-b border-zinc-100">
+                    <h3 className="text-lg font-bold text-zinc-900 flex items-center">
+                      <ShoppingBag className="mr-2 text-bc-purple" size={18} /> Mes Commandes
                     </h3>
-                    <span className="bg-bc-purple/10 text-bc-purple px-3.5 py-1 rounded-full text-xs font-montserrat font-bold">
+                    <span className="bg-bc-purpleLight text-bc-purple px-3 py-1 rounded-full text-xs font-bold border border-bc-purple/10">
                       {orders.length} commande{orders.length > 1 ? 's' : ''}
                     </span>
                   </div>
 
                   {orders.length === 0 ? (
-                    <div className="text-center py-16 space-y-6">
-                      <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto text-gray-300">
-                        <ShoppingBag size={32} />
+                    <div className="text-center py-12 space-y-5">
+                      <div className="w-14 h-14 bg-zinc-50 rounded-full flex items-center justify-center mx-auto text-zinc-400">
+                        <ShoppingBag size={24} />
                       </div>
-                      <div className="space-y-2">
-                        <p className="text-gray-500 font-medium text-sm">Vous n&apos;avez pas encore passé de commande.</p>
-                        <p className="text-xs text-gray-400">Parcourez notre catalogue premium pour faire plaisir à vos proches.</p>
+                      <div className="space-y-1">
+                        <p className="text-zinc-550 font-bold text-xs">Vous n&apos;avez pas encore passé de commande.</p>
+                        <p className="text-[11px] text-zinc-400">Parcourez notre catalogue premium pour faire plaisir à vos proches.</p>
                       </div>
                       <button
                         onClick={() => router.push('/catalogue')}
-                        className="inline-flex items-center px-6 py-3 rounded-2xl text-xs font-montserrat font-bold uppercase tracking-wider text-bc-purple bg-bc-yellow hover:bg-yellow-400 transition-colors shadow-sm"
+                        className="inline-flex items-center px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider text-bc-purple bg-bc-yellow hover:bg-yellow-400 transition-colors shadow-sm cursor-pointer"
                       >
                         Parcourir le catalogue
                       </button>
                     </div>
                   ) : (
-                    <div className="space-y-6">
+                    <div className="space-y-5">
                       {orders.map((order) => (
                         <div 
                           key={order.id} 
-                          className="border border-gray-100 rounded-3xl p-5 sm:p-6 hover:border-gray-200/80 hover:shadow-card transition-all duration-300 space-y-4"
+                          className="border border-zinc-200/50 rounded-2xl p-5 hover:border-zinc-300 transition-all space-y-3.5 shadow-sm"
                         >
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-gray-100/50 gap-3">
-                            <div className="space-y-1">
-                              <span className="text-sm font-bold text-bc-purple block font-montserrat">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-zinc-100 gap-2">
+                            <div className="space-y-0.5">
+                              <span className="text-xs font-bold text-bc-purple block">
                                 Commande #{order.orderNumber}
                               </span>
-                              <span className="text-xs text-gray-400 flex items-center font-medium">
-                                <Calendar size={12} className="mr-1.5 text-bc-yellow" />
+                              <span className="text-[10px] text-zinc-400 flex items-center font-medium">
+                                <Calendar size={11} className="mr-1 text-zinc-400" />
                                 {new Date(order.createdAt).toLocaleDateString('fr-FR', {
                                   day: 'numeric',
                                   month: 'long',
@@ -583,7 +555,7 @@ export default function AccountPage() {
                           </div>
 
                           {/* Order Items */}
-                          <div className="py-2 space-y-4">
+                          <div className="py-1 space-y-3">
                             {order.orderItems.map((item) => {
                               let images: string[] = [];
                               try {
@@ -595,9 +567,9 @@ export default function AccountPage() {
                               }
                               
                               return (
-                                <div key={item.id} className="flex items-center justify-between text-sm gap-3">
-                                  <div className="flex items-center space-x-3.5">
-                                    <div className="w-12 h-12 rounded-xl bg-gray-50 overflow-hidden flex-shrink-0 border border-gray-100">
+                                <div key={item.id} className="flex items-center justify-between text-xs gap-3">
+                                  <div className="flex items-center space-x-3">
+                                    <div className="w-10 h-10 rounded-xl bg-zinc-50 overflow-hidden flex-shrink-0 border border-zinc-200/40">
                                       <img 
                                         src={images[0] || '/1-19.png'} 
                                         alt={item.product.name} 
@@ -605,20 +577,20 @@ export default function AccountPage() {
                                       />
                                     </div>
                                     <div className="space-y-0.5">
-                                      <span className="font-bold text-bc-navy block line-clamp-1">
+                                      <span className="font-semibold text-zinc-800 block line-clamp-1">
                                         {item.product.name}
                                       </span>
-                                      <span className="text-xs text-gray-400 font-semibold">
+                                      <span className="text-[10px] text-zinc-400 font-semibold">
                                         Qté : {item.quantity} × {item.price.toLocaleString('fr-FR')} FCFA
                                       </span>
                                       {item.customizationMessage && (
-                                        <span className="block text-[11px] text-bc-purple font-medium italic">
+                                        <span className="block text-[9px] text-bc-purple font-medium italic">
                                           Message : &quot;{item.customizationMessage}&quot;
                                         </span>
                                       )}
                                     </div>
                                   </div>
-                                  <span className="font-extrabold text-bc-navy flex-shrink-0">
+                                  <span className="font-bold text-zinc-700 flex-shrink-0">
                                     {(item.price * item.quantity).toLocaleString('fr-FR')} FCFA
                                   </span>
                                 </div>
@@ -627,30 +599,29 @@ export default function AccountPage() {
                           </div>
 
                           {/* Order Footer */}
-                          <div className="pt-4 border-t border-gray-100/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <div className="text-xs text-gray-400 font-medium">
+                          <div className="pt-3 border-t border-zinc-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div className="text-[10px] text-zinc-400 font-medium font-instrument">
                               <span>Frais d&apos;expédition ({order.shippingZone.name}) : </span>
-                              <span className="font-bold text-bc-heading">
+                              <span className="font-bold text-zinc-700">
                                 {order.shippingFee.toLocaleString('fr-FR')} FCFA
                               </span>
                             </div>
                             
-                            <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-5">
+                            <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4">
                               <div className="text-right">
-                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest block font-montserrat">Montant Total</span>
-                                <span className="text-lg font-black text-bc-purple font-montserrat">
+                                <span className="text-[8px] text-zinc-400 font-bold uppercase tracking-wider block">Montant Total</span>
+                                <span className="text-base font-black text-bc-purple">
                                   {order.totalAmount.toLocaleString('fr-FR')} FCFA
                                 </span>
                               </div>
                               
                               {order.status === 'EN_ATTENTE' && (
                                 <motion.button
-                                  whileHover={{ scale: 1.03 }}
-                                  whileTap={{ scale: 0.97 }}
+                                  whileHover={{ y: -0.5 }}
                                   onClick={() => router.push(`/commander?order=${order.orderNumber}`)}
-                                  className="inline-flex items-center px-4.5 py-2.5 rounded-2xl text-xs font-montserrat font-extrabold uppercase tracking-wider text-bc-purple bg-bc-yellow hover:bg-yellow-400 shadow-sm transition-all cursor-pointer"
+                                  className="inline-flex items-center px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider text-bc-purple bg-bc-yellow hover:bg-yellow-400 shadow-sm transition-all cursor-pointer"
                                 >
-                                  <CreditCard size={14} className="mr-1.5" /> Payer
+                                  <CreditCard size={12} className="mr-1" /> Payer
                                 </motion.button>
                               )}
                             </div>
@@ -671,4 +642,3 @@ export default function AccountPage() {
     </div>
   );
 }
-

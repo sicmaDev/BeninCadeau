@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Send, User, Tag, Phone, Mail, FileText, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Send, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export function ContactForm() {
@@ -66,14 +66,14 @@ export function ContactForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-5 font-instrument">
       {status === 'success' && (
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-5 bg-emerald-50 text-emerald-800 rounded-2xl border border-emerald-100 text-sm font-medium flex items-start gap-3 shadow-sm"
+          className="p-4 bg-emerald-50 text-emerald-800 rounded-2xl border border-emerald-150 text-xs font-semibold flex items-start gap-2.5 shadow-sm"
         >
-          <CheckCircle2 className="text-emerald-600 flex-shrink-0 mt-0.5" size={18} />
+          <CheckCircle2 className="text-emerald-600 flex-shrink-0 mt-0.5" size={16} />
           <div>
             <span className="font-bold block mb-0.5">Message envoyé avec succès !</span>
             Notre équipe a bien reçu votre demande et vous répondra dans les plus brefs délais.
@@ -83,11 +83,11 @@ export function ContactForm() {
 
       {status === 'error' && (
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-5 bg-red-50 text-red-800 rounded-2xl border border-red-100 text-sm font-medium flex items-start gap-3 shadow-sm"
+          className="p-4 bg-red-50 text-red-800 rounded-2xl border border-red-150 text-xs font-semibold flex items-start gap-2.5 shadow-sm"
         >
-          <AlertTriangle className="text-red-600 flex-shrink-0 mt-0.5" size={18} />
+          <AlertTriangle className="text-red-650 flex-shrink-0 mt-0.5" size={16} />
           <div>
             <span className="font-bold block mb-0.5">Une erreur est survenue</span>
             {errorMessage}
@@ -95,126 +95,100 @@ export function ContactForm() {
         </motion.div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Nom */}
-        <div className="space-y-2">
-          <label className="block text-xs font-bold text-bc-navy uppercase tracking-wider font-montserrat">
+        <div className="space-y-1">
+          <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
             Votre Nom <span className="text-red-500">*</span>
           </label>
-          <div className="relative">
-            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
-              <User size={16} />
-            </span>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              placeholder="Ex: Jean Dupont"
-              className="pl-11 block w-full rounded-2xl border border-gray-200 bg-white/50 py-3.5 px-4 text-bc-heading focus:ring-bc-purple focus:border-bc-purple outline-none text-sm font-medium transition-all"
-            />
-          </div>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            placeholder="Ex: Jean Dupont"
+            className="block w-full rounded-full border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs font-medium focus:bg-white focus:outline-none focus:border-bc-purple focus:ring-1 focus:ring-bc-purple transition-all"
+          />
         </div>
 
         {/* Email */}
-        <div className="space-y-2">
-          <label className="block text-xs font-bold text-bc-navy uppercase tracking-wider font-montserrat">
+        <div className="space-y-1">
+          <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
             Votre Email <span className="text-red-500">*</span>
           </label>
-          <div className="relative">
-            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
-              <Mail size={16} />
-            </span>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              placeholder="Ex: jean.dupont@email.com"
-              className="pl-11 block w-full rounded-2xl border border-gray-200 bg-white/50 py-3.5 px-4 text-bc-heading focus:ring-bc-purple focus:border-bc-purple outline-none text-sm font-medium transition-all"
-            />
-          </div>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            placeholder="Ex: jean.dupont@email.com"
+            className="block w-full rounded-full border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs font-medium focus:bg-white focus:outline-none focus:border-bc-purple focus:ring-1 focus:ring-bc-purple transition-all"
+          />
         </div>
 
         {/* Téléphone */}
-        <div className="space-y-2">
-          <label className="block text-xs font-bold text-bc-navy uppercase tracking-wider font-montserrat">
+        <div className="space-y-1">
+          <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
             Téléphone
           </label>
-          <div className="relative">
-            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
-              <Phone size={16} />
-            </span>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="Ex: +229 90 00 00 00"
-              className="pl-11 block w-full rounded-2xl border border-gray-200 bg-white/50 py-3.5 px-4 text-bc-heading focus:ring-bc-purple focus:border-bc-purple outline-none text-sm font-medium transition-all"
-            />
-          </div>
+          <input
+            type="tel"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            placeholder="Ex: +229 90 00 00 00"
+            className="block w-full rounded-full border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs font-medium focus:bg-white focus:outline-none focus:border-bc-purple focus:ring-1 focus:ring-bc-purple transition-all"
+          />
         </div>
 
         {/* Sujet */}
-        <div className="space-y-2">
-          <label className="block text-xs font-bold text-bc-navy uppercase tracking-wider font-montserrat">
+        <div className="space-y-1">
+          <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
             Sujet
           </label>
-          <div className="relative">
-            <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
-              <Tag size={16} />
-            </span>
-            <input
-              type="text"
-              name="subject"
-              value={formData.subject}
-              onChange={handleChange}
-              placeholder="Ex: Demande de devis pack personnalisé"
-              className="pl-11 block w-full rounded-2xl border border-gray-200 bg-white/50 py-3.5 px-4 text-bc-heading focus:ring-bc-purple focus:border-bc-purple outline-none text-sm font-medium transition-all"
-            />
-          </div>
+          <input
+            type="text"
+            name="subject"
+            value={formData.subject}
+            onChange={handleChange}
+            placeholder="Ex: Demande de devis pack personnalisé"
+            className="block w-full rounded-full border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs font-medium focus:bg-white focus:outline-none focus:border-bc-purple focus:ring-1 focus:ring-bc-purple transition-all"
+          />
         </div>
       </div>
 
       {/* Message */}
-      <div className="space-y-2">
-        <label className="block text-xs font-bold text-bc-navy uppercase tracking-wider font-montserrat">
+      <div className="space-y-1">
+        <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
           Message <span className="text-red-500">*</span>
         </label>
-        <div className="relative">
-          <span className="absolute top-4 left-4 text-gray-400">
-            <FileText size={16} />
-          </span>
-          <textarea
-            name="message"
-            value={formData.message}
-            onChange={handleChange}
-            required
-            rows={5}
-            placeholder="Écrivez votre message ici..."
-            className="pl-11 block w-full rounded-2xl border border-gray-200 bg-white/50 py-3.5 px-4 text-bc-heading focus:ring-bc-purple focus:border-bc-purple outline-none text-sm font-medium transition-all resize-none"
-          ></textarea>
-        </div>
+        <textarea
+          name="message"
+          value={formData.message}
+          onChange={handleChange}
+          required
+          rows={5}
+          placeholder="Écrivez votre message ici..."
+          className="block w-full rounded-2xl border border-zinc-200 bg-zinc-50/50 py-2.5 px-4 text-xs font-medium focus:bg-white focus:outline-none focus:border-bc-purple focus:ring-1 focus:ring-bc-purple transition-all resize-none h-28"
+        ></textarea>
       </div>
 
       <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        whileHover={{ y: -0.5 }}
         type="submit"
         disabled={status === 'sending'}
-        className="w-full sm:w-auto inline-flex items-center justify-center bg-gold-gradient text-bc-purpleDark font-montserrat font-bold text-sm uppercase tracking-wider px-10 py-4 rounded-2xl shadow-yellow-glow hover:bg-yellow-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        className="w-full sm:w-auto inline-flex items-center justify-center bg-bc-purple hover:bg-bc-purpleDark text-white font-bold text-xs uppercase tracking-wider px-6 py-3 rounded-full transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
       >
         {status === 'sending' ? (
           <>
-            <span className="w-4 h-4 border-2 border-bc-purpleDark border-t-transparent rounded-full animate-spin mr-2"></span>
+            <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin mr-1.5"></span>
             Envoi en cours...
           </>
         ) : (
           <>
-            Envoyer le message <Send size={15} className="ml-2" />
+            Envoyer le message <Send size={13} className="ml-1.5" />
           </>
         )}
       </motion.button>
