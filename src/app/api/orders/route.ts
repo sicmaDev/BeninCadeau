@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '../../../utils/db';
 import { getCurrentUser } from '../../../utils/auth';
 import { OrderStatus } from '@prisma/client';
+import { sendOrderConfirmationEmail } from '../../../utils/emails';
 
 export async function GET() {
   try {
@@ -184,10 +185,107 @@ export async function POST(req: Request) {
       return order;
     });
 
+    // Envoyer l'email de confirmation de commande en tâche de fond (sans bloquer la réponse)
+    const emailItems = validatedItems.map(item => {
+      const p = dbProducts.find(prod => prod.id === item.productId)!;
+      return {
+        name: p.name,
+        quantity: item.quantity,
+        price: item.price,
+        customizationMessage: item.customizationMessage
+      };
+    });
+
+    sendOrderConfirmationEmail({
+      clientName,
+      clientEmail,
+      clientPhone,
+      shippingAddress,
+      orderNumber: createdOrder.orderNumber,
+      shippingFee: zone.deliveryFee,
+      totalAmount: createdOrder.totalAmount
+    }, emailItems).catch(err => console.error('Failed to send confirmation email:', err));
+
+    // Intégration FedaPay
+    let checkoutUrl = `/confirmation/${createdOrder.orderNumber}`;
+    let transactionId = null;
+
+    const fedapaySecret = process.env.FEDAPAY_SECRET_KEY;
+    const hasFedaPay = fedapaySecret && !fedapaySecret.includes('remplacez_par') && fedapaySecret.trim() !== '';
+
+    if (hasFedaPay) {
+      try {
+        const isSandbox = fedapaySecret.includes('sandbox') || fedapaySecret.startsWith('sk_sandbox_');
+        const FEDAPAY_API_URL = isSandbox 
+          ? 'https://sandbox-api.fedapay.com/v1' 
+          : 'https://api.fedapay.com/v1';
+
+        const nameParts = clientName.trim().split(/\s+/);
+        const firstname = nameParts[0] || 'Client';
+        const lastname = nameParts.slice(1).join(' ') || 'Bénin Cadeau';
+        const cleanPhone = clientPhone.replace(/\D/g, '');
+
+        // 1. Créer la transaction FedaPay
+        const createTxRes = await fetch(`${FEDAPAY_API_URL}/transactions`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${fedapaySecret}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            description: `Commande Bénin Cadeau ${createdOrder.orderNumber}`,
+            amount: createdOrder.totalAmount,
+            currency: {
+              iso: 'XOF',
+            },
+            callback_url: `${req.headers.get('origin') || 'http://localhost:3000'}/confirmation/${createdOrder.orderNumber}`,
+            customer: {
+              firstname,
+              lastname,
+              email: clientEmail,
+              phone_number: {
+                number: cleanPhone,
+                country: 'BJ',
+              },
+            },
+          }),
+        });
+
+        if (createTxRes.ok) {
+          const txData = await createTxRes.json();
+          const fedaTxId = txData.transaction.id;
+          transactionId = fedaTxId.toString();
+
+          // 2. Générer le token de paiement FedaPay
+          const tokenRes = await fetch(`${FEDAPAY_API_URL}/transactions/${fedaTxId}/token`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${fedapaySecret}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (tokenRes.ok) {
+            const tokenData = await tokenRes.json();
+            checkoutUrl = tokenData.url;
+
+            // 3. Enregistrer l'ID de transaction FedaPay dans la commande
+            await prisma.order.update({
+              where: { id: createdOrder.id },
+              data: { transactionId },
+            });
+          }
+        }
+      } catch (err) {
+        console.error('FedaPay integration error:', err);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       orderNumber: createdOrder.orderNumber,
       totalAmount: createdOrder.totalAmount,
+      checkoutUrl,
     });
   } catch (error) {
     console.error('Order creation error:', error);

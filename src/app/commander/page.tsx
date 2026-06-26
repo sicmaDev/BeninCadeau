@@ -146,7 +146,12 @@ export default function CommanderPage() {
         localStorage.removeItem('bc_cart');
         localStorage.removeItem('bc_applied_promo');
         window.dispatchEvent(new Event('cart-updated'));
-        router.push(`/confirmation/${data.orderNumber}`);
+        
+        if (data.checkoutUrl) {
+          window.location.href = data.checkoutUrl;
+        } else {
+          router.push(`/confirmation/${data.orderNumber}`);
+        }
       } else {
         setError(data.error || 'Une erreur est survenue lors de la création de la commande.');
       }

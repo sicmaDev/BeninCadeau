@@ -58,6 +58,15 @@ export default function AccountPage() {
   const [error, setError] = useState('');
   const [formLoading, setFormLoading] = useState(false);
 
+  // Profile edit states
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editAddress, setEditAddress] = useState('');
+  const [profileError, setProfileError] = useState('');
+  const [profileSuccess, setProfileSuccess] = useState('');
+  const [profileSubmitting, setProfileSubmitting] = useState(false);
+
   useEffect(() => {
     checkUserSession();
   }, []);
@@ -68,6 +77,9 @@ export default function AccountPage() {
       if (res.ok) {
         const data = await res.json();
         setUser(data.user);
+        setEditName(data.user.name || '');
+        setEditPhone(data.user.phone || '');
+        setEditAddress(data.user.address || '');
         fetchOrders();
       } else {
         setUser(null);
@@ -76,6 +88,40 @@ export default function AccountPage() {
       console.error('Session check failed', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileSubmitting(true);
+    setProfileError('');
+    setProfileSuccess('');
+
+    try {
+      const res = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editName,
+          phone: editPhone,
+          address: editAddress,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setUser(data.user);
+        setProfileSuccess('Profil mis à jour avec succès !');
+        setIsEditingProfile(false);
+        setTimeout(() => setProfileSuccess(''), 4000);
+      } else {
+        setProfileError(data.error || 'Erreur lors de la mise à jour.');
+      }
+    } catch (err) {
+      setProfileError('Erreur de connexion. Veuillez réessayer.');
+    } finally {
+      setProfileSubmitting(false);
     }
   };
 
@@ -344,9 +390,15 @@ export default function AccountPage() {
               
               {/* User Info Sidebar (Left) */}
               <div className="lg:col-span-4 bg-white p-6 sm:p-8 rounded-[32px] shadow-card border border-gray-100/60 h-fit space-y-8">
+                {profileSuccess && (
+                  <div className="bg-green-50 border border-green-200 text-green-600 rounded-2xl p-4 text-xs font-semibold shadow-sm">
+                    {profileSuccess}
+                  </div>
+                )}
+                
                 <div className="flex items-center space-x-4 pb-6 border-b border-gray-100">
                   <div className="w-16 h-16 rounded-2xl bg-purple-gradient text-white flex items-center justify-center font-bold text-xl font-montserrat shadow-purple-glow">
-                    {user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                    {user.name ? user.name.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U'}
                   </div>
                   <div className="space-y-1">
                     <h3 className="text-lg font-bold text-bc-navy font-montserrat line-clamp-1 leading-tight">{user.name}</h3>
@@ -356,44 +408,119 @@ export default function AccountPage() {
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-3.5 text-sm">
-                    <Mail className="text-gray-400 mt-1 flex-shrink-0" size={16} />
-                    <div className="space-y-0.5">
-                      <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-widest font-montserrat">E-mail</span>
-                      <span className="font-semibold text-bc-heading">{user.email}</span>
+                {isEditingProfile ? (
+                  <form onSubmit={handleUpdateProfile} className="space-y-4">
+                    {profileError && (
+                      <div className="bg-red-50 border border-red-200 text-red-600 rounded-2xl p-4 text-xs font-semibold shadow-sm">
+                        {profileError}
+                      </div>
+                    )}
+                    <div>
+                      <label className="block text-[10px] font-bold text-bc-navy uppercase tracking-widest font-montserrat mb-1.5 ml-1">Nom Complet</label>
+                      <input
+                        type="text"
+                        required
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3 px-4 text-bc-heading focus:ring-2 focus:ring-bc-purple focus:border-bc-purple outline-none text-sm font-medium transition-all"
+                      />
                     </div>
-                  </div>
-
-                  <div className="flex items-start space-x-3.5 text-sm">
-                    <Phone className="text-gray-400 mt-1 flex-shrink-0" size={16} />
-                    <div className="space-y-0.5">
-                      <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-widest font-montserrat">WhatsApp / Tél</span>
-                      <span className="font-semibold text-bc-heading">
-                        {user.phone || 'Non renseigné'}
-                      </span>
+                    <div>
+                      <label className="block text-[10px] font-bold text-bc-navy uppercase tracking-widest font-montserrat mb-1.5 ml-1">Téléphone (WhatsApp)</label>
+                      <input
+                        type="tel"
+                        value={editPhone}
+                        onChange={(e) => setEditPhone(e.target.value)}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3 px-4 text-bc-heading focus:ring-2 focus:ring-bc-purple focus:border-bc-purple outline-none text-sm font-medium transition-all"
+                      />
                     </div>
-                  </div>
-
-                  <div className="flex items-start space-x-3.5 text-sm">
-                    <MapPin className="text-gray-400 mt-1 flex-shrink-0" size={16} />
-                    <div className="space-y-0.5">
-                      <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-widest font-montserrat">Adresse de livraison</span>
-                      <span className="font-semibold text-bc-heading leading-relaxed">
-                        {user.address || 'Non renseignée'}
-                      </span>
+                    <div>
+                      <label className="block text-[10px] font-bold text-bc-navy uppercase tracking-widest font-montserrat mb-1.5 ml-1">Adresse de livraison</label>
+                      <input
+                        type="text"
+                        value={editAddress}
+                        onChange={(e) => setEditAddress(e.target.value)}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3 px-4 text-bc-heading focus:ring-2 focus:ring-bc-purple focus:border-bc-purple outline-none text-sm font-medium transition-all"
+                      />
                     </div>
-                  </div>
-                </div>
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        type="submit"
+                        disabled={profileSubmitting}
+                        className="flex-1 py-3 px-4 bg-bc-purple hover:bg-bc-purpleDark text-white rounded-2xl text-xs font-montserrat font-bold uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
+                      >
+                        {profileSubmitting ? '...' : 'Enregistrer'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsEditingProfile(false);
+                          setProfileError('');
+                        }}
+                        className="flex-1 py-3 px-4 border border-gray-200 text-gray-500 hover:bg-gray-50 rounded-2xl text-xs font-montserrat font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <div className="space-y-4">
+                      <div className="flex items-start space-x-3.5 text-sm">
+                        <Mail className="text-gray-400 mt-1 flex-shrink-0" size={16} />
+                        <div className="space-y-0.5">
+                          <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-widest font-montserrat">E-mail</span>
+                          <span className="font-semibold text-bc-heading">{user.email}</span>
+                        </div>
+                      </div>
 
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleLogout}
-                  className="w-full flex items-center justify-center py-3 px-4 border border-red-200 rounded-2xl text-xs font-montserrat font-bold uppercase tracking-wider text-red-600 hover:bg-red-50/50 transition-colors cursor-pointer"
-                >
-                  <LogOut size={14} className="mr-2" /> Déconnexion
-                </motion.button>
+                      <div className="flex items-start space-x-3.5 text-sm">
+                        <Phone className="text-gray-400 mt-1 flex-shrink-0" size={16} />
+                        <div className="space-y-0.5">
+                          <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-widest font-montserrat">WhatsApp / Tél</span>
+                          <span className="font-semibold text-bc-heading">
+                            {user.phone || 'Non renseigné'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start space-x-3.5 text-sm">
+                        <MapPin className="text-gray-400 mt-1 flex-shrink-0" size={16} />
+                        <div className="space-y-0.5">
+                          <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-widest font-montserrat">Adresse de livraison</span>
+                          <span className="font-semibold text-bc-heading leading-relaxed">
+                            {user.address || 'Non renseignée'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          setEditName(user.name || '');
+                          setEditPhone(user.phone || '');
+                          setEditAddress(user.address || '');
+                          setIsEditingProfile(true);
+                        }}
+                        className="w-full flex items-center justify-center py-3 px-4 bg-bc-purple/10 text-bc-purple hover:bg-bc-purple/20 rounded-2xl text-xs font-montserrat font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                      >
+                        Modifier mon profil
+                      </motion.button>
+
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleLogout}
+                        className="w-full flex items-center justify-center py-3 px-4 border border-red-200 rounded-2xl text-xs font-montserrat font-bold uppercase tracking-wider text-red-600 hover:bg-red-50/50 transition-colors cursor-pointer"
+                      >
+                        <LogOut size={14} className="mr-2" /> Déconnexion
+                      </motion.button>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Orders History Main Area (Right) */}
