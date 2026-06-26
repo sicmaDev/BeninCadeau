@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, Mail, Phone, MapPin, ShoppingBag, LogOut, Lock, UserPlus, ArrowRight, Calendar, CreditCard, Sparkles, ShieldCheck } from 'lucide-react';
+import { User, Mail, Phone, MapPin, ShoppingBag, LogOut, Lock, UserPlus, ArrowRight, Calendar, CreditCard, Sparkles, ShieldCheck, Loader2 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { CopyrightRow } from '@/components/CopyrightRow';
@@ -160,6 +160,9 @@ export default function AccountPage() {
       }
 
       setUser(data.user);
+      setEditName(data.user.name || '');
+      setEditPhone(data.user.phone || '');
+      setEditAddress(data.user.address || '');
       fetchOrders();
       
       setName('');
