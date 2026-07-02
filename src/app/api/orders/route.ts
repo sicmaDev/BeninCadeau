@@ -253,27 +253,31 @@ export async function POST(req: Request) {
 
         if (createTxRes.ok) {
           const txData = await createTxRes.json();
-          const fedaTxId = txData.transaction.id;
-          transactionId = fedaTxId.toString();
+          const transactionObj = txData['v1/transaction'] || txData.transaction;
+          const fedaTxId = transactionObj?.id;
 
-          // 2. Générer le token de paiement FedaPay
-          const tokenRes = await fetch(`${FEDAPAY_API_URL}/transactions/${fedaTxId}/token`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${fedapaySecret}`,
-              'Content-Type': 'application/json',
-            },
-          });
+          if (fedaTxId) {
+            transactionId = fedaTxId.toString();
 
-          if (tokenRes.ok) {
-            const tokenData = await tokenRes.json();
-            checkoutUrl = tokenData.url;
-
-            // 3. Enregistrer l'ID de transaction FedaPay dans la commande
-            await prisma.order.update({
-              where: { id: createdOrder.id },
-              data: { transactionId },
+            // 2. Générer le token de paiement FedaPay
+            const tokenRes = await fetch(`${FEDAPAY_API_URL}/transactions/${fedaTxId}/token`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${fedapaySecret}`,
+                'Content-Type': 'application/json',
+              },
             });
+
+            if (tokenRes.ok) {
+              const tokenData = await tokenRes.json();
+              checkoutUrl = tokenData.url;
+
+              // 3. Enregistrer l'ID de transaction FedaPay dans la commande
+              await prisma.order.update({
+                where: { id: createdOrder.id },
+                data: { transactionId },
+              });
+            }
           }
         }
       } catch (err) {

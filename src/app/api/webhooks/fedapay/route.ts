@@ -41,7 +41,8 @@ export async function POST(req: Request) {
     }
 
     const verifyData = await verifyRes.json();
-    const status = verifyData.transaction?.status;
+    const transactionObj = verifyData['v1/transaction'] || verifyData.transaction;
+    const status = transactionObj?.status;
 
     // 2. Si le statut de FedaPay est validé comme "approved" (ou "payé")
     if (status === 'approved') {

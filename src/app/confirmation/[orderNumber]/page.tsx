@@ -72,7 +72,8 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
 
       if (verifyRes.ok) {
         const verifyData = await verifyRes.json();
-        const fedaStatus = verifyData.transaction?.status;
+        const transactionObj = verifyData['v1/transaction'] || verifyData.transaction;
+        const fedaStatus = transactionObj?.status;
 
         if (fedaStatus === 'approved') {
           // Mettre à jour en base de données
