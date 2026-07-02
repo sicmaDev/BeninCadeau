@@ -134,11 +134,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const menuItems = [
     { name: "Dashboard", path: "/admin", iconClass: "ti ti-home" },
     { name: "Commandes", path: "/admin/commandes", iconClass: "ti ti-shopping-cart" },
+    { name: "Paiements", path: "/admin/paiements", iconClass: "ti ti-credit-card" },
     { name: "Produits", path: "/admin/produits", iconClass: "ti ti-box-seam" },
     { name: "Catégories", path: "/admin/categories", iconClass: "ti ti-list" },
     { name: "Clients", path: "/admin/clients", iconClass: "ti ti-users" },
     { name: "Zones de livraison", path: "/admin/livraisons", iconClass: "ti ti-truck" },
     { name: "Codes promo", path: "/admin/promocodes", iconClass: "ti ti-ticket" },
+    { name: "Log des activités", path: "/admin/logs", iconClass: "ti ti-history" },
   ];
 
   const isLoginPage = pathname === "/admin/login";
@@ -347,8 +349,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                         <Link href="/" className="text-decoration-none text-dark">
                           Boutique publique
                         </Link>
-                        <Link href="#!" className="text-decoration-none text-dark">
-                          Paramètres du compte
+                        <Link href="/admin/profile" className="text-decoration-none text-dark">
+                          Profile
                         </Link>
                         <button
                           onClick={handleLogout}
@@ -380,9 +382,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </div>
             <ul className="nav flex-column">
               <li className="px-4 py-2">
-                <small className="nav-text text-secondary text-uppercase fw-semibold" style={{ fontSize: "11px" }}>
-                  Main
-                </small>
+
               </li>
               {menuItems.map((item, index) => {
                 const isActive = pathname === item.path;
