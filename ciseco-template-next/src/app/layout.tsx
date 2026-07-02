@@ -1,5 +1,6 @@
 import React from "react";
 import "./globals.css";
+import ClientInitializer from "./ClientInitializer";
 
 export const metadata = {
   title: "Ciseco - E-commerce Template",
@@ -59,6 +60,7 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-white text-neutral-900 dark:bg-neutral-900 dark:text-neutral-200" suppressHydrationWarning>
+        <ClientInitializer />
         {children}
       </body>
     </html>

@@ -18,6 +18,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Aucun fichier fourni.' }, { status: 400 });
     }
 
+    // Validation du type de fichier (limiter aux formats d'images autorisés)
+    if (!file.type.startsWith('image/')) {
+      return NextResponse.json({ error: 'Seuls les fichiers images sont autorisés.' }, { status: 400 });
+    }
+
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+    if (!ext || !allowedExtensions.includes(ext)) {
+      return NextResponse.json({ error: 'Format de fichier non supporté.' }, { status: 400 });
+    }
+
     // Lire les octets du fichier
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);

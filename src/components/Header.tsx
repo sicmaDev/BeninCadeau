@@ -10,7 +10,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
-  const [userRole, setUserRole] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchVal, setSearchVal] = useState('');
   const pathname = usePathname();
@@ -43,20 +42,6 @@ export function Header() {
 
     updateCount();
     window.addEventListener('cart-updated', updateCount);
-
-    fetch('/api/auth/me')
-      .then(res => {
-        if (res.ok) return res.json();
-        return null;
-      })
-      .then(data => {
-        if (data && data.user) {
-          setUserRole(data.user.role);
-        } else {
-          setUserRole(null);
-        }
-      })
-      .catch(() => setUserRole(null));
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -127,14 +112,6 @@ export function Header() {
                 </Link>
               );
             })}
-            {userRole === 'ADMIN' && (
-              <Link
-                href="/admin"
-                className="text-xs font-bold text-red-500 hover:text-red-700 transition-colors whitespace-nowrap border border-red-200 hover:border-red-400 rounded-full px-3.5 py-1.5 bg-red-50/50"
-              >
-                Panel Admin
-              </Link>
-            )}
           </nav>
 
           {/* Right side controls */}
@@ -246,15 +223,6 @@ export function Header() {
                   </Link>
                 );
               })}
-              {userRole === 'ADMIN' && (
-                <Link
-                  href="/admin"
-                  onClick={() => setIsOpen(false)}
-                  className="block px-4 py-2.5 rounded-xl text-sm font-bold text-red-500 bg-red-50"
-                >
-                  Tableau de bord Admin
-                </Link>
-              )}
             </div>
           </motion.div>
         )}

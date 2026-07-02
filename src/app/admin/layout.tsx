@@ -41,6 +41,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [adminUser, setAdminUser] = useState<{ name: string; email: string } | null>(null);
 
   // Sidebar states
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // Desktop collapse
@@ -52,11 +53,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  // Login Form States
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loginLoading, setLoginLoading] = useState(false);
-
   const showToast = (message: string, type: "success" | "error") => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
@@ -66,20 +62,37 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   };
 
   const checkAdminSession = async () => {
+    const isLoginPage = pathname === "/admin/login";
     try {
       const res = await fetch("/api/auth/me");
       if (res.ok) {
         const data = await res.json();
         if (data.user && data.user.role === "ADMIN") {
           setIsAdmin(true);
+          setAdminUser({ name: data.user.name, email: data.user.email });
+          if (isLoginPage) {
+            router.push("/admin");
+          }
         } else {
           setIsAdmin(false);
+          setAdminUser(null);
+          if (!isLoginPage) {
+            router.push("/admin/login");
+          }
         }
       } else {
         setIsAdmin(false);
+        setAdminUser(null);
+        if (!isLoginPage) {
+          router.push("/admin/login");
+        }
       }
     } catch (e) {
       setIsAdmin(false);
+      setAdminUser(null);
+      if (!isLoginPage) {
+        router.push("/admin/login");
+      }
     } finally {
       setLoading(false);
     }
@@ -94,7 +107,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      // Close dropdowns if clicking outside of the dropdown triggers or menus
       if (!target.closest("#nav-notifications")) {
         setNotificationOpen(false);
       }
@@ -108,44 +120,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     };
   }, []);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginLoading(true);
-
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        if (data.user && data.user.role === "ADMIN") {
-          setIsAdmin(true);
-          showToast("Connexion réussie ! Bienvenue sur le back-office.", "success");
-          router.refresh();
-        } else {
-          showToast("Accès refusé : vous devez être administrateur.", "error");
-          await fetch("/api/auth/logout", { method: "POST" });
-        }
-      } else {
-        showToast(data.error || "Identifiants de connexion invalides.", "error");
-      }
-    } catch (err) {
-      showToast("Une erreur réseau est survenue.", "error");
-    } finally {
-      setLoginLoading(false);
-    }
-  };
-
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
       setIsAdmin(false);
       showToast("Déconnexion réussie.", "success");
-      router.push("/");
+      router.push("/admin/login");
     } catch (err) {
       showToast("Erreur lors de la déconnexion.", "error");
     }
@@ -160,6 +140,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { name: "Zones de livraison", path: "/admin/livraisons", iconClass: "ti ti-truck" },
     { name: "Codes promo", path: "/admin/promocodes", iconClass: "ti ti-ticket" },
   ];
+
+  const isLoginPage = pathname === "/admin/login";
 
   if (loading) {
     return (
@@ -178,79 +160,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <ToastContext.Provider value={{ showToast }}>
-      {!isAdmin ? (
-        /* CONNEXION ADMIN - Design Template signin.html */
-        <div className="container d-flex align-items-center justify-content-center min-vh-100 bg-light">
-          <div className="card" style={{ maxWidth: "420px", width: "100%" }}>
-            <div className="card-body p-5">
-              <div className="text-center mb-3">
-                <Link href="/" className="mb-4 d-inline-block text-decoration-none">
-                  <img src="/1-19.png" alt="Logo" width="48" height="48" style={{ objectFit: "contain" }} />
-                  <h1 className="card-title mt-3 h5 text-dark fw-bold uppercase">Bénin Cadeau Admin</h1>
-                </Link>
-                <p className="text-secondary small">Accédez au back-office de gestion</p>
-              </div>
-
-              <form onSubmit={handleLogin} className="needs-validation mt-3" noValidate>
-                <div className="mb-3">
-                  <label htmlFor="email" className="form-label text-dark fw-medium">
-                    Identifiant E-mail
-                  </label>
-                  <div className="input-group">
-                    <span className="input-group-text bg-transparent border-end-0">
-                      <Mail size={16} className="text-secondary" />
-                    </span>
-                    <input
-                      id="email"
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="admin@benincadeau.bj"
-                      className="form-control border-start-0"
-                    />
-                  </div>
-                </div>
-
-                <div className="mb-3">
-                  <label htmlFor="password" className="form-label text-dark fw-medium">
-                    Mot de passe
-                  </label>
-                  <div className="input-group">
-                    <span className="input-group-text bg-transparent border-end-0">
-                      <Lock size={16} className="text-secondary" />
-                    </span>
-                    <input
-                      id="password"
-                      type="password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="form-control border-start-0"
-                    />
-                  </div>
-                </div>
-
-                <button className="btn btn-primary w-100 py-2.5 mt-2 fw-bold" type="submit" disabled={loginLoading}>
-                  {loginLoading ? (
-                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                  ) : (
-                    "Se connecter"
-                  )}
-                </button>
-              </form>
-
-              <div className="text-center mt-4">
-                <Link href="/" className="link-primary text-decoration-none small fw-semibold">
-                  ← Retour à la boutique
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+      {isLoginPage ? (
+        children
+      ) : !isAdmin ? (
+        null
       ) : (
-        /* BACK-OFFICE ADMIN - Design Template Structure */
         <>
           {/* OVERLAY FOR MOBILE */}
           <div
@@ -425,8 +339,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                           className="avatar avatar-md rounded-circle"
                         />
                         <div>
-                          <h4 className="mb-0 small fw-bold text-dark">Administrateur</h4>
-                          <p className="mb-0 small text-secondary">admin@benincadeau.bj</p>
+                          <h4 className="mb-0 small fw-bold text-dark">{adminUser?.name || "Administrateur"}</h4>
+                          <p className="mb-0 small text-secondary">{adminUser?.email || "admin@benincadeau.bj"}</p>
                         </div>
                       </div>
                       <div className="p-3 d-flex flex-column gap-1 small lh-lg">

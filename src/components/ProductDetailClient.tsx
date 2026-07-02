@@ -94,6 +94,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   };
 
   const getWhatsAppLink = () => {
+    const pageUrl = typeof window !== 'undefined' ? window.location.href : `https://benincadeau.com/produit/${product.slug}`;
     let message = `Bonjour Bénin Cadeau, je souhaite commander le produit suivant :\n`;
     message += `- *Nom* : ${product.name}\n`;
     message += `- *Quantité* : ${quantity}\n`;
@@ -103,6 +104,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       message += `- *Personnalisation* : "${customText.trim()}"\n`;
     }
     
+    message += `- *Lien* : ${pageUrl}\n`;
     message += `\nMerci de me guider pour la livraison.`;
     
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;

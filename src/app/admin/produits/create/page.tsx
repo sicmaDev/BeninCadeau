@@ -372,6 +372,43 @@ function CreateProductFormInner() {
                         />
                       </label>
                     </div>
+                    {/* Visual image preview gallery */}
+                    {imagesInput.split(",").map((url) => url.trim()).filter(Boolean).length > 0 && (
+                      <div className="d-flex flex-wrap gap-3 mt-3 p-2 bg-light rounded border border-light">
+                        {imagesInput.split(",").map((url) => url.trim()).filter(Boolean).map((url, idx) => (
+                          <div key={idx} className="position-relative border rounded bg-white p-1" style={{ width: "72px", height: "72px" }}>
+                            <img
+                              src={url}
+                              alt={`Aperçu ${idx + 1}`}
+                              className="rounded"
+                              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const urlsArray = imagesInput.split(",").map((u) => u.trim()).filter(Boolean);
+                                const newUrls = urlsArray.filter((_, i) => i !== idx);
+                                setImagesInput(newUrls.join(", "));
+                              }}
+                              className="btn btn-danger btn-sm p-0 d-flex align-items-center justify-content-center position-absolute shadow"
+                              style={{
+                                width: "20px",
+                                height: "20px",
+                                top: "-8px",
+                                right: "-8px",
+                                borderRadius: "50%",
+                                fontSize: "11px",
+                                border: "1px solid white",
+                                fontWeight: "bold"
+                              }}
+                              title="Supprimer l'image"
+                            >
+                              &times;
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
