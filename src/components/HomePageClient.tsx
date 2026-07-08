@@ -86,7 +86,7 @@ function HeroCarousel() {
         </div>
       ))}
 
-      <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col justify-center">
+      <div className="relative z-10 h-full max-w-7xl mx-auto px-12 sm:px-20 md:px-24 flex flex-col justify-center">
         <div className="max-w-2xl">
           <motion.span
             key={`tag-${current}`}
