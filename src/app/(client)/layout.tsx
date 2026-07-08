@@ -33,9 +33,26 @@ export default function ClientLayout({
             position="top-right"
             toastOptions={{
               style: {
-                fontFamily: "DM Sans, sans-serif",
-                borderRadius: "12px",
+                fontFamily: "var(--font-body), DM Sans, sans-serif",
+                borderRadius: "16px",
+                background: "#FFFFFF",
+                color: "#111827",
+                border: "1px solid rgba(26, 43, 109, 0.12)",
+                boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
               },
+              actionButtonStyle: {
+                background: "#1A2B6D",
+                color: "#FFFFFF",
+                fontWeight: "700",
+                fontSize: "12px",
+                borderRadius: "10px",
+                padding: "8px 12px",
+              },
+              cancelButtonStyle: {
+                background: "rgba(26, 43, 109, 0.08)",
+                color: "#1A2B6D",
+                borderRadius: "10px",
+              }
             }}
           />
         </div>

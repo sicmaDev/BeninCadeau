@@ -3,6 +3,7 @@
 import { createContext, useContext, useReducer, useState, useCallback, useEffect } from "react";
 import type { ReactNode } from "react";
 import { useRouter as useNextRouter, usePathname, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 // ── Product Interface ──────────────────────────────────────────────────────────
 
@@ -276,11 +277,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addToCart = useCallback((product: Product, quantity: number, personalMessage: string) => {
     dispatch({ type: "ADD", product, quantity, personalMessage });
-  }, []);
+    toast.success(`${product.name} ajouté au panier !`, {
+      description: `Quantité : ${quantity}`,
+      action: {
+        label: "Voir le panier",
+        onClick: () => navigate("cart"),
+      },
+    });
+  }, [navigate]);
 
   const removeFromCart = useCallback((productId: string) => {
+    const item = cart.items.find((i) => i?.product?.id === productId);
     dispatch({ type: "REMOVE", productId });
-  }, []);
+    if (item) {
+      toast.info(`${item.product.name} retiré du panier.`);
+    }
+  }, [cart.items]);
 
   const updateQty = useCallback((productId: string, quantity: number) => {
     dispatch({ type: "UPDATE_QTY", productId, quantity });
@@ -290,6 +302,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const applyPromo = useCallback((code: string, discount: number) => {
     dispatch({ type: "APPLY_PROMO", code, discount });
+    if (code) {
+      toast.success(`Code promo "${code}" appliqué avec succès !`);
+    } else {
+      toast.info("Code promo retiré.");
+    }
   }, []);
 
   const cartCount = cart.items.reduce((s, i) => s + (i?.quantity || 0), 0);
@@ -315,11 +332,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
           phone: data.user.phone || "",
           address: data.user.address || "",
         });
+        toast.success(`Connexion réussie ! Bienvenue ${data.user.name}.`);
         return true;
       }
+      toast.error(data.error || "Email ou mot de passe incorrect.");
       return false;
     } catch (e) {
       console.error(e);
+      toast.error("Erreur de connexion au serveur.");
       return false;
     }
   }, []);
@@ -340,11 +360,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
           phone: data.user.phone || "",
           address: data.user.address || "",
         });
+        toast.success("Votre compte a été créé avec succès !");
         return true;
       }
+      toast.error(data.error || "Impossible de créer le compte.");
       return false;
     } catch (e) {
       console.error(e);
+      toast.error("Erreur réseau lors de la création du compte.");
       return false;
     }
   }, []);
@@ -352,6 +375,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
+      toast.info("Vous avez été déconnecté.");
     } catch (e) {
       console.error(e);
     }

@@ -5,7 +5,6 @@ import { ShoppingCart, ChevronLeft, ChevronRight, Minus, Plus, Truck, Package, A
 import type { Product } from "@/lib/context";
 import { useRouter, useCart } from "@/lib/context";
 import ProductCard, { formatPrice } from "@/components/ProductCard";
-import { toast } from "sonner";
 
 interface Props {
   product: Product;
@@ -24,10 +23,6 @@ export default function ProductPageClient({ product, relatedProducts }: Props) {
   const handleAddToCart = () => {
     addToCart(product, quantity, message);
     setAdded(true);
-    toast.success(`${product.name} ajouté au panier !`, {
-      description: `Quantité : ${quantity}`,
-      action: { label: "Voir le panier", onClick: () => navigate("cart") },
-    });
     setTimeout(() => setAdded(false), 2000);
   };
 

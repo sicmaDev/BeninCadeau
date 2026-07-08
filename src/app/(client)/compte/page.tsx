@@ -78,8 +78,6 @@ export default function AccountPage() {
     setLoadingAuth(false);
     if (!success) {
       setLoginError("Email ou mot de passe incorrect.");
-    } else {
-      toast.success("Connexion réussie !");
     }
   };
 
@@ -92,8 +90,6 @@ export default function AccountPage() {
     setLoadingAuth(false);
     if (!success) {
       setLoginError("Cet e-mail est déjà utilisé ou mot de passe trop court.");
-    } else {
-      toast.success("Inscription réussie !");
     }
   };
 
