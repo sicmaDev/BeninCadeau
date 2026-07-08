@@ -1,84 +1,93 @@
 "use client";
 
-import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
+import { ShoppingCart, Eye } from "lucide-react";
+import type { Product } from "../lib/context";
+import { useRouter } from "../lib/context";
+import { useCart } from "../lib/context";
 
-interface Category {
-  name: string;
-}
-
-interface Product {
-  id: number;
-  name: string;
-  slug: string;
-  price: number;
-  description: string;
-  estimatedDelivery?: string;
-  images: unknown;
-  isCustomizable: boolean;
-  category: Category;
-}
-
-interface ProductCardProps {
+interface Props {
   product: Product;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
-  let imagesList: string[] = [];
-  try {
-    imagesList = typeof product.images === 'string'
-      ? JSON.parse(product.images)
-      : (product.images as string[]);
-  } catch {
-    imagesList = ['/1-19.png'];
-  }
+export const formatPrice = (price: number) =>
+  new Intl.NumberFormat("fr-FR").format(price) + " FCFA";
 
-  const primaryImage = imagesList[0] || '/1-19.png';
+export default function ProductCard({ product }: Props) {
+  const { navigate } = useRouter();
+  const { addToCart } = useCart();
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    addToCart(product, 1, "");
+  };
 
   return (
-    <div className="bg-white rounded-3xl overflow-hidden border border-zinc-200/50 shadow-sm hover:shadow-premium hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group">
-      <div>
-        <div className="relative overflow-hidden aspect-[4/3] bg-zinc-50">
-          <img
-            src={primaryImage}
-            alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-          {product.isCustomizable && (
-            <div className="absolute top-3.5 left-3.5 bg-purple-gradient text-white text-[9px] font-bold tracking-wider uppercase px-3 py-1 rounded-full shadow-sm z-10">
-              Personnalisable
-            </div>
-          )}
-        </div>
-        <div className="p-5 space-y-2.5">
-          <span className="text-[10px] font-bold text-zinc-400 tracking-wider uppercase block">
-            {product.category.name}
+    <div
+      className="group bg-card rounded-2xl overflow-hidden border border-border hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col"
+      onClick={() => navigate("product", { slug: product.slug })}
+    >
+      {/* Image */}
+      <div className="relative aspect-square bg-muted overflow-hidden">
+        <img
+          src={product.images[0] || "/1-19.png"}
+          alt={product.name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+        />
+        {product.originalPrice && (
+          <span className="absolute top-3 left-3 bg-destructive text-white text-xs font-bold px-2 py-1 rounded-full">
+            -{Math.round((1 - product.price / product.originalPrice) * 100)}%
           </span>
-          <h3 className="font-bold text-sm text-zinc-800 line-clamp-1 leading-snug group-hover:text-bc-purple transition-colors">
-            {product.name}
-          </h3>
-          {product.estimatedDelivery && (
-            <p className="text-[10px] text-zinc-400 font-medium flex items-center">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5" />
-              Fabrication : {product.estimatedDelivery}
-            </p>
-          )}
-          <p className="text-zinc-500 text-xs line-clamp-2 leading-relaxed font-instrument">
-            {product.description}
-          </p>
+        )}
+        {product.stock <= 5 && product.stock > 0 && (
+          <span className="absolute top-3 right-3 bg-accent text-primary text-xs font-bold px-2 py-1 rounded-full">
+            Dernières pièces
+          </span>
+        )}
+        {product.isPersonalizable && (
+          <span className="absolute bottom-3 left-3 bg-primary/80 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
+            ✏️ Personnalisable
+          </span>
+        )}
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+          <button
+            onClick={(e) => { e.stopPropagation(); navigate("product", { slug: product.slug }); }}
+            className="bg-white text-primary rounded-full p-2.5 shadow-lg hover:bg-accent transition-colors"
+            aria-label="Voir le produit"
+          >
+            <Eye size={18} />
+          </button>
+          <button
+            onClick={handleAddToCart}
+            className="bg-primary text-white rounded-full p-2.5 shadow-lg hover:bg-accent hover:text-primary transition-colors"
+            aria-label="Ajouter au panier"
+          >
+            <ShoppingCart size={18} />
+          </button>
         </div>
       </div>
-      
-      <div className="p-5 pt-0 border-t border-zinc-100/60 flex items-center justify-between mt-auto">
-        <div className="text-bc-purple font-black text-sm">
-          {product.price.toLocaleString('fr-FR')} <span className="text-[10px] font-bold">FCFA</span>
+
+      {/* Info */}
+      <div className="p-4 flex flex-col flex-1">
+        <p className="text-xs text-accent font-medium uppercase tracking-wider mb-1">{product.category}</p>
+        <h3 className="font-semibold text-foreground text-sm leading-snug mb-2 line-clamp-2 flex-1">{product.name}</h3>
+        <div className="flex items-center justify-between mt-auto">
+          <div>
+            <p className="text-primary font-bold text-base">{formatPrice(product.price)}</p>
+            {product.originalPrice && (
+              <p className="text-muted-foreground text-xs line-through">{formatPrice(product.originalPrice)}</p>
+            )}
+          </div>
+          <button
+            onClick={handleAddToCart}
+            className="bg-primary text-white rounded-xl px-3 py-2 text-xs font-semibold hover:bg-accent hover:text-primary transition-colors flex items-center gap-1.5"
+          >
+            <ShoppingCart size={14} />
+            Ajouter
+          </button>
         </div>
-        <Link
-          href={`/produit/${product.slug}`}
-          className="inline-flex items-center px-4 py-2 rounded-xl text-[11px] font-bold text-bc-purple bg-bc-yellow hover:bg-yellow-400 transition-colors shadow-sm cursor-pointer"
-        >
-          Détails <ChevronRight size={11} className="ml-1" />
-        </Link>
+        <p className="text-muted-foreground text-xs mt-2">🚚 Livraison en {product.deliveryDays}</p>
       </div>
     </div>
   );
