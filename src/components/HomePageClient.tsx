@@ -1,6 +1,8 @@
 "use client";
 
-import { ArrowRight, Star, Truck, Shield, Gift, Phone } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { ArrowRight, Star, Truck, Shield, Gift, Phone, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Product, PageName } from "@/lib/context";
 import { useRouter } from "@/lib/context";
 import ProductCard, { formatPrice } from "@/components/ProductCard";
@@ -18,104 +20,158 @@ interface Props {
   products: Product[];
 }
 
+// ── Hero Carousel ──────────────────────────────────────────────────────────
+
+const HERO_SLIDES = [
+  {
+    id: 1,
+    image: "https://images.unsplash.com/photo-1608825154649-2e9bb4cd4211?w=1600&h=900&fit=crop&auto=format",
+    tag: "Livraison rapide à Cotonou",
+    title: "Offrez ce qui vient",
+    accent: "du cœur",
+    sub: "Bénin Cadeau vous propose une sélection unique de cadeaux pour toutes vos occasions — anniversaires, mariages, naissances et bien plus.",
+    cta: "Découvrir les cadeaux",
+    ctaPage: "catalogue" as const,
+  },
+  {
+    id: 2,
+    image: "https://images.unsplash.com/photo-1681183183825-cf959ebdc3c2?w=1600&h=900&fit=crop&auto=format",
+    tag: "Saint-Valentin & Romance",
+    title: "Exprimez votre amour",
+    accent: "avec élégance",
+    sub: "Bouquets premium, coffrets parfum, peluches géantes… Faites de chaque geste une déclaration mémorable.",
+    cta: "Voir les cadeaux romantiques",
+    ctaPage: "catalogue" as const,
+    ctaParams: { category: "saint-valentin" },
+  },
+  {
+    id: 3,
+    image: "https://images.unsplash.com/photo-1770989064308-78baffbaa47e?w=1600&h=900&fit=crop&auto=format",
+    tag: "Solutions corporate disponibles",
+    title: "Cadeaux d'entreprise",
+    accent: "sur mesure",
+    sub: "Goodies personnalisés, récompenses collaborateurs et coffrets prestige pour vos clients et partenaires.",
+    cta: "Voir les offres entreprise",
+    ctaPage: "catalogue" as const,
+    ctaParams: { category: "entreprise" },
+  },
+];
+
+function HeroCarousel() {
+  const { navigate } = useRouter();
+  const [current, setCurrent] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval>>();
+
+  const goTo = (idx: number) => setCurrent(idx);
+  const prev = () => goTo((current - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
+  const next = () => goTo((current + 1) % HERO_SLIDES.length);
+
+  useEffect(() => {
+    intervalRef.current = setInterval(next, 5500);
+    return () => clearInterval(intervalRef.current);
+  }, [current]);
+
+  const slide = HERO_SLIDES[current];
+
+  return (
+    <section className="relative w-full overflow-hidden" style={{ height: "clamp(520px, 80vh, 780px)" }}>
+      {HERO_SLIDES.map((s, i) => (
+        <div
+          key={s.id}
+          className="absolute inset-0 transition-opacity duration-700"
+          style={{ opacity: i === current ? 1 : 0, zIndex: i === current ? 1 : 0 }}
+        >
+          <img src={s.image} alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(105deg, rgba(26,43,109,0.92) 0%, rgba(26,43,109,0.70) 45%, rgba(26,43,109,0.20) 100%)" }} />
+        </div>
+      ))}
+
+      <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col justify-center">
+        <div className="max-w-2xl">
+          <motion.span
+            key={`tag-${current}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45 }}
+            className="inline-flex items-center gap-2 text-accent text-xs font-bold uppercase tracking-widest mb-5"
+          >
+            <span className="w-5 h-px bg-accent inline-block" />
+            {slide.tag}
+          </motion.span>
+
+          <motion.h1
+            key={`h-${current}`}
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.1 }}
+            className="font-display text-4xl sm:text-5xl lg:text-[3.5rem] text-white font-semibold leading-[1.15] mb-5"
+          >
+            {slide.title}{" "}
+            <em className="text-accent not-italic">{slide.accent}</em>
+          </motion.h1>
+
+          <motion.p
+            key={`p-${current}`}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-white/75 text-base sm:text-lg leading-relaxed mb-9 max-w-lg"
+          >
+            {slide.sub}
+          </motion.p>
+
+          <motion.div
+            key={`cta-${current}`}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.35 }}
+            className="flex flex-wrap gap-3"
+          >
+            <button
+              onClick={() => navigate(slide.ctaPage, (slide as any).ctaParams)}
+              className="group inline-flex items-center gap-2 bg-accent text-primary font-bold px-7 py-3.5 rounded-xl hover:bg-white transition-colors text-sm shadow-lg cursor-pointer"
+            >
+              {slide.cta}
+              <ArrowRight size={17} className="group-hover:translate-x-1 transition-transform" />
+            </button>
+            <a
+              href="https://wa.me/22955250000"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 border border-white/30 text-white font-semibold px-6 py-3.5 rounded-xl hover:bg-white/10 transition-colors text-sm backdrop-blur-sm"
+            >
+              <Phone size={15} /> Nous écrire
+            </a>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Arrow controls */}
+      <button onClick={prev} className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/25 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-black/40 transition-colors cursor-pointer" aria-label="Précédent">
+        <ChevronLeft size={20} />
+      </button>
+      <button onClick={next} className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/25 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-black/40 transition-colors cursor-pointer" aria-label="Suivant">
+        <ChevronRight size={20} />
+      </button>
+
+      {/* Slide dots */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2 items-center">
+        {HERO_SLIDES.map((_, i) => (
+          <button key={i} onClick={() => goTo(i)} className={`rounded-full transition-all duration-300 cursor-pointer ${i === current ? "w-7 h-1.5 bg-accent" : "w-1.5 h-1.5 bg-white/40 hover:bg-white/70"}`} aria-label={`Diapositive ${i + 1}`} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function HomePageClient({ categories, products }: Props) {
   const { navigate } = useRouter();
   const popular = products.slice(0, 8);
 
   return (
     <div className="font-body">
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="relative bg-primary overflow-hidden min-h-[520px] flex items-center">
-        {/* Background pattern */}
-        <div className="absolute inset-0 opacity-10">
-          {Array.from({ length: 20 }).map((_, i) => {
-            const top = (i * 37 + 13) % 100;
-            const left = (i * 73 + 7) % 100;
-            const rotate = ((i * 17) % 41) - 20;
-            const opacity = 0.2 + ((i * 3) % 4) * 0.1;
-            return (
-              <span key={i} className="absolute text-4xl select-none" style={{
-                top: `${top}%`,
-                left: `${left}%`,
-                transform: `rotate(${rotate}deg)`,
-                opacity: opacity,
-              }}>🎁</span>
-            );
-          })}
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 grid lg:grid-cols-2 gap-10 items-center w-full">
-          <div>
-            <div className="inline-flex items-center gap-2 bg-accent/20 text-accent rounded-full px-4 py-1.5 text-sm font-medium mb-6">
-              🎉 Livraison rapide à Cotonou
-            </div>
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-white leading-tight font-semibold mb-6">
-              Offrez ce qui vient{" "}
-              <span className="text-accent italic">du cœur</span>
-            </h1>
-            <p className="text-white/80 text-lg leading-relaxed mb-8 max-w-lg">
-              Bénin Cadeau vous propose une sélection unique de cadeaux pour toutes vos occasions — anniversaires, mariages, naissances et bien plus encore.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={() => navigate("catalogue")}
-                className="inline-flex items-center gap-2 bg-accent text-primary font-bold px-6 py-3 rounded-xl hover:bg-accent/90 transition-colors shadow-lg text-base"
-              >
-                Voir le catalogue <ArrowRight size={18} />
-              </button>
-              <button
-                onClick={() => navigate("about")}
-                className="inline-flex items-center gap-2 bg-white/10 text-white font-semibold px-6 py-3 rounded-xl hover:bg-white/20 transition-colors text-base"
-              >
-                En savoir plus
-              </button>
-            </div>
-
-            {/* Trust badges */}
-            <div className="flex flex-wrap gap-4 mt-8">
-              {[
-                { icon: <Truck size={16} />, text: "Livraison J+1" },
-                { icon: <Shield size={16} />, text: "Paiement sécurisé" },
-                { icon: <Star size={16} />, text: "Qualité garantie" },
-              ].map(({ icon, text }) => (
-                <div key={text} className="flex items-center gap-2 text-white/70 text-sm">
-                  <span className="text-accent">{icon}</span>
-                  {text}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Hero image collage */}
-          <div className="hidden lg:grid grid-cols-2 gap-4 max-w-sm ml-auto">
-            <div className="space-y-4">
-              <div className="rounded-2xl overflow-hidden aspect-[3/4] bg-muted shadow-xl mt-8">
-                <img
-                  src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=300&h=400&fit=crop&auto=format"
-                  alt="Coffret cadeau"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="rounded-2xl overflow-hidden aspect-square bg-muted shadow-xl">
-                <img
-                  src="https://images.unsplash.com/photo-1681183183825-cf959ebdc3c2?w=300&h=300&fit=crop&auto=format"
-                  alt="Parfum et fleurs"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="rounded-2xl overflow-hidden aspect-square bg-muted shadow-xl">
-                <img
-                  src="https://images.unsplash.com/photo-1544639044-4f142ceb6a2b?w=300&h=300&fit=crop&auto=format"
-                  alt="Cadeau emballé"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* ── Hero Carousel ── */}
+      <HeroCarousel />
 
       {/* ── Stats bar ──────────────────────────────────────────────────────── */}
       <section className="bg-accent">

@@ -34,6 +34,7 @@ export default function Footer() {
                 { label: "Mon panier", page: "cart" as const },
                 { label: "Mon compte", page: "account" as const },
                 { label: "À propos", page: "about" as const },
+                { label: "Contact", page: "contact" as const },
               ].map(({ label, page }) => (
                 <li key={page}>
                   <button

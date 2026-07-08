@@ -49,6 +49,9 @@ export default function Navbar() {
             <button onClick={() => navigate("about")} className="text-white/80 hover:text-accent text-sm font-medium transition-colors">
               À propos
             </button>
+            <button onClick={() => navigate("contact")} className="text-white/80 hover:text-accent text-sm font-medium transition-colors">
+              Contact
+            </button>
           </nav>
 
           {/* Actions */}
@@ -127,6 +130,7 @@ export default function Navbar() {
               { label: "Mon panier", page: "cart" as const },
               { label: user ? "Mon compte" : "Connexion", page: "account" as const },
               { label: "À propos", page: "about" as const },
+              { label: "Contact", page: "contact" as const },
             ].map(({ label, page }) => (
               <button
                 key={page}

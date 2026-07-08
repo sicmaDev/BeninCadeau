@@ -1,44 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { MapPin, Phone, Mail, Send, CheckCircle, Heart, Star, Users, Loader2 } from "lucide-react";
+import { MapPin, Heart, Star, Users } from "lucide-react";
 import { useRouter } from "@/lib/context";
 
 export default function AboutPage() {
   const { navigate } = useRouter();
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [sent, setSent] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          message: form.message,
-          subject: "Contact - À propos",
-        }),
-      });
-
-      if (res.ok) {
-        setSent(true);
-      } else {
-        const data = await res.json();
-        setError(data.error || "Impossible d'envoyer le message.");
-      }
-    } catch (err) {
-      setError("Erreur réseau lors de l'envoi.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="font-body">
@@ -92,7 +58,7 @@ export default function AboutPage() {
             <div className="space-y-4 text-muted-foreground text-sm leading-relaxed">
               <p>
                 Chez Bénin Cadeau, nous croyons que chaque cadeau est une occasion de créer un souvenir
-                durable. C'est pourquoi nous sélectionnons soigneusement nos produits pour garantir
+                durable. C'est pourquoi nous sélectionsons soigneusement nos produits pour garantir
                 qualité, originalité et signification.
               </p>
               <p>
@@ -160,138 +126,6 @@ export default function AboutPage() {
               <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* Contact */}
-      <section className="bg-muted/50 py-16" id="contact">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12">
-          {/* Info */}
-          <div>
-            <p className="text-accent font-semibold text-sm uppercase tracking-wider mb-3">Nous contacter</p>
-            <h2 className="font-display text-3xl font-semibold text-primary mb-6">Parlons-nous</h2>
-            <p className="text-muted-foreground text-sm leading-relaxed mb-8">
-              Une question, une commande spéciale, un devis pour votre entreprise ?
-              Notre équipe est disponible du lundi au samedi de 8h à 20h.
-            </p>
-
-            <div className="space-y-4">
-              {[
-                {
-                  icon: <MapPin size={20} className="text-accent" />,
-                  title: "Adresse",
-                  content: "Akpakpa, Carrefour Houéyiho\nCotonou, Bénin",
-                },
-                {
-                  icon: <Phone size={20} className="text-accent" />,
-                  title: "Téléphone / WhatsApp",
-                  content: "+229 97 00 00 00",
-                  href: "tel:+22997000000",
-                },
-                {
-                  icon: <Mail size={20} className="text-accent" />,
-                  title: "Email",
-                  content: "contact@benincadeau.bj",
-                  href: "mailto:contact@benincadeau.bj",
-                },
-              ].map(({ icon, title, content, href }) => (
-                <div key={title} className="flex gap-4">
-                  <div className="w-10 h-10 bg-card border border-border rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
-                    {icon}
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-foreground uppercase tracking-wider">{title}</p>
-                    {href ? (
-                      <a href={href} className="text-sm text-muted-foreground hover:text-primary transition-colors mt-0.5 block">
-                        {content}
-                      </a>
-                    ) : (
-                      <p className="text-sm text-muted-foreground mt-0.5 whitespace-pre-line">{content}</p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <a
-              href="https://wa.me/22997000000"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-8 inline-flex items-center gap-2 bg-[#25D366] text-white font-bold px-5 py-3 rounded-xl hover:bg-[#22c55e] transition-colors text-sm cursor-pointer"
-            >
-              💬 Écrire sur WhatsApp
-            </a>
-          </div>
-
-          {/* Form */}
-          <div className="bg-card border border-border rounded-2xl p-6">
-            {sent ? (
-              <div className="text-center py-10">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle size={32} className="text-green-600" />
-                </div>
-                <h3 className="font-display text-xl font-semibold text-primary mb-2">Message envoyé !</h3>
-                <p className="text-muted-foreground text-sm">
-                  Merci pour votre message. Notre équipe vous répondra dans les plus brefs délais.
-                </p>
-              </div>
-            ) : (
-              <>
-                <h3 className="font-display text-xl font-semibold text-primary mb-6">Envoyer un message</h3>
-                {error && (
-                  <div className="bg-red-50 text-destructive text-sm rounded-xl px-4 py-3 border border-red-200 mb-4">{error}</div>
-                )}
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-foreground mb-1.5">Nom *</label>
-                      <input
-                        required
-                        value={form.name}
-                        onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                        placeholder="Votre nom"
-                        className="w-full px-4 py-3 bg-input-background border border-border rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-foreground mb-1.5">Email *</label>
-                      <input
-                        required
-                        type="email"
-                        value={form.email}
-                        onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                        placeholder="votre@email.com"
-                        className="w-full px-4 py-3 bg-input-background border border-border rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-foreground mb-1.5">Message *</label>
-                    <textarea
-                      required
-                      rows={5}
-                      value={form.message}
-                      onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
-                      placeholder="Votre message, demande de devis..."
-                      className="w-full px-4 py-3 bg-input-background border border-border rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent resize-none focus:border-transparent"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full flex items-center justify-center gap-2 bg-primary text-white font-bold py-3.5 rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-70 cursor-pointer"
-                  >
-                    {loading ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : (
-                      <Send size={16} />
-                    )}
-                    Envoyer le message
-                  </button>
-                </form>
-              </>
-            )}
-          </div>
         </div>
       </section>
     </div>

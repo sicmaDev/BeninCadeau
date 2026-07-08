@@ -34,7 +34,8 @@ export type PageName =
   | "checkout"
   | "confirmation"
   | "account"
-  | "about";
+  | "about"
+  | "contact";
 
 interface RouterState {
   page: PageName;
@@ -247,6 +248,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       page = "account";
     } else if (pathname === "/a-propos") {
       page = "about";
+    } else if (pathname === "/contact") {
+      page = "contact";
     }
 
     setRouterState({ page, params });
@@ -269,6 +272,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       path = "/compte";
     } else if (page === "about") {
       path = "/a-propos";
+    } else if (page === "contact") {
+      path = "/contact";
     }
 
     nextRouter.push(path);
