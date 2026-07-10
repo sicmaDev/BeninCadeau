@@ -49,7 +49,7 @@ export default function AdminSalesPurchaseChart({ thisYear, lastYear }: AdminSal
 
   const options: ApexOptions = {
     // Light orange, Dark orange to match the template colors
-    colors: ["#FAD896", "#1A2B6D"],
+    colors: ["#f5a623ff", "#1A2B6D"],
     chart: {
       type: "bar",
       height: 350,

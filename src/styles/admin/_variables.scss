@@ -15,15 +15,15 @@ $gray-950: #0a0a0a !default;
 $navy: #1A2B6D !default;
 $gold: #F5A623 !default;
 $red: #D4352B !default;
-$green: #00C951 !default;
-$cyan: #00B8DB !default;
+$green: #00C951 !default;   // conservé pour les statuts
+$cyan: #00B8DB !default;    // conservé pour les statuts
 
-
+// Couleurs réassignées : success → Gold, info → Navy (palette marque)
 $primary: $navy !default;
 $secondary: $gray-600 !default;
-$success: $green !default;
-$info: $cyan !default;
-$warning: $gold !default;
+$success: $gold !default;
+$info: $navy !default;
+$warning: #E6821E !default;  // orange légèrement plus foncé pour différencier de success
 $danger: $red !default;
 
 $min-contrast-ratio: 2.5 !default;

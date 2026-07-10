@@ -90,13 +90,13 @@ export default function AdminPaiementsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "PAYEE":
-        return <span className="badge bg-success bg-opacity-10 text-success border border-success px-2.5 py-1">Payé</span>;
+        return <span className="badge status-success-badge px-2.5 py-1">Payé</span>;
       case "EN_ATTENTE":
-        return <span className="badge bg-warning bg-opacity-10 text-warning border border-warning px-2.5 py-1">En attente</span>;
+        return <span className="badge status-warning-badge px-2.5 py-1">En attente</span>;
       case "ANNULEE":
-        return <span className="badge bg-danger bg-opacity-10 text-danger border border-danger px-2.5 py-1">Annulé</span>;
+        return <span className="badge status-danger-badge px-2.5 py-1">Annulé</span>;
       default:
-        return <span className="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-2.5 py-1">{status}</span>;
+        return <span className="badge status-primary-badge px-2.5 py-1">{status}</span>;
     }
   };
 

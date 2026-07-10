@@ -123,14 +123,14 @@ export default function AdminOrdersPage() {
 
   const getStatusBadge = (status: string) => {
     const statuses: Record<string, { badgeClass: string, label: string }> = {
-      EN_ATTENTE: { badgeClass: 'bg-warning bg-opacity-10 text-warning border border-warning', label: 'En attente' },
-      PAYEE: { badgeClass: 'bg-success bg-opacity-10 text-success border border-success', label: 'Payée' },
-      EN_PREPARATION: { badgeClass: 'bg-primary bg-opacity-10 text-primary border border-primary', label: 'En préparation' },
-      EXPEDIEE: { badgeClass: 'bg-info bg-opacity-10 text-info border border-info', label: 'Expédiée' },
-      LIVREE: { badgeClass: 'bg-success bg-opacity-10 text-success border border-success', label: 'Livrée' },
-      ANNULEE: { badgeClass: 'bg-danger bg-opacity-10 text-danger border border-danger', label: 'Annulée' },
+      EN_ATTENTE:     { badgeClass: 'status-warning-badge', label: 'En attente' },
+      PAYEE:          { badgeClass: 'status-success-badge', label: 'Payée' },
+      EN_PREPARATION: { badgeClass: 'status-primary-badge', label: 'En préparation' },
+      EXPEDIEE:       { badgeClass: 'status-info-badge',    label: 'Expédiée' },
+      LIVREE:         { badgeClass: 'status-success-badge', label: 'Livrée' },
+      ANNULEE:        { badgeClass: 'status-danger-badge',  label: 'Annulée' },
     };
-    const current = statuses[status] || { badgeClass: 'bg-light text-secondary border', label: status };
+    const current = statuses[status] || { badgeClass: 'status-primary-badge', label: status };
 
     return (
       <span
@@ -141,6 +141,7 @@ export default function AdminOrdersPage() {
       </span>
     );
   };
+
 
   const statusOptions = [
     { value: 'ALL', label: 'Toutes' },

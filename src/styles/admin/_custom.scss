@@ -139,3 +139,42 @@
 @import "./button";
 @import "./icon-shape";
 @import "./utilities";
+
+// ─── Classes de statuts commandes (couleurs d'origine, indépendantes du thème) ───
+// Ces classes préservent le vert (#00C951) et le cyan (#00B8DB) pour les badges de statut
+
+$status-success: #00C951;
+$status-info:    #00B8DB;
+$status-warning: #F5A623;
+$status-danger:  #D4352B;
+$status-primary: #1A2B6D;
+
+.status-success-badge {
+  background-color: rgba($status-success, 0.15) !important;
+  color: $status-success !important;
+  border: 1px solid rgba($status-success, 0.4) !important;
+}
+
+.status-info-badge {
+  background-color: rgba($status-info, 0.15) !important;
+  color: darken($status-info, 8%) !important;
+  border: 1px solid rgba($status-info, 0.4) !important;
+}
+
+.status-warning-badge {
+  background-color: rgba($status-warning, 0.15) !important;
+  color: darken($status-warning, 12%) !important;
+  border: 1px solid rgba($status-warning, 0.4) !important;
+}
+
+.status-danger-badge {
+  background-color: rgba($status-danger, 0.15) !important;
+  color: $status-danger !important;
+  border: 1px solid rgba($status-danger, 0.4) !important;
+}
+
+.status-primary-badge {
+  background-color: rgba($status-primary, 0.12) !important;
+  color: $status-primary !important;
+  border: 1px solid rgba($status-primary, 0.3) !important;
+}

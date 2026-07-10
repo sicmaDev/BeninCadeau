@@ -111,14 +111,14 @@ export default function AdminDashboardPage() {
 
   const getStatusColor = (status: string) => {
     const statusColors: Record<string, string> = {
-      EN_ATTENTE: "bg-warning-subtle text-warning border border-warning",
-      PAYEE: "bg-success-subtle text-success border border-success",
-      EN_PREPARATION: "bg-primary-subtle text-primary border border-primary",
-      EXPEDIEE: "bg-info-subtle text-info border border-info",
-      LIVREE: "bg-success-subtle text-success border border-success",
-      ANNULEE: "bg-danger-subtle text-danger border border-danger",
+      EN_ATTENTE:      "status-warning-badge",
+      PAYEE:           "status-success-badge",
+      EN_PREPARATION:  "status-primary-badge",
+      EXPEDIEE:        "status-info-badge",
+      LIVREE:          "status-success-badge",
+      ANNULEE:         "status-danger-badge",
     };
-    return statusColors[status] || "bg-light text-secondary border";
+    return statusColors[status] || "status-primary-badge";
   };
 
   const getStatusLabel = (status: string) => {

@@ -152,15 +152,16 @@ export default function AdminCustomersPage() {
 
   const getStatusBadgeClass = (status: string) => {
     const statusClasses: Record<string, string> = {
-      EN_ATTENTE: 'bg-warning bg-opacity-10 text-warning border border-warning',
-      PAYEE: 'bg-info bg-opacity-10 text-info border border-info',
-      EN_PREPARATION: 'bg-primary bg-opacity-10 text-primary border border-primary',
-      EXPEDIEE: 'bg-primary bg-opacity-10 text-primary border border-primary',
-      LIVREE: 'bg-success bg-opacity-10 text-success border border-success',
-      ANNULEE: 'bg-danger bg-opacity-10 text-danger border border-danger',
+      EN_ATTENTE:     'status-warning-badge',
+      PAYEE:          'status-success-badge',
+      EN_PREPARATION: 'status-primary-badge',
+      EXPEDIEE:       'status-info-badge',
+      LIVREE:         'status-success-badge',
+      ANNULEE:        'status-danger-badge',
     };
-    return statusClasses[status] || 'bg-secondary bg-opacity-10 text-secondary border border-secondary';
+    return statusClasses[status] || 'status-primary-badge';
   };
+
 
   if (loading) {
     return (

@@ -219,8 +219,8 @@ export default function AdminCategoriesPage() {
                           onClick={() => handleToggleActive(category)}
                           className={`badge cursor-pointer ${
                             category.active
-                              ? 'bg-success bg-opacity-10 text-success border border-success'
-                              : 'bg-danger bg-opacity-10 text-danger border border-danger'
+                              ? 'status-success-badge'
+                              : 'status-danger-badge'
                           }`}
                           style={{ fontSize: "11px", padding: "5px 10px" }}
                         >
