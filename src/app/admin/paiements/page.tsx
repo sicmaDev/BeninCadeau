@@ -24,9 +24,17 @@ export default function AdminPaiementsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [verifyingId, setVerifyingId] = useState<number | null>(null);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterType, searchQuery]);
 
   const fetchOrders = async () => {
     try {
@@ -86,6 +94,12 @@ export default function AdminPaiementsPage() {
 
     return true;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / itemsPerPage));
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const getStatusBadge = (status: string, isOnline: boolean) => {
     if (isOnline) {
@@ -231,7 +245,7 @@ export default function AdminPaiementsPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.map((order) => (
+              {paginatedOrders.map((order) => (
                 <tr key={order.id}>
                   {/* Order Code */}
                   <td className="fw-bold text-dark">
@@ -299,6 +313,47 @@ export default function AdminPaiementsPage() {
                 </tr>
               ))}
             </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan={3} className="border-bottom-0 text-secondary align-middle">
+                  Affichage de {(currentPage - 1) * itemsPerPage + 1} à {Math.min(currentPage * itemsPerPage, filteredOrders.length)} sur {filteredOrders.length} paiements
+                </td>
+                <td colSpan={5} className="border-bottom-0">
+                  <nav aria-label="Page navigation" className="d-flex justify-content-end">
+                    <ul className="pagination mb-0">
+                      <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                        <button
+                          className="page-link"
+                          onClick={() => setCurrentPage(currentPage - 1)}
+                          disabled={currentPage === 1}
+                        >
+                          Précédent
+                        </button>
+                      </li>
+                      {Array.from({ length: totalPages }, (_, i) => (
+                        <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                          <button
+                            className="page-link"
+                            onClick={() => setCurrentPage(i + 1)}
+                          >
+                            {i + 1}
+                          </button>
+                        </li>
+                      ))}
+                      <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                        <button
+                          className="page-link"
+                          onClick={() => setCurrentPage(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                        >
+                          Suivant
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
+                </td>
+              </tr>
+            </tfoot>
           </table>
         )}
       </div>
