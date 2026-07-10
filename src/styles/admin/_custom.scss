@@ -178,3 +178,19 @@ $status-primary: #1A2B6D;
   color: $status-primary !important;
   border: 1px solid rgba($status-primary, 0.3) !important;
 }
+
+// ─── Toasts d'erreur personnalisés (Jaune principal rgb(245, 166, 35) / #F5A623) ───
+.toast-warning-custom {
+  background-color: rgba(245, 166, 35, 0.1) !important;
+  border-color: rgb(245, 166, 35) !important;
+}
+
+.toast-warning-solid {
+  background-color: rgb(245, 166, 35) !important;
+  border-color: rgb(245, 166, 35) !important;
+  color: #ffffff !important;
+}
+
+.text-warning-custom {
+  color: rgb(245, 166, 35) !important;
+}

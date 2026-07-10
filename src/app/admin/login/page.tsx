@@ -65,7 +65,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="container d-flex align-items-center justify-content-center min-vh-100 bg-light">
+    <div className="w-100 d-flex align-items-center justify-content-center min-vh-100 bg-light">
       <div className="card" style={{ maxWidth: "420px", width: "100%", border: "1px solid rgba(0,0,0,0.08)", borderRadius: "16px", boxShadow: "0 10px 30px rgba(0,0,0,0.04)" }}>
         <div className="card-body p-5">
           <div className="text-center mb-3">

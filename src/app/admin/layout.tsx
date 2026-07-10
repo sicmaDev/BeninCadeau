@@ -451,16 +451,29 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div
             key={t.id}
             className={`toast show mb-3 border-start border-4 ${
-              t.type === "success" ? "bg-success bg-opacity-10 border-success" : "bg-danger bg-opacity-10 border-danger"
+              t.type === "success"
+                ? "bg-primary bg-opacity-10 border-primary"
+                : "bg-warning bg-opacity-10 border-warning"
             }`}
             role="alert"
             aria-live="assertive"
             aria-atomic="true"
           >
-            <div className="toast-header bg-transparent border-0 d-flex justify-content-between">
-              <strong className={`me-auto ${t.type === "success" ? "text-success" : "text-danger"}`}>
-                {t.type === "success" ? "Succès" : "Erreur"}
-              </strong>
+            <div className="toast-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+              <div className="d-flex align-items-center gap-2">
+                {t.type === "success" ? (
+                  <CheckCircle size={16} className="text-primary" />
+                ) : (
+                  <AlertCircle size={16} className="text-warning" />
+                )}
+                <strong
+                  className={`me-auto ${
+                    t.type === "success" ? "text-primary" : "text-warning"
+                  }`}
+                >
+                  {t.type === "success" ? "Succès" : "Erreur"}
+                </strong>
+              </div>
               <button
                 type="button"
                 className="btn-close"

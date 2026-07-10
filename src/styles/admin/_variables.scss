@@ -23,7 +23,7 @@ $primary: $navy !default;
 $secondary: $gray-600 !default;
 $success: $gold !default;
 $info: $navy !default;
-$warning: #E6821E !default;  // orange légèrement plus foncé pour différencier de success
+$warning: $gold !default;  // jaune principal #F5A623 (rgb(245 166 35))
 $danger: $red !default;
 
 $min-contrast-ratio: 2.5 !default;
