@@ -13,6 +13,8 @@ interface ShippingZone {
 export default function AdminShippingZonesPage() {
   const { showToast } = useAdminToast();
   const [zones, setZones] = useState<ShippingZone[]>([]);
+  const [filteredZones, setFilteredZones] = useState<ShippingZone[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
   // Pagination
@@ -37,14 +39,32 @@ export default function AdminShippingZonesPage() {
       const res = await fetch('/api/admin/shipping-zones');
       if (res.ok) {
         const data = await res.json();
-        setZones(data.zones || []);
-        setCurrentPage(1);
+        const freshZones = data.zones || [];
+        setZones(freshZones);
+        applyFilters(searchQuery, freshZones);
       }
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
+  };
+
+  const applyFilters = (query: string, list: ShippingZone[] = zones) => {
+    if (query.trim() === "") {
+      setFilteredZones(list);
+    } else {
+      const q = query.toLowerCase();
+      setFilteredZones(list.filter(z => 
+        z.name.toLowerCase().includes(q)
+      ));
+    }
+    setCurrentPage(1);
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    applyFilters(query);
   };
 
   const openAddModal = () => {
@@ -125,8 +145,8 @@ export default function AdminShippingZonesPage() {
     );
   }
 
-  const totalPages = Math.ceil(zones.length / itemsPerPage);
-  const paginatedZones = zones.slice(
+  const totalPages = Math.max(1, Math.ceil(filteredZones.length / itemsPerPage));
+  const paginatedZones = filteredZones.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -150,12 +170,26 @@ export default function AdminShippingZonesPage() {
         </div>
       </div>
 
+      {/* FILTER & SEARCH */}
+      <div className="row mb-3 justify-content-end">
+        <div className="col-12 col-md-4">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Rechercher une zone..."
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            style={{ fontSize: "14px" }}
+          />
+        </div>
+      </div>
+
       {/* Table Container */}
       <div className="row">
         <div className="col-12">
           <div className="card table-responsive">
-            {zones.length === 0 ? (
-              <p className="p-4 text-muted text-center mb-0">Aucune zone de livraison configurée.</p>
+            {filteredZones.length === 0 ? (
+              <p className="p-4 text-muted text-center mb-0">Aucune zone de livraison trouvée.</p>
             ) : (
               <table className="table mb-0 text-nowrap table-hover">
                 <thead className="table-light border-light">
@@ -196,46 +230,47 @@ export default function AdminShippingZonesPage() {
                     </tr>
                   ))}
                 </tbody>
-                {totalPages > 1 && (
-                  <tfoot>
-                    <tr>
-                      <td className="border-bottom-0 text-secondary align-middle">
-                        Affichage de {paginatedZones.length} sur {zones.length} zones
-                      </td>
-                      <td colSpan={2} className="border-bottom-0">
-                        <nav aria-label="Page navigation" className="d-flex justify-content-end">
-                          <ul className="pagination mb-0">
-                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <tfoot>
+                  <tr>
+                    <td className="border-bottom-0 text-secondary align-middle">
+                      Affichage de {(currentPage - 1) * itemsPerPage + 1} à {Math.min(currentPage * itemsPerPage, filteredZones.length)} sur {filteredZones.length} zones
+                    </td>
+                    <td colSpan={3} className="border-bottom-0">
+                      <nav aria-label="Page navigation" className="d-flex justify-content-end">
+                        <ul className="pagination mb-0">
+                          <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => setCurrentPage(currentPage - 1)}
+                              disabled={currentPage === 1}
+                            >
+                              Précédent
+                            </button>
+                          </li>
+                          {[...Array(totalPages)].map((_, i) => (
+                            <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
                               <button
                                 className="page-link"
-                                onClick={() => setCurrentPage(currentPage - 1)}
-                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(i + 1)}
                               >
-                                Précédent
+                                {i + 1}
                               </button>
                             </li>
-                            {[...Array(totalPages)].map((_, i) => (
-                              <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
-                                <button className="page-link" onClick={() => setCurrentPage(i + 1)}>
-                                  {i + 1}
-                                </button>
-                              </li>
-                            ))}
-                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                              <button
-                                className="page-link"
-                                onClick={() => setCurrentPage(currentPage + 1)}
-                                disabled={currentPage === totalPages}
-                              >
-                                Suivant
-                              </button>
-                            </li>
-                          </ul>
-                        </nav>
-                      </td>
-                    </tr>
-                  </tfoot>
-                )}
+                          ))}
+                          <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => setCurrentPage(currentPage + 1)}
+                              disabled={currentPage === totalPages}
+                            >
+                              Suivant
+                            </button>
+                          </li>
+                        </ul>
+                      </nav>
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
             )}
           </div>

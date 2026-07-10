@@ -29,6 +29,8 @@ interface CustomerOrder {
 export default function AdminCustomersPage() {
   const { showToast } = useAdminToast();
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
   // Pagination
@@ -58,8 +60,9 @@ export default function AdminCustomersPage() {
       const res = await fetch('/api/admin/customers');
       if (res.ok) {
         const data = await res.json();
-        setCustomers(data.customers || []);
-        setCurrentPage(1);
+        const custs = data.customers || [];
+        setCustomers(custs);
+        applyFilters(searchQuery, custs);
       }
     } catch (e) {
       console.error(e);
@@ -67,6 +70,25 @@ export default function AdminCustomersPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const applyFilters = (query: string, list: Customer[] = customers) => {
+    if (query.trim() === "") {
+      setFilteredCustomers(list);
+    } else {
+      const q = query.toLowerCase();
+      setFilteredCustomers(list.filter(c => 
+        c.name.toLowerCase().includes(q) || 
+        c.email.toLowerCase().includes(q) ||
+        (c.phone && c.phone.toLowerCase().includes(q))
+      ));
+    }
+    setCurrentPage(1);
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    applyFilters(query);
   };
 
   const handleViewCustomerOrders = async (customer: Customer) => {
@@ -173,8 +195,8 @@ export default function AdminCustomersPage() {
     );
   }
 
-  const totalPages = Math.ceil(customers.length / itemsPerPage);
-  const paginatedCustomers = customers.slice(
+  const totalPages = Math.max(1, Math.ceil(filteredCustomers.length / itemsPerPage));
+  const paginatedCustomers = filteredCustomers.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -193,12 +215,26 @@ export default function AdminCustomersPage() {
         </div>
       </div>
 
+      {/* FILTER & SEARCH */}
+      <div className="row mb-3 justify-content-end">
+        <div className="col-12 col-md-4">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Rechercher par nom, email, téléphone..."
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            style={{ fontSize: "14px" }}
+          />
+        </div>
+      </div>
+
       {/* Table Container */}
       <div className="row">
         <div className="col-12">
           <div className="card table-responsive">
-            {customers.length === 0 ? (
-              <p className="p-4 text-muted text-center mb-0">Aucun client inscrit pour le moment.</p>
+            {filteredCustomers.length === 0 ? (
+              <p className="p-4 text-muted text-center mb-0">Aucun client trouvé.</p>
             ) : (
               <table className="table mb-0 text-nowrap table-hover">
                 <thead className="table-light border-light">
@@ -264,46 +300,47 @@ export default function AdminCustomersPage() {
                     </tr>
                   ))}
                 </tbody>
-                {totalPages > 1 && (
-                  <tfoot>
-                    <tr>
-                      <td className="border-bottom-0 text-secondary align-middle">
-                        Affichage de {paginatedCustomers.length} sur {customers.length} clients
-                      </td>
-                      <td colSpan={5} className="border-bottom-0">
-                        <nav aria-label="Page navigation" className="d-flex justify-content-end">
-                          <ul className="pagination mb-0">
-                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <tfoot>
+                  <tr>
+                    <td className="border-bottom-0 text-secondary align-middle">
+                      Affichage de {(currentPage - 1) * itemsPerPage + 1} à {Math.min(currentPage * itemsPerPage, filteredCustomers.length)} sur {filteredCustomers.length} clients
+                    </td>
+                    <td colSpan={5} className="border-bottom-0">
+                      <nav aria-label="Page navigation" className="d-flex justify-content-end">
+                        <ul className="pagination mb-0">
+                          <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => setCurrentPage(currentPage - 1)}
+                              disabled={currentPage === 1}
+                            >
+                              Précédent
+                            </button>
+                          </li>
+                          {[...Array(totalPages)].map((_, i) => (
+                            <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
                               <button
                                 className="page-link"
-                                onClick={() => setCurrentPage(currentPage - 1)}
-                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(i + 1)}
                               >
-                                Précédent
+                                {i + 1}
                               </button>
                             </li>
-                            {[...Array(totalPages)].map((_, i) => (
-                              <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
-                                <button className="page-link" onClick={() => setCurrentPage(i + 1)}>
-                                  {i + 1}
-                                </button>
-                              </li>
-                            ))}
-                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                              <button
-                                className="page-link"
-                                onClick={() => setCurrentPage(currentPage + 1)}
-                                disabled={currentPage === totalPages}
-                              >
-                                Suivant
-                              </button>
-                            </li>
-                          </ul>
-                        </nav>
-                      </td>
-                    </tr>
-                  </tfoot>
-                )}
+                          ))}
+                          <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => setCurrentPage(currentPage + 1)}
+                              disabled={currentPage === totalPages}
+                            >
+                              Suivant
+                            </button>
+                          </li>
+                        </ul>
+                      </nav>
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
             )}
           </div>

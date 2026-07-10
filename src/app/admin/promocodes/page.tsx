@@ -16,6 +16,8 @@ interface PromoCode {
 export default function AdminPromoCodesPage() {
   const { showToast } = useAdminToast();
   const [promocodes, setPromocodes] = useState<PromoCode[]>([]);
+  const [filteredPromocodes, setFilteredPromocodes] = useState<PromoCode[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
   // Pagination
@@ -43,14 +45,32 @@ export default function AdminPromoCodesPage() {
       const res = await fetch('/api/admin/promocodes');
       if (res.ok) {
         const data = await res.json();
-        setPromocodes(data.promocodes || []);
-        setCurrentPage(1);
+        const freshPromocodes = data.promocodes || [];
+        setPromocodes(freshPromocodes);
+        applyFilters(searchQuery, freshPromocodes);
       }
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
+  };
+
+  const applyFilters = (query: string, list: PromoCode[] = promocodes) => {
+    if (query.trim() === "") {
+      setFilteredPromocodes(list);
+    } else {
+      const q = query.toLowerCase();
+      setFilteredPromocodes(list.filter(p => 
+        p.code.toLowerCase().includes(q)
+      ));
+    }
+    setCurrentPage(1);
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    applyFilters(query);
   };
 
   const openAddModal = () => {
@@ -171,8 +191,8 @@ export default function AdminPromoCodesPage() {
     );
   }
 
-  const totalPages = Math.ceil(promocodes.length / itemsPerPage);
-  const paginatedPromoCodes = promocodes.slice(
+  const totalPages = Math.max(1, Math.ceil(filteredPromocodes.length / itemsPerPage));
+  const paginatedPromoCodes = filteredPromocodes.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -196,12 +216,26 @@ export default function AdminPromoCodesPage() {
         </div>
       </div>
 
+      {/* FILTER & SEARCH */}
+      <div className="row mb-3 justify-content-end">
+        <div className="col-12 col-md-4">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Rechercher un code promo..."
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            style={{ fontSize: "14px" }}
+          />
+        </div>
+      </div>
+
       {/* Table Container */}
       <div className="row">
         <div className="col-12">
           <div className="card table-responsive">
-            {promocodes.length === 0 ? (
-              <p className="p-4 text-muted text-center mb-0">Aucun code promo configuré.</p>
+            {filteredPromocodes.length === 0 ? (
+              <p className="p-4 text-muted text-center mb-0">Aucun code promo trouvé.</p>
             ) : (
               <table className="table mb-0 text-nowrap table-hover">
                 <thead className="table-light border-light">
@@ -290,46 +324,47 @@ export default function AdminPromoCodesPage() {
                     );
                   })}
                 </tbody>
-                {totalPages > 1 && (
-                  <tfoot>
-                    <tr>
-                      <td className="border-bottom-0 text-secondary align-middle">
-                        Affichage de {paginatedPromoCodes.length} sur {promocodes.length} codes promo
-                      </td>
-                      <td colSpan={5} className="border-bottom-0">
-                        <nav aria-label="Page navigation" className="d-flex justify-content-end">
-                          <ul className="pagination mb-0">
-                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <tfoot>
+                  <tr>
+                    <td className="border-bottom-0 text-secondary align-middle">
+                      Affichage de {(currentPage - 1) * itemsPerPage + 1} à {Math.min(currentPage * itemsPerPage, filteredPromocodes.length)} sur {filteredPromocodes.length} codes promo
+                    </td>
+                    <td colSpan={6} className="border-bottom-0">
+                      <nav aria-label="Page navigation" className="d-flex justify-content-end">
+                        <ul className="pagination mb-0">
+                          <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => setCurrentPage(currentPage - 1)}
+                              disabled={currentPage === 1}
+                            >
+                              Précédent
+                            </button>
+                          </li>
+                          {[...Array(totalPages)].map((_, i) => (
+                            <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
                               <button
                                 className="page-link"
-                                onClick={() => setCurrentPage(currentPage - 1)}
-                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(i + 1)}
                               >
-                                Précédent
+                                {i + 1}
                               </button>
                             </li>
-                            {[...Array(totalPages)].map((_, i) => (
-                              <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
-                                <button className="page-link" onClick={() => setCurrentPage(i + 1)}>
-                                  {i + 1}
-                                </button>
-                              </li>
-                            ))}
-                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                              <button
-                                className="page-link"
-                                onClick={() => setCurrentPage(currentPage + 1)}
-                                disabled={currentPage === totalPages}
-                              >
-                                Suivant
-                              </button>
-                            </li>
-                          </ul>
-                        </nav>
-                      </td>
-                    </tr>
-                  </tfoot>
-                )}
+                          ))}
+                          <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => setCurrentPage(currentPage + 1)}
+                              disabled={currentPage === totalPages}
+                            >
+                              Suivant
+                            </button>
+                          </li>
+                        </ul>
+                      </nav>
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
             )}
           </div>

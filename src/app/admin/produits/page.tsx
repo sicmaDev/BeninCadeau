@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAdminToast } from '@/app/admin/layout';
+import { Filter } from 'lucide-react';
 
 interface Category {
   id: number;
@@ -29,6 +30,8 @@ export default function AdminProductsPage() {
   const { showToast } = useAdminToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -38,6 +41,7 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
 
   const fetchProducts = async () => {
@@ -45,8 +49,24 @@ export default function AdminProductsPage() {
       const res = await fetch('/api/admin/products');
       if (res.ok) {
         const prodData = await res.json();
-        setProducts(prodData.products || []);
-        setFilteredProducts(prodData.products || []);
+        const freshProducts = prodData.products || [];
+        setProducts(freshProducts);
+        
+        // Apply initial filters
+        let result = freshProducts;
+        if (selectedCategory !== 'ALL') {
+          const catId = parseInt(selectedCategory, 10);
+          result = result.filter((p: any) => p.categoryId === catId);
+        }
+        if (searchQuery.trim() !== '') {
+          const q = searchQuery.toLowerCase();
+          result = result.filter((p: any) => 
+            p.name.toLowerCase().includes(q) || 
+            p.description.toLowerCase().includes(q) || 
+            p.category.name.toLowerCase().includes(q)
+          );
+        }
+        setFilteredProducts(result);
       }
     } catch (e) {
       console.error(e);
@@ -56,19 +76,49 @@ export default function AdminProductsPage() {
     }
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    setCurrentPage(1); // Reset to first page
-    if (!query.trim()) {
-      setFilteredProducts(products);
-    } else {
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch('/api/admin/categories');
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data.categories || []);
+      }
+    } catch (e) {
+      console.error('Failed to fetch categories', e);
+    }
+  };
+
+  const applyFilters = (catIdStr: string, query: string) => {
+    let result = products;
+
+    // 1. Category Filter
+    if (catIdStr !== 'ALL') {
+      const catId = parseInt(catIdStr, 10);
+      result = result.filter(p => p.categoryId === catId);
+    }
+
+    // 2. Search Query Filter
+    if (query.trim() !== '') {
       const q = query.toLowerCase();
-      setFilteredProducts(products.filter(p => 
+      result = result.filter(p => 
         p.name.toLowerCase().includes(q) || 
         p.description.toLowerCase().includes(q) || 
         p.category.name.toLowerCase().includes(q)
-      ));
+      );
     }
+
+    setFilteredProducts(result);
+    setCurrentPage(1); // Reset to first page
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    applyFilters(selectedCategory, query);
+  };
+
+  const handleCategoryChange = (catIdStr: string) => {
+    setSelectedCategory(catIdStr);
+    applyFilters(catIdStr, searchQuery);
   };
 
   const handleToggleActive = async (product: Product) => {
@@ -138,7 +188,7 @@ export default function AdminProductsPage() {
         <div className="col-12">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
-              <h1 className="fs-3 mb-1 text-dark">Inventaire</h1>
+              <h1 className="fs-3 mb-1 text-dark">Liste des produits</h1>
               <p className="mb-0 text-secondary">Gérez les cadeaux et packs du catalogue Bénin Cadeau</p>
             </div>
             <div>
@@ -151,27 +201,52 @@ export default function AdminProductsPage() {
       </div>
 
       {/* FILTER & SEARCH */}
+      <div className="row mb-3 g-3 align-items-center">
+        {/* Category selector on the left */}
+        <div className="col-12 col-md-8">
+          <div className="d-flex align-items-center gap-2">
+            <span className="text-secondary small fw-bold uppercase d-flex align-items-center gap-1 text-nowrap">
+              <Filter size={14} /> Filtrer :
+            </span>
+            <select
+              value={selectedCategory}
+              onChange={(e) => handleCategoryChange(e.target.value)}
+              className="form-select"
+              style={{ maxWidth: "250px" }}
+            >
+              <option value="ALL">Toutes les catégories</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id.toString()}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Search input on the right */}
+        <div className="col-12 col-md-4">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Rechercher produits..."
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            style={{ fontSize: "14px" }}
+          />
+        </div>
+      </div>
+
+      {/* TABLE CONTAINER */}
       <div className="row">
         <div className="col-12">
-          <div className="d-flex mb-3">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Rechercher produits..."
-              style={{ maxWidth: "250px" }}
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-            />
-          </div>
-
-          {/* TABLE CONTAINER */}
           <div className="card table-responsive">
-            {currentItems.length === 0 ? (
-              <p className="p-4 text-muted text-center mb-0">Aucun produit trouvé dans le catalogue.</p>
-            ) : (
-              <table className="table mb-0 text-nowrap table-hover">
-                <thead className="table-light border-light">
-                  <tr>
+        {currentItems.length === 0 ? (
+          <p className="p-4 text-muted text-center mb-0">Aucun produit trouvé dans le catalogue.</p>
+        ) : (
+          <table className="table mb-0 text-nowrap table-hover">
+            <thead className="table-light border-light">
+              <tr>
                     <th className="text-dark">Nom du Produit</th>
                     <th className="text-dark">Code</th>
                     <th className="text-dark">Catégorie</th>

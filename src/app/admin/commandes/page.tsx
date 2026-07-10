@@ -42,6 +42,7 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [selectedStatus, setSelectedStatus] = useState('ALL');
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   
   // Pagination states
@@ -61,8 +62,23 @@ export default function AdminOrdersPage() {
       const res = await fetch('/api/admin/orders');
       if (res.ok) {
         const data = await res.json();
-        setOrders(data.orders || []);
-        setFilteredOrders(data.orders || []);
+        const freshOrders = data.orders || [];
+        setOrders(freshOrders);
+        
+        // Apply initial filters
+        let result = freshOrders;
+        if (selectedStatus !== 'ALL') {
+          result = result.filter((o: any) => o.status === selectedStatus);
+        }
+        if (searchQuery.trim() !== '') {
+          const q = searchQuery.toLowerCase();
+          result = result.filter((o: any) => 
+            o.orderNumber.toLowerCase().includes(q) ||
+            o.clientName.toLowerCase().includes(q) ||
+            o.clientEmail.toLowerCase().includes(q)
+          );
+        }
+        setFilteredOrders(result);
       }
     } catch (e) {
       console.error('Failed to fetch orders', e);
@@ -72,14 +88,37 @@ export default function AdminOrdersPage() {
     }
   };
 
+  const applyFilters = (status: string, query: string) => {
+    let result = orders;
+    
+    // 1. Status Filter
+    if (status !== 'ALL') {
+      result = result.filter(o => o.status === status);
+    }
+    
+    // 2. Search Query Filter
+    if (query.trim() !== '') {
+      const q = query.toLowerCase();
+      result = result.filter(o => 
+        o.orderNumber.toLowerCase().includes(q) ||
+        o.clientName.toLowerCase().includes(q) ||
+        o.clientEmail.toLowerCase().includes(q) ||
+        o.clientPhone.toLowerCase().includes(q)
+      );
+    }
+    
+    setFilteredOrders(result);
+    setCurrentPage(1);
+  };
+
   const filterOrders = (status: string) => {
     setSelectedStatus(status);
-    setCurrentPage(1); // reset page
-    if (status === 'ALL') {
-      setFilteredOrders(orders);
-    } else {
-      setFilteredOrders(orders.filter(o => o.status === status));
-    }
+    applyFilters(status, searchQuery);
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    applyFilters(selectedStatus, query);
   };
 
   const handleUpdateStatus = async (orderId: number, newStatus: string) => {
@@ -104,11 +143,22 @@ export default function AdminOrdersPage() {
         });
 
         setOrders(updatedOrders);
-        if (selectedStatus === 'ALL') {
-          setFilteredOrders(updatedOrders);
-        } else {
-          setFilteredOrders(updatedOrders.filter(o => o.status === selectedStatus));
+        
+        // Re-apply filters
+        let result = updatedOrders;
+        if (selectedStatus !== 'ALL') {
+          result = result.filter(o => o.status === selectedStatus);
         }
+        if (searchQuery.trim() !== '') {
+          const q = searchQuery.toLowerCase();
+          result = result.filter(o => 
+            o.orderNumber.toLowerCase().includes(q) ||
+            o.clientName.toLowerCase().includes(q) ||
+            o.clientEmail.toLowerCase().includes(q)
+          );
+        }
+        setFilteredOrders(result);
+        
         showToast("Statut de la commande mis à jour.", "success");
       } else {
         showToast("Erreur lors de la mise à jour du statut.", "error");
@@ -181,9 +231,9 @@ export default function AdminOrdersPage() {
         </div>
       </div>
 
-      {/* FILTER TABS */}
-      <div className="row mb-3">
-        <div className="col-12">
+      {/* FILTER & SEARCH */}
+      <div className="row mb-3 g-3 align-items-center">
+        <div className="col-12 col-md-8">
           <div className="d-flex flex-wrap gap-2">
             {statusOptions.map((opt) => (
               <button
@@ -197,6 +247,16 @@ export default function AdminOrdersPage() {
               </button>
             ))}
           </div>
+        </div>
+        <div className="col-12 col-md-4">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Rechercher par N° de commande, client..."
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            style={{ fontSize: "14px" }}
+          />
         </div>
       </div>
 

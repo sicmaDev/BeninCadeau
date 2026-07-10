@@ -14,6 +14,8 @@ interface Category {
 export default function AdminCategoriesPage() {
   const { showToast } = useAdminToast();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
   // Form Modal States
@@ -40,8 +42,9 @@ export default function AdminCategoriesPage() {
       const res = await fetch('/api/admin/categories');
       if (res.ok) {
         const data = await res.json();
-        setCategories(data.categories || []);
-        setCurrentPage(1);
+        const cats = data.categories || [];
+        setCategories(cats);
+        applyFilters(searchQuery, cats);
       }
     } catch (e) {
       console.error(e);
@@ -49,6 +52,24 @@ export default function AdminCategoriesPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const applyFilters = (query: string, list: Category[] = categories) => {
+    if (query.trim() === "") {
+      setFilteredCategories(list);
+    } else {
+      const q = query.toLowerCase();
+      setFilteredCategories(list.filter(c => 
+        c.name.toLowerCase().includes(q) || 
+        c.slug.toLowerCase().includes(q)
+      ));
+    }
+    setCurrentPage(1);
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    applyFilters(query);
   };
 
   const handleSlugify = (text: string) => {
@@ -168,8 +189,8 @@ export default function AdminCategoriesPage() {
     );
   }
 
-  const totalPages = Math.ceil(categories.length / itemsPerPage);
-  const paginatedCategories = categories.slice(
+  const totalPages = Math.max(1, Math.ceil(filteredCategories.length / itemsPerPage));
+  const paginatedCategories = filteredCategories.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -193,12 +214,26 @@ export default function AdminCategoriesPage() {
         </div>
       </div>
 
+      {/* FILTER & SEARCH */}
+      <div className="row mb-3 justify-content-end">
+        <div className="col-12 col-md-4">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Rechercher par nom, slug..."
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            style={{ fontSize: "14px" }}
+          />
+        </div>
+      </div>
+
       {/* TABLE CONTAINER */}
       <div className="row">
         <div className="col-12">
           <div className="card table-responsive">
-            {categories.length === 0 ? (
-              <p className="p-4 text-muted text-center mb-0">Aucune catégorie enregistrée.</p>
+            {filteredCategories.length === 0 ? (
+              <p className="p-4 text-muted text-center mb-0">Aucune catégorie trouvée.</p>
             ) : (
               <table className="table mb-0 text-nowrap table-hover">
                 <thead className="table-light border-light">
@@ -244,46 +279,47 @@ export default function AdminCategoriesPage() {
                     </tr>
                   ))}
                 </tbody>
-                {totalPages > 1 && (
-                  <tfoot>
-                    <tr>
-                      <td className="border-bottom-0 text-secondary align-middle">
-                        Affichage de {paginatedCategories.length} sur {categories.length} catégories
-                      </td>
-                      <td colSpan={3} className="border-bottom-0">
-                        <nav aria-label="Page navigation" className="d-flex justify-content-end">
-                          <ul className="pagination mb-0">
-                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                <tfoot>
+                  <tr>
+                    <td className="border-bottom-0 text-secondary align-middle">
+                      Affichage de {(currentPage - 1) * itemsPerPage + 1} à {Math.min(currentPage * itemsPerPage, filteredCategories.length)} sur {filteredCategories.length} catégories
+                    </td>
+                    <td colSpan={3} className="border-bottom-0">
+                      <nav aria-label="Page navigation" className="d-flex justify-content-end">
+                        <ul className="pagination mb-0">
+                          <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => setCurrentPage(currentPage - 1)}
+                              disabled={currentPage === 1}
+                            >
+                              Précédent
+                            </button>
+                          </li>
+                          {Array.from({ length: totalPages }, (_, i) => (
+                            <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
                               <button
                                 className="page-link"
-                                onClick={() => setCurrentPage(currentPage - 1)}
-                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(i + 1)}
                               >
-                                Précédent
+                                {i + 1}
                               </button>
                             </li>
-                            {[...Array(totalPages)].map((_, i) => (
-                              <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
-                                <button className="page-link" onClick={() => setCurrentPage(i + 1)}>
-                                  {i + 1}
-                                </button>
-                              </li>
-                            ))}
-                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                              <button
-                                className="page-link"
-                                onClick={() => setCurrentPage(currentPage + 1)}
-                                disabled={currentPage === totalPages}
-                              >
-                                Suivant
-                              </button>
-                            </li>
-                          </ul>
-                        </nav>
-                      </td>
-                    </tr>
-                  </tfoot>
-                )}
+                          ))}
+                          <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={() => setCurrentPage(currentPage + 1)}
+                              disabled={currentPage === totalPages}
+                            >
+                              Suivant
+                            </button>
+                          </li>
+                        </ul>
+                      </nav>
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
             )}
           </div>

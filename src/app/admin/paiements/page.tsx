@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useAdminToast } from "@/app/admin/layout";
-import { CreditCard, Search, ArrowUpRight, CheckCircle, Clock, XCircle, RefreshCw } from "lucide-react";
+import { CreditCard, ArrowUpRight, CheckCircle, Clock, XCircle, RefreshCw } from "lucide-react";
 
 interface Order {
   id: number;
@@ -170,53 +170,45 @@ export default function AdminPaiementsPage() {
         </div>
       </div>
 
-      {/* Filter and Search controls */}
-      <div className="card mb-4">
-        <div className="card-body py-3">
-          <div className="row g-3 align-items-center">
-            {/* Payment Type Filters */}
-            <div className="col-12 col-md-6">
-              <div className="btn-group" role="group" aria-label="Type de paiement">
-                <button
-                  type="button"
-                  className={`btn btn-sm ${filterType === "ALL" ? "btn-primary" : "btn-outline-primary"}`}
-                  onClick={() => setFilterType("ALL")}
-                >
-                  Tous les paiements
-                </button>
-                <button
-                  type="button"
-                  className={`btn btn-sm ${filterType === "FEDAPAY" ? "btn-primary" : "btn-outline-primary"}`}
-                  onClick={() => setFilterType("FEDAPAY")}
-                >
-                  FedaPay uniquement
-                </button>
-                <button
-                  type="button"
-                  className={`btn btn-sm ${filterType === "MANUAL" ? "btn-primary" : "btn-outline-primary"}`}
-                  onClick={() => setFilterType("MANUAL")}
-                >
-                  Paiements manuels
-                </button>
-              </div>
-            </div>
-
-            {/* Search Input */}
-            <div className="col-12 col-md-6">
-              <div className="input-group">
-                <span className="input-group-text bg-transparent border-end-0">
-                  <Search size={16} className="text-secondary" />
-                </span>
-                <input
-                  type="text"
-                  className="form-control border-start-0"
-                  placeholder="Rechercher par N° de commande, ID FedaPay ou client..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
+      {/* FILTER & SEARCH */}
+      <div className="row mb-3 g-3 align-items-center">
+        {/* Payment Type Filters */}
+        <div className="col-12 col-md-8">
+          <div className="d-flex flex-wrap gap-2">
+            <button
+              type="button"
+              className={`btn btn-sm ${filterType === "ALL" ? "btn-primary" : "btn-outline-secondary"}`}
+              onClick={() => setFilterType("ALL")}
+            >
+              Tous les paiements
+            </button>
+            <button
+              type="button"
+              className={`btn btn-sm ${filterType === "FEDAPAY" ? "btn-primary" : "btn-outline-secondary"}`}
+              onClick={() => setFilterType("FEDAPAY")}
+            >
+              FedaPay uniquement
+            </button>
+            <button
+              type="button"
+              className={`btn btn-sm ${filterType === "MANUAL" ? "btn-primary" : "btn-outline-secondary"}`}
+              onClick={() => setFilterType("MANUAL")}
+            >
+              Paiements manuels
+            </button>
           </div>
+        </div>
+
+        {/* Search Input */}
+        <div className="col-12 col-md-4">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Rechercher par N° de commande, ID FedaPay ou client..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ fontSize: "14px" }}
+          />
         </div>
       </div>
 
