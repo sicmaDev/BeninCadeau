@@ -295,3 +295,8 @@
     line-height: 1.5;
   }
 }
+
+/* Override Tailwind container max-width for a wider and more immersive layout on desktop screens */
+.max-w-7xl {
+  max-width: 1440px !important;
+}
