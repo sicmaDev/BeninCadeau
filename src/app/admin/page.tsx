@@ -209,7 +209,7 @@ export default function AdminDashboardPage() {
               <div>
                 <h2 className="mb-1 fs-5 text-muted fw-semibold">Total Ventes</h2>
                 <h3 className="fs-2 fw-bold mb-1 text-dark">
-                  {stats?.totalRevenue.toLocaleString("fr-FR") || 0} FCFA
+                  {stats?.totalRevenue.toLocaleString("fr-FR") || 0} <span className="fs-6 fw-semibold text-secondary ms-1">FCFA</span>
                 </h3>
                 <div className="d-flex align-items-center gap-1 mt-2">
                   <span className={`fw-bold small ${stats?.revenueChangePercent && stats.revenueChangePercent >= 0 ? "text-success" : "text-danger"}`}>
@@ -301,7 +301,7 @@ export default function AdminDashboardPage() {
               <div className="d-flex justify-content-between border-bottom pb-3 mb-3 align-items-start">
                 <div>
                   <h3 className="fs-2 fw-bold text-dark mb-1">
-                    {(threeColumnDetails?.profitThisMonth || 0).toLocaleString("fr-FR")} FCFA
+                    {(threeColumnDetails?.profitThisMonth || 0).toLocaleString("fr-FR")} <span className="fs-6 fw-semibold text-secondary ms-1">FCFA</span>
                   </h3>
                   <span className="fs-5 text-muted fw-semibold">Ventes ce mois</span>
                 </div>
@@ -333,7 +333,7 @@ export default function AdminDashboardPage() {
               <div className="d-flex justify-content-between border-bottom pb-3 mb-3 align-items-start">
                 <div>
                   <h3 className="fs-2 fw-bold text-dark mb-1">
-                    {(threeColumnDetails?.shippingFeesThisMonth || 0).toLocaleString("fr-FR")} FCFA
+                    {(threeColumnDetails?.shippingFeesThisMonth || 0).toLocaleString("fr-FR")} <span className="fs-6 fw-semibold text-secondary ms-1">FCFA</span>
                   </h3>
                   <span className="fs-5 text-muted fw-semibold">Frais de livraison perçus</span>
                 </div>
@@ -365,7 +365,7 @@ export default function AdminDashboardPage() {
               <div className="d-flex justify-content-between border-bottom pb-3 mb-3 align-items-start">
                 <div>
                   <h3 className="fs-2 fw-bold text-dark mb-1">
-                    {(threeColumnDetails?.discountsThisMonth || 0).toLocaleString("fr-FR")} FCFA
+                    {(threeColumnDetails?.discountsThisMonth || 0).toLocaleString("fr-FR")} <span className="fs-6 fw-semibold text-secondary ms-1">FCFA</span>
                   </h3>
                   <span className="fs-5 text-muted fw-semibold">Réductions appliquées</span>
                 </div>
@@ -534,7 +534,7 @@ export default function AdminDashboardPage() {
                         <p className="mb-1 text-dark text-truncate fw-medium">{product.name}</p>
                         <div className="d-flex align-items-center gap-2 text-muted">
                           <small className="fw-semibold text-secondary">
-                            {product.price.toLocaleString("fr-FR")} FCFA
+                            {product.price.toLocaleString("fr-FR")} <span style={{ fontSize: "10px" }} className="text-secondary ms-1">FCFA</span>
                           </small>
                           <small>•</small>
                           <small>{product.totalQty} vendus</small>
@@ -625,7 +625,7 @@ export default function AdminDashboardPage() {
                       <div className="d-flex align-items-center gap-2 text-muted">
                         <small className="fw-semibold text-secondary">{order.clientName}</small>
                         <small>•</small>
-                        <small>{order.totalAmount.toLocaleString("fr-FR")} FCFA</small>
+                        <small>{order.totalAmount.toLocaleString("fr-FR")} <span style={{ fontSize: "10px" }} className="text-secondary ms-1">FCFA</span></small>
                       </div>
                     </div>
                     <span
