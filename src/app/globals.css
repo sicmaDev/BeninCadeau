@@ -116,13 +116,13 @@
   --color-bc-cream: #FEFCE8;
 
   /* ── Admin Template colours ── */
-  --color-admin-primary: #E66239;
+  --color-admin-primary: #1A2B6D;
   --color-admin-success: #00C951;
   --color-admin-info: #00B8DB;
-  --color-admin-warning: #F0B100;
-  --color-admin-danger: #FB2C36;
-  --color-admin-secondary: #525252;
-  --color-admin-border: #E5E5E5;
+  --color-admin-warning: #F5A623;
+  --color-admin-danger: #D4352B;
+  --color-admin-secondary: #FFF3DC;
+  --color-admin-border: rgba(26, 43, 109, 0.12);
 
   /* ── Shadows ── */
   --shadow-yellow-glow: 0px 4px 16px 0px rgba(247, 189, 13, 0.1);

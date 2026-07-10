@@ -58,7 +58,7 @@ export default function AdminStatusCountChart({ statusBreakdown }: AdminStatusCo
   const series = counts;
 
   const options: ApexOptions = {
-    colors: displayStatuses.map((statusKey) => colorsMap[statusKey] || "#E66239"),
+    colors: displayStatuses.map((statusKey) => colorsMap[statusKey] || "#1A2B6D"),
     labels: displayStatuses.map((statusKey) => labelsMap[statusKey]),
     chart: {
       type: "donut",

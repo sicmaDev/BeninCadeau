@@ -40,7 +40,7 @@ export default function AdminSalesChart({ thisYear, lastYear }: AdminSalesChartP
         show: false,
       },
     },
-    colors: ["#E66239", "#198754"],
+    colors: ["#1A2B6D", "#F5A623"],
     stroke: { width: [3, 2.5], curve: "smooth" },
     markers: { size: 4, hover: { sizeOffset: 2 } },
     fill: {

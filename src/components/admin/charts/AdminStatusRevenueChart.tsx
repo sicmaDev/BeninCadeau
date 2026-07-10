@@ -59,7 +59,7 @@ export default function AdminStatusRevenueChart({ statusBreakdown }: AdminStatus
     colors: [
       function ({ dataPointIndex }: { dataPointIndex: number }) {
         const statusKey = statuses[dataPointIndex];
-        return colorsMap[statusKey] || "#E66239";
+        return colorsMap[statusKey] || "#1A2B6D";
       },
     ],
     chart: {

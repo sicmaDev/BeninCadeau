@@ -35,7 +35,7 @@ export default function AdminCustomerChart({ firstTimeCount, returningCount }: A
       type: "radialBar",
     },
     // Template Colors: green and dark orange
-    colors: ["#5BE49B", "#E66239"],
+    colors: ["#F5A623", "#1A2B6D"],
     plotOptions: {
       radialBar: {
         startAngle: -135,
@@ -63,7 +63,7 @@ export default function AdminCustomerChart({ firstTimeCount, returningCount }: A
       gradient: {
         shade: "dark",
         type: "vertical",
-        gradientToColors: ["#007867", "#FFD666"],
+        gradientToColors: ["#FFD666", "#4C64B4"],
         stops: [0, 100],
       },
     },
