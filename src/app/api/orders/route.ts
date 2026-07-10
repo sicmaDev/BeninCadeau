@@ -138,13 +138,16 @@ export async function POST(req: Request) {
 
     const totalAmount = Math.max(0, subtotal + zone.deliveryFee - discountAmount);
 
-    // Générer un numéro de commande unique (ex: BC-20260612-4829)
-    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    const orderNumber = `BC-${dateStr}-${randomSuffix}`;
-
     // Transaction Prisma : Créer la commande, ses lignes et décrémenter les stocks
     const createdOrder = await prisma.$transaction(async (tx) => {
+      // Générer un numéro de commande séquentiel unique (ex: BC-OR37)
+      const lastOrder = await tx.order.findFirst({
+        orderBy: { id: 'desc' },
+        select: { id: true }
+      });
+      const nextId = (lastOrder?.id || 0) + 1;
+      const orderNumber = `BC-OR${nextId}`;
+
       // 1. Créer la commande
       const order = await tx.order.create({
         data: {

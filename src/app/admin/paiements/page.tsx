@@ -87,16 +87,24 @@ export default function AdminPaiementsPage() {
     return true;
   });
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "PAYEE":
-        return <span className="badge status-success-badge px-2.5 py-1">Payé</span>;
-      case "EN_ATTENTE":
-        return <span className="badge status-warning-badge px-2.5 py-1">En attente</span>;
-      case "ANNULEE":
+  const getStatusBadge = (status: string, isOnline: boolean) => {
+    if (isOnline) {
+      if (status === "ANNULEE") {
         return <span className="badge status-danger-badge px-2.5 py-1">Annulé</span>;
-      default:
-        return <span className="badge status-primary-badge px-2.5 py-1">{status}</span>;
+      }
+      return <span className="badge status-success-badge px-2.5 py-1">Payé</span>;
+    } else {
+      switch (status) {
+        case "LIVREE":
+          return <span className="badge status-success-badge px-2.5 py-1">Payé</span>;
+        case "ANNULEE":
+          return <span className="badge status-danger-badge px-2.5 py-1">Annulé</span>;
+        case "EN_ATTENTE":
+        case "EN_PREPARATION":
+        case "EXPEDIEE":
+        default:
+          return <span className="badge status-warning-badge px-2.5 py-1">En cours</span>;
+      }
     }
   };
 
@@ -112,8 +120,8 @@ export default function AdminPaiementsPage() {
 
   // Calculs de stats rapides
   const fedaPayOrders = orders.filter(o => o.transactionId);
-  const totalFedaPayRevenue = fedaPayOrders.filter(o => o.status === "PAYEE").reduce((sum, o) => sum + o.totalAmount, 0);
-  const totalManualRevenue = orders.filter(o => !o.transactionId && o.status === "PAYEE").reduce((sum, o) => sum + o.totalAmount, 0);
+  const totalFedaPayRevenue = fedaPayOrders.filter(o => o.status === "PAYEE" || o.status === "LIVREE").reduce((sum, o) => sum + o.totalAmount, 0);
+  const totalManualRevenue = orders.filter(o => !o.transactionId && (o.status === "PAYEE" || o.status === "LIVREE")).reduce((sum, o) => sum + o.totalAmount, 0);
 
   return (
     <>
@@ -155,7 +163,7 @@ export default function AdminPaiementsPage() {
               <span className="text-secondary small fw-bold uppercase">Transactions FedaPay</span>
               <h3 className="mt-2 mb-1 fw-bold text-dark">{fedaPayOrders.length}</h3>
               <p className="mb-0 text-secondary small">
-                Dont {fedaPayOrders.filter(o => o.status === "PAYEE").length} approuvées
+                Dont {fedaPayOrders.filter(o => o.status === "PAYEE" || o.status === "LIVREE").length} approuvées
               </p>
             </div>
           </div>
@@ -272,7 +280,7 @@ export default function AdminPaiementsPage() {
                   </td>
 
                   {/* Order / Payment Status */}
-                  <td>{getStatusBadge(order.status)}</td>
+                  <td>{getStatusBadge(order.status, !!order.transactionId)}</td>
 
                   {/* Creation Date */}
                   <td className="text-secondary small">

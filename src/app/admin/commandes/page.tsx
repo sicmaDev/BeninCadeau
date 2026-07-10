@@ -372,7 +372,7 @@ export default function AdminOrdersPage() {
                         style={{ minWidth: "180px" }}
                       >
                         <option value="EN_ATTENTE">En attente</option>
-                        <option value="PAYEE">Payée</option>
+                        {selectedOrder.transactionId && <option value="PAYEE">Payée</option>}
                         <option value="EN_PREPARATION">En préparation</option>
                         <option value="EXPEDIEE">Expédiée</option>
                         <option value="LIVREE">Livrée</option>
