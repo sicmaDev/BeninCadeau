@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Star, Truck, Shield, Gift, Phone, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Star, Truck, Shield, Gift, Phone, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import type { Product, PageName } from "@/lib/context";
 import { useRouter } from "@/lib/context";
 import ProductCard, { formatPrice } from "@/components/ProductCard";
@@ -173,20 +173,55 @@ export default function HomePageClient({ categories, products }: Props) {
       {/* ── Hero Carousel ── */}
       <HeroCarousel />
 
-      {/* ── Stats bar ──────────────────────────────────────────────────────── */}
-      <section className="bg-accent">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-center gap-8">
-          {[
-            { value: "500+", label: "Commandes livrées" },
-            { value: `${categories.length}`, label: "Catégories de cadeaux" },
-            { value: "24h", label: "Délai moyen livraison" },
-            { value: "4.9★", label: "Note client" },
-          ].map(({ value, label }) => (
-            <div key={label} className="text-center">
-              <p className="font-display text-2xl font-bold text-primary">{value}</p>
-              <p className="text-primary/70 text-xs font-medium">{label}</p>
-            </div>
-          ))}
+      {/* ── Stats Bar Redesign ── */}
+      <section className="relative z-20 -mt-10 max-w-[1440px] mx-auto px-4 sm:px-6">
+        <div className="bg-card rounded-3xl border border-border shadow-premium p-8 md:p-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-6 divide-y lg:divide-y-0 lg:divide-x divide-border">
+            {[
+              { 
+                value: "500+", 
+                label: "Commandes livrées", 
+                desc: "Partout au Bénin avec soin",
+                icon: <Truck size={28} className="text-accent" /> 
+              },
+              { 
+                value: `${categories.length}`, 
+                label: "Catégories de cadeaux", 
+                desc: "Pour toutes vos occasions",
+                icon: <Gift size={28} className="text-accent" /> 
+              },
+              { 
+                value: "24h", 
+                label: "Délai de livraison", 
+                desc: "Rapide et suivi en direct",
+                icon: <Clock size={28} className="text-accent" /> 
+              },
+              { 
+                value: "4.9★", 
+                label: "Note de satisfaction", 
+                desc: "Basée sur les avis clients",
+                icon: <Star size={28} className="text-accent" /> 
+              },
+            ].map(({ value, label, desc, icon }, idx) => (
+              <div 
+                key={label} 
+                className={`flex items-start gap-4 transition-transform hover:-translate-y-1 duration-300 ${
+                  idx > 0 ? "pt-6 lg:pt-0 lg:pl-8" : ""
+                }`}
+              >
+                <div className="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center flex-shrink-0">
+                  {icon}
+                </div>
+                <div>
+                  <h3 className="font-display text-2xl md:text-3xl font-bold text-primary leading-none mb-1">
+                    {value}
+                  </h3>
+                  <p className="text-foreground font-semibold text-sm mb-0.5">{label}</p>
+                  <p className="text-muted-foreground text-xs">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

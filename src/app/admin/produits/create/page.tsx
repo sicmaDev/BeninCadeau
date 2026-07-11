@@ -35,6 +35,7 @@ function CreateProductFormInner() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Form Fields
   const [name, setName] = useState("");
@@ -119,10 +120,7 @@ function CreateProductFormInner() {
     );
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const uploadFile = async (file: File) => {
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
@@ -144,6 +142,22 @@ function CreateProductFormInner() {
       showToast("Erreur réseau.", "error");
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await uploadFile(file);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      await uploadFile(file);
     }
   };
 
@@ -239,7 +253,7 @@ function CreateProductFormInner() {
               <form onSubmit={handleSubmit}>
                 <div className="row">
                   {/* Name */}
-                  <div className="col-md-6 mb-3">
+                  <div className="col-12 col-md-6 mb-3">
                     <label htmlFor="productName" className="form-label text-dark fw-medium">
                       Nom du Produit *
                     </label>
@@ -254,76 +268,8 @@ function CreateProductFormInner() {
                     />
                   </div>
 
-                  {/* Slug */}
-                  <div className="col-md-6 mb-3">
-                    <label htmlFor="productSlug" className="form-label text-dark fw-medium">
-                      Slug Unique (URL) *
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="productSlug"
-                      placeholder="nom-du-produit"
-                      required
-                      value={slug}
-                      onChange={(e) => setSlug(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <div className="row">
-                  {/* Price */}
-                  <div className="col-md-4 mb-3">
-                    <label htmlFor="productPrice" className="form-label text-dark fw-medium">
-                      Prix (FCFA) *
-                    </label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      id="productPrice"
-                      placeholder="0"
-                      required
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                    />
-                  </div>
-
-                  {/* Stock */}
-                  <div className="col-md-4 mb-3">
-                    <label htmlFor="productStock" className="form-label text-dark fw-medium">
-                      Quantité en Stock *
-                    </label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      id="productStock"
-                      placeholder="0"
-                      required
-                      value={stock}
-                      onChange={(e) => setStock(e.target.value)}
-                    />
-                  </div>
-
-                  {/* Delivery delay */}
-                  <div className="col-md-4 mb-3">
-                    <label htmlFor="productDelivery" className="form-label text-dark fw-medium">
-                      Délai de Livraison Estimé *
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="productDelivery"
-                      placeholder="24h à 48h"
-                      required
-                      value={estimatedDelivery}
-                      onChange={(e) => setEstimatedDelivery(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <div className="row">
                   {/* Category select */}
-                  <div className="col-md-6 mb-3">
+                  <div className="col-12 col-md-6 mb-3">
                     <label htmlFor="productCategory" className="form-label text-dark fw-medium">
                       Catégorie *
                     </label>
@@ -342,12 +288,113 @@ function CreateProductFormInner() {
                     </select>
                   </div>
 
-                  {/* Product Images */}
-                  <div className="col-md-6 mb-3">
-                    <label htmlFor="productImages" className="form-label text-dark fw-medium">
-                      Images (URLs séparées par virgule, ou fichier)
+                  {/* Slug */}
+                  <div className="col-12 col-md-6 mb-3">
+                    <label htmlFor="productSlug" className="form-label text-dark fw-medium">
+                      Slug Unique (URL) *
                     </label>
-                    <div className="input-group">
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="productSlug"
+                      placeholder="nom-du-produit"
+                      required
+                      value={slug}
+                      onChange={(e) => setSlug(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Price */}
+                  <div className="col-12 col-md-6 mb-3">
+                    <label htmlFor="productPrice" className="form-label text-dark fw-medium">
+                      Prix (FCFA) *
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      id="productPrice"
+                      placeholder="0"
+                      required
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Stock */}
+                  <div className="col-12 col-md-6 mb-3">
+                    <label htmlFor="productStock" className="form-label text-dark fw-medium">
+                      Quantité en Stock *
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      id="productStock"
+                      placeholder="0"
+                      required
+                      value={stock}
+                      onChange={(e) => setStock(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Delivery delay */}
+                  <div className="col-12 col-md-6 mb-3">
+                    <label htmlFor="productDelivery" className="form-label text-dark fw-medium">
+                      Délai de Livraison Estimé *
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="productDelivery"
+                      placeholder="24h à 48h"
+                      required
+                      value={estimatedDelivery}
+                      onChange={(e) => setEstimatedDelivery(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Product Images (Left Column) */}
+                  <div className="col-12 col-md-6 mb-3">
+                    <label className="form-label text-dark fw-medium">
+                      Images du Produit
+                    </label>
+                    <div
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDragging(true);
+                      }}
+                      onDragLeave={() => setIsDragging(false)}
+                      onDrop={handleDrop}
+                      className={`border border-2 border-dashed rounded-3 p-4 text-center cursor-pointer mb-3 transition-all d-flex flex-column align-items-center justify-content-center ${
+                        isDragging ? "border-primary bg-primary bg-opacity-10" : "border-secondary bg-light"
+                      }`}
+                      style={{ minHeight: "150px" }}
+                      onClick={() => document.getElementById("fileInput")?.click()}
+                    >
+                      {uploading ? (
+                        <div className="d-flex flex-column align-items-center">
+                          <div className="spinner-border text-primary spinner-border-sm mb-2" role="status"></div>
+                          <span className="text-secondary small">Transfert de l&apos;image...</span>
+                        </div>
+                      ) : (
+                        <div className="d-flex flex-column align-items-center">
+                          <i className="ti ti-photo-plus fs-2 text-secondary mb-2"></i>
+                          <span className="text-dark fw-semibold small">Glissez-déposez une image ici</span>
+                          <span className="text-secondary text-xs mt-1">ou cliquez pour parcourir les fichiers</span>
+                        </div>
+                      )}
+                      <input
+                        type="file"
+                        id="fileInput"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="d-none"
+                      />
+                    </div>
+
+                    <div className="mb-2">
+                      <label htmlFor="productImages" className="form-label text-secondary small fw-medium mb-1">
+                        Ou collez des URLs d&apos;images (séparées par virgule)
+                      </label>
                       <input
                         type="text"
                         className="form-control"
@@ -356,27 +403,13 @@ function CreateProductFormInner() {
                         value={imagesInput}
                         onChange={(e) => setImagesInput(e.target.value)}
                       />
-                      <label className="btn btn-outline-secondary mb-0 d-flex align-items-center justify-content-center cursor-pointer">
-                        {uploading ? (
-                          <div className="spinner-border spinner-border-sm" role="status"></div>
-                        ) : (
-                          <>
-                            <i className="ti ti-upload me-1"></i> Fichier
-                          </>
-                        )}
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          className="d-none"
-                        />
-                      </label>
                     </div>
+
                     {/* Visual image preview gallery */}
                     {imagesInput.split(",").map((url) => url.trim()).filter(Boolean).length > 0 && (
-                      <div className="d-flex flex-wrap gap-3 mt-3 p-2 bg-light rounded border border-light">
+                      <div className="d-flex flex-wrap gap-2 mt-2 p-2 bg-light rounded border border-light">
                         {imagesInput.split(",").map((url) => url.trim()).filter(Boolean).map((url, idx) => (
-                          <div key={idx} className="position-relative border rounded bg-white p-1" style={{ width: "72px", height: "72px" }}>
+                          <div key={idx} className="position-relative border rounded bg-white p-1" style={{ width: "60px", height: "60px" }}>
                             <img
                               src={url}
                               alt={`Aperçu ${idx + 1}`}
@@ -392,12 +425,12 @@ function CreateProductFormInner() {
                               }}
                               className="btn btn-danger btn-sm p-0 d-flex align-items-center justify-content-center position-absolute shadow"
                               style={{
-                                width: "20px",
-                                height: "20px",
-                                top: "-8px",
-                                right: "-8px",
+                                width: "18px",
+                                height: "18px",
+                                top: "-6px",
+                                right: "-6px",
                                 borderRadius: "50%",
-                                fontSize: "11px",
+                                fontSize: "10px",
                                 border: "1px solid white",
                                 fontWeight: "bold"
                               }}
@@ -410,66 +443,70 @@ function CreateProductFormInner() {
                       </div>
                     )}
                   </div>
-                </div>
 
-                {/* Description */}
-                <div className="mb-3">
-                  <label htmlFor="productDescription" className="form-label text-dark fw-medium">
-                    Description
-                  </label>
-                  <textarea
-                    className="form-control"
-                    id="productDescription"
-                    rows={4}
-                    placeholder="Entrez la description complète du produit..."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                  ></textarea>
-                </div>
-
-                {/* Customizable Checkbox */}
-                <div className="mb-3 p-3 bg-light rounded border border-light">
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      id="productCustomizable"
-                      checked={isCustomizable}
-                      onChange={(e) => setIsCustomizable(e.target.checked)}
-                    />
-                    <label className="form-check-label text-dark fw-bold" htmlFor="productCustomizable">
-                      Produit personnalisable par le client (champs texte personnalisé)
-                    </label>
-                  </div>
-                  {isCustomizable && (
-                    <div className="mt-2">
-                      <label htmlFor="productPlaceholder" className="form-label small text-secondary">
-                        Indications / placeholder du texte (ex: Prénom à graver)
+                  {/* Description (Right Column) */}
+                  <div className="col-12 col-md-6 mb-3">
+                    <div className="h-100 d-flex flex-column">
+                      <label htmlFor="productDescription" className="form-label text-dark fw-medium">
+                        Description
                       </label>
-                      <input
-                        type="text"
-                        className="form-control form-control-sm"
-                        id="productPlaceholder"
-                        value={customFieldPlaceholder}
-                        onChange={(e) => setCustomFieldPlaceholder(e.target.value)}
-                      />
+                      <textarea
+                        className="form-control flex-grow-1"
+                        id="productDescription"
+                        placeholder="Entrez la description complète du produit..."
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        style={{ minHeight: "220px", height: "calc(100% - 30px)" }}
+                      ></textarea>
                     </div>
-                  )}
-                </div>
+                  </div>
 
-                {/* Active Checkbox */}
-                <div className="mb-4">
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      id="productActive"
-                      checked={active}
-                      onChange={(e) => setActive(e.target.checked)}
-                    />
-                    <label className="form-check-label text-secondary" htmlFor="productActive">
-                      Rendre ce produit visible immédiatement dans le catalogue public
-                    </label>
+                  {/* Customizable Checkbox */}
+                  <div className="col-12 mb-3">
+                    <div className="p-3 bg-light rounded border border-light">
+                      <div className="form-check">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          id="productCustomizable"
+                          checked={isCustomizable}
+                          onChange={(e) => setIsCustomizable(e.target.checked)}
+                        />
+                        <label className="form-check-label text-dark fw-bold" htmlFor="productCustomizable">
+                          Produit personnalisable par le client (champs texte personnalisé)
+                        </label>
+                      </div>
+                      {isCustomizable && (
+                        <div className="mt-2">
+                          <label htmlFor="productPlaceholder" className="form-label small text-secondary">
+                            Indications / placeholder du texte (ex: Prénom à graver)
+                          </label>
+                          <input
+                            type="text"
+                            className="form-control form-control-sm"
+                            id="productPlaceholder"
+                            value={customFieldPlaceholder}
+                            onChange={(e) => setCustomFieldPlaceholder(e.target.value)}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Active Checkbox */}
+                  <div className="col-12 mb-4">
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id="productActive"
+                        checked={active}
+                        onChange={(e) => setActive(e.target.checked)}
+                      />
+                      <label className="form-check-label text-secondary" htmlFor="productActive">
+                        Rendre ce produit visible immédiatement dans le catalogue public
+                      </label>
+                    </div>
                   </div>
                 </div>
 
