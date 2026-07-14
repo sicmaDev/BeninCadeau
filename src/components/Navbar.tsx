@@ -7,7 +7,7 @@ import { useCart } from "../lib/context";
 import { useAuth } from "../lib/context";
 
 export default function Navbar() {
-  const { navigate } = useRouter();
+  const { page: activePage, navigate } = useRouter();
   const { cartCount } = useCart();
   const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -30,7 +30,7 @@ export default function Navbar() {
           {/* Logo */}
           <button
             onClick={() => navigate("home")}
-            className="flex items-center gap-2 flex-shrink-0"
+            className="flex items-center gap-2 flex-shrink-0 cursor-pointer"
           >
             <img src="/1-19.png" alt="Bénin Cadeau" className="w-12 h-12 object-contain" />
             <span className="text-white font-display text-lg font-semibold hidden sm:block">
@@ -40,16 +40,36 @@ export default function Navbar() {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-6">
-            <button onClick={() => navigate("home")} className="text-white/80 hover:text-accent text-sm font-medium transition-colors">
+            <button
+              onClick={() => navigate("home")}
+              className={`text-sm font-medium transition-colors cursor-pointer ${
+                activePage === "home" ? "text-accent font-bold" : "text-white/80 hover:text-accent"
+              }`}
+            >
               Accueil
             </button>
-            <button onClick={() => navigate("catalogue")} className="text-white/80 hover:text-accent text-sm font-medium transition-colors">
+            <button
+              onClick={() => navigate("catalogue")}
+              className={`text-sm font-medium transition-colors cursor-pointer ${
+                activePage === "catalogue" ? "text-accent font-bold" : "text-white/80 hover:text-accent"
+              }`}
+            >
               Catalogue
             </button>
-            <button onClick={() => navigate("about")} className="text-white/80 hover:text-accent text-sm font-medium transition-colors">
+            <button
+              onClick={() => navigate("about")}
+              className={`text-sm font-medium transition-colors cursor-pointer ${
+                activePage === "about" ? "text-accent font-bold" : "text-white/80 hover:text-accent"
+              }`}
+            >
               À propos
             </button>
-            <button onClick={() => navigate("contact")} className="text-white/80 hover:text-accent text-sm font-medium transition-colors">
+            <button
+              onClick={() => navigate("contact")}
+              className={`text-sm font-medium transition-colors cursor-pointer ${
+                activePage === "contact" ? "text-accent font-bold" : "text-white/80 hover:text-accent"
+              }`}
+            >
               Contact
             </button>
           </nav>
@@ -59,7 +79,7 @@ export default function Navbar() {
             {/* Search */}
             <button
               onClick={() => setSearchOpen(!searchOpen)}
-              className="p-2 text-white/80 hover:text-accent transition-colors rounded-lg hover:bg-white/10"
+              className="p-2 text-white/80 hover:text-accent transition-colors rounded-lg hover:bg-white/10 cursor-pointer"
               aria-label="Rechercher"
             >
               <Search size={20} />
@@ -68,7 +88,9 @@ export default function Navbar() {
             {/* Cart */}
             <button
               onClick={() => navigate("cart")}
-              className="relative p-2 text-white/80 hover:text-accent transition-colors rounded-lg hover:bg-white/10"
+              className={`relative p-2 transition-colors rounded-lg hover:bg-white/10 cursor-pointer ${
+                activePage === "cart" ? "text-accent" : "text-white/80 hover:text-accent"
+              }`}
               aria-label="Panier"
             >
               <ShoppingCart size={20} />
@@ -82,7 +104,9 @@ export default function Navbar() {
             {/* Account */}
             <button
               onClick={() => navigate("account")}
-              className="p-2 text-white/80 hover:text-accent transition-colors rounded-lg hover:bg-white/10"
+              className={`p-2 transition-colors rounded-lg hover:bg-white/10 cursor-pointer ${
+                activePage === "account" ? "text-accent" : "text-white/80 hover:text-accent"
+              }`}
               aria-label="Mon compte"
             >
               <User size={20} />
@@ -91,7 +115,7 @@ export default function Navbar() {
             {/* Mobile menu */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden p-2 text-white/80 hover:text-accent transition-colors rounded-lg hover:bg-white/10"
+              className="md:hidden p-2 text-white/80 hover:text-accent transition-colors rounded-lg hover:bg-white/10 cursor-pointer"
               aria-label="Menu"
             >
               {menuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -135,7 +159,11 @@ export default function Navbar() {
               <button
                 key={page}
                 onClick={() => { navigate(page); setMenuOpen(false); }}
-                className="block w-full text-left px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-sm transition-colors"
+                className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition-colors cursor-pointer ${
+                  activePage === page
+                    ? "bg-white/10 text-accent font-bold border-l-2 border-accent rounded-l-none"
+                    : "text-white/80 hover:text-white hover:bg-white/10"
+                }`}
               >
                 {label}
               </button>

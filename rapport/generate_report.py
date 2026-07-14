@@ -290,12 +290,6 @@ def create_report(output_path):
         "(verrouillage des accès de sécurité admin, gestion d'upload médias, liaison des comptes de production FedaPay et SMTP, et finitions SEO) "
         "afin de livrer la plateforme dans un état totalement stable et prêt pour la mise en ligne.", body_style))
     
-    story.append(Spacer(1, 40))
-    
-    # Signature block showing "Le Stagiaire \n Lazare Metonou KOHOUNDE" (Right aligned)
-    story.append(Paragraph("<b>Le Stagiaire</b>", signature_title_style))
-    story.append(Paragraph("Lazare Metonou KOHOUNDE", signature_name_style))
-    
     # Build Document
     doc.build(story, canvasmaker=NumberedCanvas)
     print("PDF report successfully created.")

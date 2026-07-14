@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { MapPin, Phone, Mail, Send, CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 const WHATSAPP_NUMBER = "22997000000";
 
@@ -50,28 +51,65 @@ export default function ContactPage() {
 
   return (
     <div className="font-body min-h-screen bg-background">
-      {/* Header Section */}
-      <section className="bg-primary py-20 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 text-8xl flex flex-wrap gap-8 overflow-hidden select-none pointer-events-none p-8">
-          {Array.from({ length: 8 }).map((_, i) => <span key={i}>✉️</span>)}
+      {/* Banner */}
+      <section className="relative h-[250px] sm:h-[300px] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <motion.img
+            initial={{ scale: 1.15, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            src="/images/contact_banner.png"
+            alt="Contact"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/80" />
         </div>
-        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-accent font-semibold text-sm uppercase tracking-wider mb-4">Contactez-nous</p>
-          <h1 className="font-display text-4xl sm:text-5xl font-semibold text-white leading-tight mb-4">
-            Parlons de vos <span className="text-accent italic">projets</span>
-          </h1>
-          <p className="text-white/80 text-lg leading-relaxed">
+        <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 text-center text-white">
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold mb-3 tracking-tight"
+          >
+            Contact
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="text-accent text-sm sm:text-base md:text-lg font-medium max-w-xl mx-auto opacity-90"
+          >
+            Parlons de vos projets
+          </motion.p>
+        </div>
+      </section>
+
+      {/* Description Intro (under banner) */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.5 }}
+        className="py-12 bg-card border-b border-border"
+      >
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+          <p className="text-foreground/80 text-lg sm:text-xl leading-relaxed font-light">
             Une question sur un produit, une commande sur-mesure ou un partenariat ?
             Notre équipe est à votre écoute pour vous conseiller et vous accompagner.
           </p>
         </div>
-      </section>
+      </motion.section>
 
       {/* Main Content Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Info Section */}
-          <div className="space-y-8">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="space-y-8"
+          >
             <div>
               <h2 className="font-display text-3xl font-semibold text-primary mb-4">Nos coordonnées</h2>
               <p className="text-muted-foreground text-sm leading-relaxed mb-6">
@@ -121,7 +159,7 @@ export default function ContactPage() {
             {/* Direct WhatsApp Callout */}
             <div className="bg-[#25D366]/10 border border-[#25D366]/30 rounded-2xl p-6 space-y-4 max-w-md">
               <div className="flex gap-3 items-center">
-                <span className="text-3xl">💬</span>
+                <span className="text-3xl animate-bounce">💬</span>
                 <div>
                   <p className="font-bold text-foreground text-sm">Discutons en direct</p>
                   <p className="text-muted-foreground text-xs">Temps de réponse habituel : moins de 5 minutes</p>
@@ -136,12 +174,23 @@ export default function ContactPage() {
                 Écrire sur WhatsApp
               </a>
             </div>
-          </div>
+          </motion.div>
 
           {/* Form Section */}
-          <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="bg-card border border-border rounded-3xl p-8 shadow-premium"
+          >
             {sent ? (
-              <div className="text-center py-16 space-y-4">
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="text-center py-16 space-y-4"
+              >
                 <div className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center mx-auto shadow-md border border-accent/20">
                   <CheckCircle size={40} className="text-accent" />
                 </div>
@@ -149,7 +198,7 @@ export default function ContactPage() {
                 <p className="text-muted-foreground text-sm max-w-sm mx-auto leading-relaxed">
                   Merci pour votre message. Un membre de l'équipe Bénin Cadeau reviendra vers vous très rapidement.
                 </p>
-              </div>
+              </motion.div>
             ) : (
               <>
                 <h3 className="font-display text-2xl font-semibold text-primary mb-6">Envoyer un message</h3>
@@ -192,7 +241,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full flex items-center justify-center gap-2 bg-primary text-white font-bold py-4 rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-70 cursor-pointer text-sm"
+                    className="w-full flex items-center justify-center gap-2 bg-primary text-white font-bold py-4 rounded-xl hover:bg-primary/90 transition-all duration-300 hover:shadow-lg disabled:opacity-70 cursor-pointer text-sm"
                   >
                     {loading ? (
                       <Loader2 size={18} className="animate-spin" />
@@ -204,7 +253,7 @@ export default function ContactPage() {
                 </form>
               </>
             )}
-          </div>
+          </motion.div>
         </div>
       </section>
     </div>
