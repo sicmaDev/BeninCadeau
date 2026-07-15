@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingCart, User, Menu, X, Search } from "lucide-react";
+import { ShoppingCart, User, Menu, X, Search, Package } from "lucide-react";
 import { useRouter } from "../lib/context";
 import { useCart } from "../lib/context";
 import { useAuth } from "../lib/context";
@@ -71,6 +71,17 @@ export default function Navbar() {
               }`}
             >
               Contact
+            </button>
+            <button
+              onClick={() => navigate("track-order")}
+              className={`flex items-center gap-1.5 text-sm font-medium transition-colors cursor-pointer px-3 py-1.5 rounded-lg border ${
+                activePage === "track-order"
+                  ? "border-accent text-accent font-bold bg-white/10"
+                  : "border-white/30 text-white/80 hover:text-accent hover:border-accent hover:bg-white/10"
+              }`}
+            >
+              <Package size={14} />
+              Suivre ma commande
             </button>
           </nav>
 
@@ -155,6 +166,7 @@ export default function Navbar() {
               { label: user ? "Mon compte" : "Connexion", page: "account" as const },
               { label: "À propos", page: "about" as const },
               { label: "Contact", page: "contact" as const },
+              { label: "Suivre ma commande", page: "track-order" as const },
             ].map(({ label, page }) => (
               <button
                 key={page}

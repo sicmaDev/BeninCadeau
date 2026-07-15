@@ -35,7 +35,8 @@ export type PageName =
   | "confirmation"
   | "account"
   | "about"
-  | "contact";
+  | "contact"
+  | "track-order";
 
 interface RouterState {
   page: PageName;
@@ -250,6 +251,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       page = "about";
     } else if (pathname === "/contact") {
       page = "contact";
+    } else if (pathname === "/suivi-commande") {
+      page = "track-order";
     }
 
     setRouterState({ page, params });
@@ -274,6 +277,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       path = "/a-propos";
     } else if (page === "contact") {
       path = "/contact";
+    } else if (page === "track-order") {
+      path = "/suivi-commande";
     }
 
     nextRouter.push(path);

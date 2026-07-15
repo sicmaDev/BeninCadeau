@@ -140,18 +140,10 @@ export async function POST(req: Request) {
 
     // Transaction Prisma : Créer la commande, ses lignes et décrémenter les stocks
     const createdOrder = await prisma.$transaction(async (tx) => {
-      // Générer un numéro de commande séquentiel unique (ex: BC-OR37)
-      const lastOrder = await tx.order.findFirst({
-        orderBy: { id: 'desc' },
-        select: { id: true }
-      });
-      const nextId = (lastOrder?.id || 0) + 1;
-      const orderNumber = `BC-OR${nextId}`;
-
-      // 1. Créer la commande
+      // 1. Créer la commande avec un orderNumber temporaire
       const order = await tx.order.create({
         data: {
-          orderNumber,
+          orderNumber: `BC-TEMP-${Date.now()}`, // temporaire, sera mis à jour juste après
           userId: user?.id || null,
           status: OrderStatus.EN_ATTENTE,
           totalAmount,
@@ -173,7 +165,14 @@ export async function POST(req: Request) {
         },
       });
 
-      // 2. Mettre à jour les stocks
+      // 2. Générer le numéro de commande définitif à partir de l'ID réel
+      const orderNumber = `BC-OR${order.id}`;
+      const updatedOrder = await tx.order.update({
+        where: { id: order.id },
+        data: { orderNumber },
+      });
+
+      // 3. Mettre à jour les stocks
       for (const item of validatedItems) {
         await tx.product.update({
           where: { id: item.productId },
@@ -185,7 +184,7 @@ export async function POST(req: Request) {
         });
       }
 
-      return order;
+      return updatedOrder;
     });
 
     // Envoyer l'email de confirmation de commande en tâche de fond (sans bloquer la réponse)
