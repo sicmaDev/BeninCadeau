@@ -294,7 +294,7 @@ export default function HomePageClient({ categories, products }: Props) {
       suffix: "+",
       decimals: 0,
       label: "Commandes livrées",
-      desc: "Partout au Bénin avec soin",
+      desc: "Partout en Afrique et  en Europe",
       icon: (
         <motion.div variants={{ hover: { x: [0, 8, -4, 4, 0], transition: { duration: 0.6 } } }}>
           <Truck size={28} className="text-accent" />
@@ -358,11 +358,11 @@ export default function HomePageClient({ categories, products }: Props) {
               <motion.div
                 key={label}
                 variants={statCardVariants}
-                whileHover={{ 
-                  y: -6, 
-                  scale: 1.02, 
+                whileHover={{
+                  y: -6,
+                  scale: 1.02,
                   boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.05)",
-                  transition: { type: "spring", stiffness: 300, damping: 20 } 
+                  transition: { type: "spring", stiffness: 300, damping: 20 }
                 }}
                 className={`flex items-start gap-4 transition-all duration-300 ${idx > 0 ? "pt-6 lg:pt-0 lg:pl-8" : ""
                   }`}
@@ -392,7 +392,7 @@ export default function HomePageClient({ categories, products }: Props) {
             Célébrez chaque instant de la vie avec des cadeaux pensés spécialement pour chaque moment fort.
           </p>
         </div>
-        
+
         <Carousel
           opts={{
             loop: true,
@@ -410,8 +410,8 @@ export default function HomePageClient({ categories, products }: Props) {
                   <motion.button
                     onClick={() => navigate("catalogue", { category: cat.slug })}
                     variants={categoryCardVariants}
-                    whileHover={{ 
-                      y: -8, 
+                    whileHover={{
+                      y: -8,
                       scale: 1.02,
                       boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 0 20px rgba(245, 166, 35, 0.4)",
                       borderColor: "var(--accent)"
@@ -437,7 +437,7 @@ export default function HomePageClient({ categories, products }: Props) {
                       <p className="text-white/80 text-sm leading-relaxed max-w-[240px] line-clamp-2">
                         {cat.description || "Trouvez le cadeau parfait pour cette occasion."}
                       </p>
-                      
+
                       <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-accent opacity-0 group-hover:opacity-100 translate-y-3 group-hover:translate-y-0 transition-all duration-300">
                         Découvrir <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
                       </span>
@@ -546,7 +546,7 @@ export default function HomePageClient({ categories, products }: Props) {
                 visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } }
               }}
               whileHover={{ scale: 1.02 }}
-              key={step} 
+              key={step}
               className="flex flex-col items-center text-center"
             >
               <div className="relative mb-6">

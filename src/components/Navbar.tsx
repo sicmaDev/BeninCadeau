@@ -5,6 +5,7 @@ import { ShoppingCart, User, Menu, X, Search, Package } from "lucide-react";
 import { useRouter } from "../lib/context";
 import { useCart } from "../lib/context";
 import { useAuth } from "../lib/context";
+import { useSearchParams } from "next/navigation";
 
 export default function Navbar() {
   const { page: activePage, navigate } = useRouter();
@@ -13,6 +14,8 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchVal, setSearchVal] = useState("");
+  const searchParams = useSearchParams();
+  const tab = searchParams.get("tab") || "orders";
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +58,14 @@ export default function Navbar() {
               }`}
             >
               Catalogue
+            </button>
+            <button
+              onClick={() => navigate("account", { tab: "orders" })}
+              className={`text-sm font-medium transition-colors cursor-pointer ${
+                activePage === "account" && tab === "orders" ? "text-accent font-bold" : "text-white/80 hover:text-accent"
+              }`}
+            >
+              Mes commandes
             </button>
             <button
               onClick={() => navigate("about")}
@@ -114,9 +125,9 @@ export default function Navbar() {
 
             {/* Account */}
             <button
-              onClick={() => navigate("account")}
+              onClick={() => navigate("account", { tab: "profile" })}
               className={`p-2 transition-colors rounded-lg hover:bg-white/10 cursor-pointer ${
-                activePage === "account" ? "text-accent" : "text-white/80 hover:text-accent"
+                activePage === "account" && tab === "profile" ? "text-accent" : "text-white/80 hover:text-accent"
               }`}
               aria-label="Mon compte"
             >
@@ -162,24 +173,28 @@ export default function Navbar() {
             {[
               { label: "Accueil", page: "home" as const },
               { label: "Catalogue", page: "catalogue" as const },
+              { label: "Mes commandes", page: "account" as const, params: { tab: "orders" }, active: activePage === "account" && tab === "orders" },
               { label: "Mon panier", page: "cart" as const },
-              { label: user ? "Mon compte" : "Connexion", page: "account" as const },
+              { label: user ? "Mon profil" : "Connexion", page: "account" as const, params: { tab: "profile" }, active: activePage === "account" && tab === "profile" },
               { label: "À propos", page: "about" as const },
               { label: "Contact", page: "contact" as const },
               { label: "Suivre ma commande", page: "track-order" as const },
-            ].map(({ label, page }) => (
-              <button
-                key={page}
-                onClick={() => { navigate(page); setMenuOpen(false); }}
-                className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition-colors cursor-pointer ${
-                  activePage === page
-                    ? "bg-white/10 text-accent font-bold border-l-2 border-accent rounded-l-none"
-                    : "text-white/80 hover:text-white hover:bg-white/10"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+            ].map(({ label, page, params, active }) => {
+              const isActive = active !== undefined ? active : activePage === page;
+              return (
+                <button
+                  key={label}
+                  onClick={() => { navigate(page, params); setMenuOpen(false); }}
+                  className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition-colors cursor-pointer ${
+                    isActive
+                      ? "bg-white/10 text-accent font-bold border-l-2 border-accent rounded-l-none"
+                      : "text-white/80 hover:text-white hover:bg-white/10"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>

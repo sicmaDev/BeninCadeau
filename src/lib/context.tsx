@@ -272,7 +272,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } else if (page === "confirmation") {
       path = `/confirmation/${params.orderNumber}`;
     } else if (page === "account") {
-      path = "/compte";
+      const query = new URLSearchParams(params).toString();
+      path = `/compte${query ? "?" + query : ""}`;
     } else if (page === "about") {
       path = "/a-propos";
     } else if (page === "contact") {

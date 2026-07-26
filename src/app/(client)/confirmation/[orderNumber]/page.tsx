@@ -170,7 +170,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
             Paiement validé !
           </h1>
           <p className="text-muted-foreground text-lg mb-8">
-            Merci {name.split(" ")[0]}, votre paiement a été accepté et votre commande est en cours de préparation 🎉
+            Merci {name.split(" ")[0]}, votre paiement a été accepté et votre commande est en cours de préparation 🎉. Un e-mail de confirmation de paiement a été envoyé à <strong>{email}</strong>.
           </p>
         </>
       )}
@@ -184,7 +184,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
             Paiement en attente
           </h1>
           <p className="text-muted-foreground text-lg mb-8">
-            Merci {name.split(" ")[0]}, votre commande est bien enregistrée mais le paiement n'est pas encore finalisé ⏳
+            Merci {name.split(" ")[0]}, votre commande est bien enregistrée mais le paiement n'est pas encore finalisé ⏳. Un e-mail de confirmation de commande a été envoyé à <strong>{email}</strong>.
           </p>
 
           <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl p-5 mb-8 text-left text-sm space-y-2 shadow-sm">
@@ -252,37 +252,27 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
         </div>
       </div>
 
-      {/* Steps (Only when approved or pending) */}
-      {paymentState === "APPROVED" && (
-        <div className="bg-card border border-border rounded-2xl p-6 mb-8 text-left space-y-4 shadow-sm">
-          <h2 className="font-display text-lg font-semibold text-primary mb-4">Prochaines étapes</h2>
-          {[
-            {
-              icon: <Mail size={18} className="text-accent" />,
-              title: "Email de confirmation",
-              desc: `Un email de confirmation de paiement a été envoyé à ${email}.`,
-            },
-            {
-              icon: <Package size={18} className="text-accent" />,
-              title: "Préparation de votre commande",
-              desc: "Notre équipe prépare minutieusement votre cadeau avec le plus grand soin.",
-            },
-            {
-              icon: <CheckCircle size={18} className="text-accent" />,
-              title: "Livraison à votre adresse",
-              desc: `Livraison prévue vers la zone "${order.shippingZone.name}". Le livreur vous contactera.`,
-            },
-          ].map(({ icon, title, desc }, i) => (
-            <div key={i} className="flex gap-3">
-              <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center flex-shrink-0">
-                {icon}
-              </div>
-              <div>
-                <p className="font-semibold text-sm text-foreground">{title}</p>
-                <p className="text-muted-foreground text-xs mt-0.5 leading-relaxed">{desc}</p>
-              </div>
-            </div>
-          ))}
+      {/* Instructions de suivi de la commande (pour paiement validé ou en attente) */}
+      {(paymentState === "APPROVED" || paymentState === "PENDING") && (
+        <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-6 mb-8 text-left shadow-sm">
+          <h3 className="font-display text-base font-bold text-primary mb-2.5 flex items-center gap-2">
+            <Package size={20} className="text-primary" />
+            Suivi de votre commande
+          </h3>
+          <p className="text-sm text-slate-600 leading-relaxed mb-4">
+            Pour suivre l'avancement de votre commande en temps réel et en toute tranquillité, 
+            veuillez <strong>copier le numéro de commande ci-dessus</strong> (en cliquant sur l'icône à côté du code) 
+            et le coller sur notre page de suivi.
+            <br />
+            <span className="text-primary font-semibold">💡 Pensez à copier ce code et à le conserver précieusement.</span>
+          </p>
+          <Link
+            href="/suivi-commande"
+            className="inline-flex items-center gap-2 bg-primary text-white font-bold px-5 py-3 rounded-xl hover:bg-primary/90 transition-all text-sm cursor-pointer"
+          >
+            Aller au suivi de commande
+            <ArrowRight size={16} />
+          </Link>
         </div>
       )}
 

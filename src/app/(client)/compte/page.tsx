@@ -5,6 +5,7 @@ import { User, Lock, Eye, EyeOff, Package, Clock, LogOut, Edit3, CheckCircle, Lo
 import { useAuth, useRouter } from "@/lib/context";
 import { formatPrice } from "@/components/ProductCard";
 import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 
 type AuthTab = "login" | "register";
 type AccountTab = "orders" | "profile";
@@ -21,6 +22,9 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
 export default function AccountPage() {
   const { user, login, register, logout } = useAuth();
   const { navigate } = useRouter();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab");
+
   const [authTab, setAuthTab] = useState<AuthTab>("login");
   const [accountTab, setAccountTab] = useState<AccountTab>("orders");
   const [showPwd, setShowPwd] = useState(false);
@@ -40,6 +44,14 @@ export default function AccountPage() {
   });
   const [profileSaved, setProfileSaved] = useState(false);
   const [loadingProfileSave, setLoadingProfileSave] = useState(false);
+  // Synchroniser la tab active avec le paramètre de l'URL "tab"
+  useEffect(() => {
+    if (tabParam === "profile") {
+      setAccountTab("profile");
+    } else if (tabParam === "orders") {
+      setAccountTab("orders");
+    }
+  }, [tabParam]);
 
   // Synchroniser l'état du profil local quand l'utilisateur change
   useEffect(() => {
