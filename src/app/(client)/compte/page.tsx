@@ -26,6 +26,7 @@ export default function AccountPage() {
   });
   const [profileSaved, setProfileSaved] = useState(false);
   const [loadingProfileSave, setLoadingProfileSave] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   // Synchroniser l'état du profil local quand l'utilisateur change
   useEffect(() => {
@@ -235,7 +236,7 @@ export default function AccountPage() {
           </div>
         </div>
         <button
-          onClick={async () => { await logout(); navigate("home"); }}
+          onClick={() => setShowLogoutConfirm(true)}
           className="flex items-center gap-2 text-muted-foreground hover:text-destructive text-sm font-semibold border border-border px-4 py-2 rounded-xl hover:bg-red-50/50 transition-all cursor-pointer"
         >
           <LogOut size={16} />
@@ -303,6 +304,38 @@ export default function AccountPage() {
           )}
         </button>
       </div>
+
+      {/* Dialogue de confirmation de déconnexion */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full border border-slate-200 shadow-2xl text-center">
+            <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100">
+              <LogOut size={20} />
+            </div>
+            <h3 className="font-display font-bold text-slate-900 text-lg mb-2">Se déconnecter ?</h3>
+            <p className="text-xs text-slate-500 mb-6 leading-relaxed">Êtes-vous sûr de vouloir vous déconnecter de votre compte Bénin Cadeau ?</p>
+            
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={async () => {
+                  await logout();
+                  setShowLogoutConfirm(false);
+                  navigate("home");
+                }}
+                className="flex-1 bg-[#1A2B6D] hover:bg-[#1A2B6D]/90 text-white font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer shadow-md"
+              >
+                Oui, me déconnecter
+              </button>
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-3 rounded-xl border border-slate-200 text-xs transition-colors cursor-pointer"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
