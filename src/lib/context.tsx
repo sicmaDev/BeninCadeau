@@ -34,6 +34,7 @@ export type PageName =
   | "checkout"
   | "confirmation"
   | "account"
+  | "my-orders"
   | "about"
   | "contact"
   | "track-order";
@@ -247,6 +248,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       params.orderNumber = pathname.split("/").pop() || "";
     } else if (pathname === "/compte") {
       page = "account";
+    } else if (pathname === "/compte/commandes") {
+      page = "my-orders";
     } else if (pathname === "/a-propos") {
       page = "about";
     } else if (pathname === "/contact") {
@@ -274,6 +277,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } else if (page === "account") {
       const query = new URLSearchParams(params).toString();
       path = `/compte${query ? "?" + query : ""}`;
+    } else if (page === "my-orders") {
+      path = "/compte/commandes";
     } else if (page === "about") {
       path = "/a-propos";
     } else if (page === "contact") {

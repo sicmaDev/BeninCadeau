@@ -5,7 +5,6 @@ import { ShoppingCart, User, Menu, X, Search, Package } from "lucide-react";
 import { useRouter } from "../lib/context";
 import { useCart } from "../lib/context";
 import { useAuth } from "../lib/context";
-import { useSearchParams } from "next/navigation";
 
 export default function Navbar() {
   const { page: activePage, navigate } = useRouter();
@@ -14,8 +13,6 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchVal, setSearchVal] = useState("");
-  const searchParams = useSearchParams();
-  const tab = searchParams.get("tab") || "orders";
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,9 +57,9 @@ export default function Navbar() {
               Catalogue
             </button>
             <button
-              onClick={() => navigate("account", { tab: "orders" })}
+              onClick={() => navigate("my-orders")}
               className={`text-sm font-medium transition-colors cursor-pointer ${
-                activePage === "account" && tab === "orders" ? "text-accent font-bold" : "text-white/80 hover:text-accent"
+                activePage === "my-orders" ? "text-accent font-bold" : "text-white/80 hover:text-accent"
               }`}
             >
               Mes commandes
@@ -125,9 +122,9 @@ export default function Navbar() {
 
             {/* Account */}
             <button
-              onClick={() => navigate("account", { tab: "profile" })}
+              onClick={() => navigate("account")}
               className={`p-2 transition-colors rounded-lg hover:bg-white/10 cursor-pointer ${
-                activePage === "account" && tab === "profile" ? "text-accent" : "text-white/80 hover:text-accent"
+                activePage === "account" ? "text-accent" : "text-white/80 hover:text-accent"
               }`}
               aria-label="Mon compte"
             >
@@ -173,14 +170,14 @@ export default function Navbar() {
             {[
               { label: "Accueil", page: "home" as const },
               { label: "Catalogue", page: "catalogue" as const },
-              { label: "Mes commandes", page: "account" as const, params: { tab: "orders" }, active: activePage === "account" && tab === "orders" },
+              { label: "Mes commandes", page: "my-orders" as const },
               { label: "Mon panier", page: "cart" as const },
-              { label: user ? "Mon profil" : "Connexion", page: "account" as const, params: { tab: "profile" }, active: activePage === "account" && tab === "profile" },
+              { label: user ? "Mon profil" : "Connexion", page: "account" as const },
               { label: "À propos", page: "about" as const },
               { label: "Contact", page: "contact" as const },
               { label: "Suivre ma commande", page: "track-order" as const },
-            ].map(({ label, page, params, active }) => {
-              const isActive = active !== undefined ? active : activePage === page;
+            ].map(({ label, page, params }) => {
+              const isActive = activePage === page;
               return (
                 <button
                   key={label}
