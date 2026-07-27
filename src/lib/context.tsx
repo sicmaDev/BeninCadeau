@@ -158,6 +158,7 @@ export interface User {
 
 interface AuthContextValue {
   user: User | null;
+  loading: boolean;
   login: (email: string, passwordHash: string) => Promise<boolean>;
   register: (name: string, email: string, passwordHash: string) => Promise<boolean>;
   logout: () => Promise<void>;
@@ -175,6 +176,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [routerState, setRouterState] = useState<RouterState>({ page: "home", params: {} });
   const [cart, dispatch] = useReducer(cartReducer, { items: [], promoCode: "", promoDiscount: 0 });
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // Synchroniser le panier depuis localStorage
   useEffect(() => {
@@ -205,6 +207,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Charger la session utilisateur au démarrage
   useEffect(() => {
+    setLoading(true);
     fetch("/api/auth/me")
       .then((res) => {
         if (res.ok) return res.json();
@@ -221,7 +224,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           });
         }
       })
-      .catch(() => setUser(null));
+      .catch(() => setUser(null))
+      .finally(() => setLoading(false));
   }, []);
 
   // Déduire l'état du routeur local à partir du pathname de Next.js
@@ -401,7 +405,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return (
     <RouterContext.Provider value={{ ...routerState, navigate }}>
       <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQty, clearCart, applyPromo, cartCount, subtotal }}>
-        <AuthContext.Provider value={{ user, login, register, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, register, logout }}>
           {children}
         </AuthContext.Provider>
       </CartContext.Provider>

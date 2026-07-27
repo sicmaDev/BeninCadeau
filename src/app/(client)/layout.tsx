@@ -6,12 +6,16 @@ import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { Toaster } from "sonner";
 import { Suspense } from "react";
+import { usePathname } from "next/navigation";
 
 export default function ClientLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isLoginPage = pathname === "/connexion";
+
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -23,12 +27,12 @@ export default function ClientLayout({
     }>
       <AppProvider>
         <div className="min-h-screen flex flex-col bg-background font-body">
-          <Navbar />
+          {!isLoginPage && <Navbar />}
           <main className="flex-1">
             {children}
           </main>
-          <Footer />
-          <WhatsAppButton />
+          {!isLoginPage && <Footer />}
+          {!isLoginPage && <WhatsAppButton />}
           <Toaster
             position="top-right"
             toastOptions={{

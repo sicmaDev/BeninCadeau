@@ -114,7 +114,13 @@ export default function Navbar() {
 
               {/* Account */}
               <button
-                onClick={() => navigate("account")}
+                onClick={() => {
+                  if (user) {
+                    navigate("account");
+                  } else {
+                    window.location.href = "/connexion?redirect=/compte";
+                  }
+                }}
                 className={`p-2 transition-colors rounded-lg hover:bg-white/10 cursor-pointer ${
                   activePage === "account" ? "text-accent" : "text-white/80 hover:text-accent"
                 }`}

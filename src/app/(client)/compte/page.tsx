@@ -8,16 +8,8 @@ import { toast } from "sonner";
 type AuthTab = "login" | "register";
 
 export default function AccountPage() {
-  const { user, login, register, logout } = useAuth();
+  const { user, loading, login, register, logout } = useAuth();
   const { navigate } = useRouter();
-
-  const [authTab, setAuthTab] = useState<AuthTab>("login");
-  const [showPwd, setShowPwd] = useState(false);
-  
-  const [loginForm, setLoginForm] = useState({ email: "", password: "" });
-  const [regForm, setRegForm] = useState({ name: "", email: "", password: "" });
-  const [loginError, setLoginError] = useState("");
-  const [loadingAuth, setLoadingAuth] = useState(false);
 
   const [profile, setProfile] = useState({
     name: "",
@@ -39,35 +31,12 @@ export default function AccountPage() {
     }
   }, [user]);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!loginForm.email || !loginForm.password) {
-      setLoginError("Veuillez remplir tous les champs.");
-      return;
+  // Rediriger vers la page dédiée de connexion si non connecté
+  useEffect(() => {
+    if (!loading && !user) {
+      window.location.href = "/connexion?redirect=/compte";
     }
-    setLoginError("");
-    setLoadingAuth(true);
-    const success = await login(loginForm.email, loginForm.password);
-    setLoadingAuth(false);
-    if (!success) {
-      setLoginError("Email ou mot de passe incorrect.");
-    }
-  };
-
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!regForm.name || !regForm.email || !regForm.password) {
-      setLoginError("Veuillez remplir tous les champs.");
-      return;
-    }
-    setLoginError("");
-    setLoadingAuth(true);
-    const success = await register(regForm.name, regForm.email, regForm.password);
-    setLoadingAuth(false);
-    if (!success) {
-      setLoginError("Cet e-mail est déjà utilisé ou mot de passe trop court.");
-    }
-  };
+  }, [user, loading]);
 
   const handleSaveProfile = async () => {
     if (!profile.name.trim()) {
@@ -96,127 +65,23 @@ export default function AccountPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <Loader2 size={32} className="animate-spin text-primary mx-auto mb-3" />
+          <p className="text-xs text-muted-foreground">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!user) {
     return (
-      <div className="max-w-md mx-auto px-4 sm:px-6 py-16 font-body">
-        <div className="bg-card border border-border shadow-xl rounded-2xl p-8">
-          <div className="text-center mb-8">
-            <div className="w-14 h-14 bg-secondary rounded-2xl flex items-center justify-center mx-auto mb-4 border border-accent/10">
-              <User size={24} className="text-primary" />
-            </div>
-            <h1 className="font-display text-2xl font-bold text-primary tracking-tight">Mon Profil</h1>
-            <p className="text-muted-foreground text-xs mt-1.5">Connectez-vous pour modifier vos coordonnées</p>
-          </div>
-
-          {/* Tabs */}
-          <div className="flex bg-muted rounded-xl p-1 mb-6 border border-slate-100">
-            {(["login", "register"] as AuthTab[]).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => { setAuthTab(tab); setLoginError(""); }}
-                className={`flex-1 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  authTab === tab ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {tab === "login" ? "Connexion" : "Inscription"}
-              </button>
-            ))}
-          </div>
-
-          {loginError && (
-            <div className="bg-red-50/75 text-destructive rounded-xl px-4 py-3 text-xs mb-5 border border-red-200/50">
-              {loginError}
-            </div>
-          )}
-
-          {authTab === "login" ? (
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-foreground mb-1.5 uppercase tracking-wider">Email</label>
-                <input
-                  type="email"
-                  required
-                  value={loginForm.email}
-                  onChange={(e) => setLoginForm((f) => ({ ...f, email: e.target.value }))}
-                  placeholder="kossi@exemple.bj"
-                  className="w-full px-4 py-3 bg-input-background border border-border rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-foreground mb-1.5 uppercase tracking-wider">Mot de passe</label>
-                <div className="relative">
-                  <input
-                    type={showPwd ? "text" : "password"}
-                    required
-                    value={loginForm.password}
-                    onChange={(e) => setLoginForm((f) => ({ ...f, password: e.target.value }))}
-                    placeholder="••••••••"
-                    className="w-full px-4 py-3 bg-input-background border border-border rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent pr-12 focus:border-transparent transition-all"
-                  />
-                  <button type="button" onClick={() => setShowPwd(!showPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                    {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
-              <button 
-                type="submit" 
-                disabled={loadingAuth}
-                className="w-full bg-primary text-white font-bold py-3.5 rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-75 flex items-center justify-center gap-2 cursor-pointer shadow-md hover:shadow-lg active:scale-98"
-              >
-                {loadingAuth && <Loader2 size={16} className="animate-spin" />}
-                Se connecter
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleRegister} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-foreground mb-1.5 uppercase tracking-wider">Nom complet *</label>
-                <input
-                  type="text"
-                  required
-                  value={regForm.name}
-                  onChange={(e) => setRegForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="Kossi Adjovi"
-                  className="w-full px-4 py-3 bg-input-background border border-border rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-foreground mb-1.5 uppercase tracking-wider">Email *</label>
-                <input
-                  type="email"
-                  required
-                  value={regForm.email}
-                  onChange={(e) => setRegForm((f) => ({ ...f, email: e.target.value }))}
-                  placeholder="kossi@exemple.bj"
-                  className="w-full px-4 py-3 bg-input-background border border-border rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-foreground mb-1.5 uppercase tracking-wider">Mot de passe *</label>
-                <div className="relative">
-                  <input
-                    type={showPwd ? "text" : "password"}
-                    required
-                    value={regForm.password}
-                    onChange={(e) => setRegForm((f) => ({ ...f, password: e.target.value }))}
-                    placeholder="Minimum 8 caractères"
-                    className="w-full px-4 py-3 bg-input-background border border-border rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent pr-12 focus:border-transparent transition-all"
-                  />
-                  <button type="button" onClick={() => setShowPwd(!showPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                    {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
-              <button 
-                type="submit" 
-                disabled={loadingAuth}
-                className="w-full bg-primary text-white font-bold py-3.5 rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-75 flex items-center justify-center gap-2 cursor-pointer shadow-md hover:shadow-lg active:scale-98"
-              >
-                {loadingAuth && <Loader2 size={16} className="animate-spin" />}
-                Créer mon compte
-              </button>
-            </form>
-          )}
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <Loader2 size={32} className="animate-spin text-primary mx-auto mb-3" />
+          <p className="text-xs text-muted-foreground">Redirection vers la connexion...</p>
         </div>
       </div>
     );

@@ -165,3 +165,40 @@ export async function sendPaymentConfirmationEmail(order: any) {
     console.error('Error sending payment confirmation email:', error);
   }
 }
+
+export async function sendOtpEmail(email: string, otp: string) {
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.log(`[OTP Skip Delivery] OTP for ${email} is ${otp}`);
+    return;
+  }
+
+  const mailOptions = {
+    from: `"Bénin Cadeau" <${fromEmail}>`,
+    to: email,
+    subject: `Votre code de vérification - Bénin Cadeau`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 25px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+        <div style="text-align: center; margin-bottom: 25px; border-bottom: 3px solid #F7BD0D; padding-bottom: 20px;">
+          <h1 style="color: #311974; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">BÉNIN CADEAU</h1>
+        </div>
+        <h2 style="color: #1e293b; font-size: 18px; font-weight: 700; margin-bottom: 10px; text-align: center;">Code de vérification</h2>
+        <p style="color: #475569; font-size: 14px; line-height: 1.6; text-align: center; margin-bottom: 25px;">
+          Utilisez le code de vérification ci-dessous pour accéder au suivi et à l'historique de vos commandes :
+        </p>
+        <div style="background-color: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 15px; margin-bottom: 25px; text-align: center;">
+          <span style="font-size: 28px; font-weight: bold; color: #311974; letter-spacing: 4px;">${otp}</span>
+        </div>
+        <p style="color: #64748b; font-size: 11px; text-align: center; margin: 0;">
+          Ce code est valable pendant 5 minutes. Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail.
+        </p>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Error sending OTP email:', error);
+  }
+}
