@@ -171,76 +171,76 @@ export default function OrdersHistoryPage() {
     if (guestMode) {
       // Formulaire élargi pour le mode invité / OTP
       return (
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16 font-body">
-          <div className="bg-white border border-slate-200/80 shadow-xl rounded-2xl p-8 flex flex-col md:flex-row gap-8">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16 font-body">
+          <div className="bg-white border border-slate-200/80 shadow-xl rounded-2xl p-10 flex flex-col md:flex-row gap-10">
             
             {/* Colonne Gauche : Formulaire OTP */}
-            <div className="flex-1 space-y-5">
+            <div className="flex-1 space-y-6">
               <div className="text-center md:text-left mb-6">
                 <button 
                   onClick={() => navigate("home")}
-                  className="w-14 h-14 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100 mx-auto md:mx-0 hover:scale-105 transition-transform"
+                  className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100 mx-auto md:mx-0 hover:scale-105 transition-transform animate-fade-in"
                 >
-                  <img src="/1-19.png" alt="Bénin Cadeau" className="w-10 h-10 object-contain" />
+                  <img src="/1-19.png" alt="Bénin Cadeau" className="w-16 h-16 object-contain" />
                 </button>
-                <h1 className="font-display text-xl font-bold text-primary tracking-tight">Suivre mes commandes</h1>
-                <p className="text-muted-foreground text-xs mt-1">Saisissez l'e-mail utilisé pour recevoir un code temporaire</p>
+                <h1 className="font-display text-2xl font-bold text-primary tracking-tight">Suivre mes commandes</h1>
+                <p className="text-muted-foreground text-sm mt-1.5">Saisissez l'e-mail utilisé pour recevoir un code temporaire</p>
               </div>
 
               {otpError && (
-                <div className="bg-red-50 text-destructive rounded-xl px-4 py-3 text-xs mb-3 border border-red-100">
+                <div className="bg-red-50 text-destructive rounded-xl px-4 py-3 text-sm mb-3 border border-red-100">
                   {otpError}
                 </div>
               )}
 
               {!otpSent ? (
-                <form onSubmit={handleSendOtp} className="space-y-4">
+                <form onSubmit={handleSendOtp} className="space-y-5">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Adresse E-mail</label>
+                    <label className="block text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">Adresse E-mail</label>
                     <input
                       type="email"
                       required
                       value={guestEmail}
                       onChange={(e) => setGuestEmail(e.target.value)}
                       placeholder="votre-email@exemple.bj"
-                      className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
+                      className="w-full px-5 py-4 bg-slate-50/50 border border-slate-200 rounded-xl text-base outline-none focus:bg-white focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
                     />
                   </div>
                   <button 
                     type="submit" 
                     disabled={loadingOtp}
-                    className="w-full bg-[#1A2B6D] hover:bg-[#1A2B6D]/90 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-75 flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                    className="w-full bg-[#1A2B6D] hover:bg-[#1A2B6D]/90 text-white font-bold py-4 rounded-xl transition-all disabled:opacity-75 flex items-center justify-center gap-2 cursor-pointer shadow-md text-base active:scale-98"
                   >
-                    {loadingOtp && <Loader2 size={16} className="animate-spin" />}
+                    {loadingOtp && <Loader2 size={18} className="animate-spin" />}
                     Recevoir le code OTP
                   </button>
                 </form>
               ) : (
-                <form onSubmit={handleVerifyOtp} className="space-y-4">
+                <form onSubmit={handleVerifyOtp} className="space-y-5">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Code de vérification (OTP)</label>
+                    <label className="block text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">Code de vérification (OTP)</label>
                     <input
                       type="text"
                       required
                       value={otpCode}
                       onChange={(e) => setOtpCode(e.target.value)}
                       placeholder="Saisir les 6 chiffres"
-                      className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-accent focus:border-transparent transition-all text-center tracking-widest font-bold"
+                      className="w-full px-5 py-4 bg-slate-50/50 border border-slate-200 rounded-xl text-base outline-none focus:bg-white focus:ring-2 focus:ring-accent focus:border-transparent transition-all text-center tracking-widest font-bold"
                     />
                   </div>
                   <button 
                     type="submit" 
                     disabled={loadingOtp}
-                    className="w-full bg-primary text-white font-bold py-3 rounded-xl transition-all disabled:opacity-75 flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                    className="w-full bg-primary text-white font-bold py-4 rounded-xl transition-all disabled:opacity-75 flex items-center justify-center gap-2 cursor-pointer shadow-md text-base active:scale-98"
                   >
-                    {loadingOtp && <Loader2 size={16} className="animate-spin" />}
+                    {loadingOtp && <Loader2 size={18} className="animate-spin" />}
                     Vérifier et voir mes commandes
                   </button>
                   <div className="text-center pt-2">
                     <button
                       type="button"
                       onClick={() => setOtpSent(false)}
-                      className="text-xs text-muted-foreground hover:text-primary transition-colors underline"
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors underline"
                     >
                       Modifier mon adresse e-mail
                     </button>
@@ -250,30 +250,30 @@ export default function OrdersHistoryPage() {
             </div>
 
             {/* Colonne Droite : Pourquoi créer un compte */}
-            <div className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl p-6 sm:p-8 flex flex-col justify-between gap-6">
+            <div className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl p-8 flex flex-col justify-between gap-8">
               <div>
-                <h3 className="font-display font-bold text-primary text-base mb-4">Pourquoi créer un compte ?</h3>
-                <ul className="space-y-3.5 text-xs text-slate-600">
-                  <li className="flex items-start gap-2">
-                    <Mail size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />
+                <h3 className="font-display font-bold text-primary text-lg mb-5">Pourquoi créer un compte ?</h3>
+                <ul className="space-y-4 text-sm text-slate-600 leading-relaxed">
+                  <li className="flex items-start gap-3">
+                    <Mail size={20} className="text-emerald-500 flex-shrink-0 mt-0.5" />
                     <span>Recevoir des offres promotionnelles et codes de réduction exclusifs.</span>
                   </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />
+                  <li className="flex items-start gap-3">
+                    <CheckCircle size={20} className="text-emerald-500 flex-shrink-0 mt-0.5" />
                     <span>Gérer et sauvegarder vos adresses de livraison par défaut pour commander plus vite.</span>
                   </li>
-                  <li className="flex items-start gap-2">
-                    <Package size={16} className="text-emerald-500 flex-shrink-0 mt-0.5" />
+                  <li className="flex items-start gap-3">
+                    <Package size={20} className="text-emerald-500 flex-shrink-0 mt-0.5" />
                     <span>Accéder à votre historique de commande complet en un clic sans code OTP temporaire.</span>
                   </li>
                 </ul>
               </div>
 
-              <div className="pt-4 border-t border-slate-200/60">
+              <div className="pt-5 border-t border-slate-200/60">
                 <button
                   type="button"
                   onClick={() => setGuestMode(false)}
-                  className="w-full bg-white hover:bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl border border-slate-200 text-xs transition-colors cursor-pointer text-center"
+                  className="w-full bg-white hover:bg-slate-100 text-slate-700 font-bold py-3 rounded-xl border border-slate-200 text-sm transition-colors cursor-pointer text-center"
                 >
                   S'inscrire ou se connecter
                 </button>
@@ -285,19 +285,19 @@ export default function OrdersHistoryPage() {
       );
     }
 
-    // Formulaire de connexion/inscription par défaut (Largeur standard, centré)
+    // Formulaire de connexion/inscription par défaut (Largeur élargie à max-w-2xl)
     return (
-      <div className="max-w-md mx-auto px-4 sm:px-6 py-16 font-body">
-        <div className="bg-white border border-slate-200/80 shadow-xl rounded-2xl p-8">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16 font-body">
+        <div className="bg-white border border-slate-200/80 shadow-xl rounded-2xl p-10">
           <div className="text-center mb-8">
             <button 
               onClick={() => navigate("home")}
-              className="w-14 h-14 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100 hover:scale-105 transition-transform"
+              className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100 hover:scale-105 transition-transform"
             >
-              <img src="/1-19.png" alt="Bénin Cadeau" className="w-10 h-10 object-contain" />
+              <img src="/1-19.png" alt="Bénin Cadeau" className="w-16 h-16 object-contain" />
             </button>
             <h1 className="font-display text-2xl font-bold text-primary tracking-tight">Mes Commandes</h1>
-            <p className="text-muted-foreground text-xs mt-1.5">Connectez-vous pour consulter votre historique d'achats</p>
+            <p className="text-muted-foreground text-sm mt-1.5 font-medium">Connectez-vous pour consulter votre historique d'achats</p>
           </div>
 
           {/* Tabs */}
@@ -306,7 +306,7 @@ export default function OrdersHistoryPage() {
               <button
                 key={tab}
                 onClick={() => { setAuthTab(tab); setLoginError(""); }}
-                className={`flex-1 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`flex-1 py-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                   authTab === tab ? "bg-white text-primary shadow-sm" : "text-slate-400 hover:text-slate-600"
                 }`}
               >
@@ -316,26 +316,26 @@ export default function OrdersHistoryPage() {
           </div>
 
           {loginError && (
-            <div className="bg-red-50 text-destructive rounded-xl px-4 py-3 text-xs mb-5 border border-red-100">
+            <div className="bg-red-50 text-destructive rounded-xl px-4 py-3 text-sm mb-5 border border-red-100">
               {loginError}
             </div>
           )}
 
           {authTab === "login" ? (
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} className="space-y-5">
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Email</label>
+                <label className="block text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">Email</label>
                 <input
                   type="email"
                   required
                   value={loginForm.email}
                   onChange={(e) => setLoginForm((f) => ({ ...f, email: e.target.value }))}
                   placeholder="kossi@exemple.bj"
-                  className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
+                  className="w-full px-5 py-4 bg-slate-50/50 border border-slate-200 rounded-xl text-base outline-none focus:bg-white focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Mot de passe</label>
+                <label className="block text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">Mot de passe</label>
                 <div className="relative">
                   <input
                     type={showPwd ? "text" : "password"}
@@ -343,7 +343,7 @@ export default function OrdersHistoryPage() {
                     value={loginForm.password}
                     onChange={(e) => setLoginForm((f) => ({ ...f, password: e.target.value }))}
                     placeholder="••••••••"
-                    className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-accent pr-12 focus:border-transparent transition-all"
+                    className="w-full px-5 py-4 bg-slate-50/50 border border-slate-200 rounded-xl text-base outline-none focus:bg-white focus:ring-2 focus:ring-accent pr-12 focus:border-transparent transition-all"
                   />
                   <button type="button" onClick={() => setShowPwd(!showPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
                     {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -353,38 +353,38 @@ export default function OrdersHistoryPage() {
               <button 
                 type="submit" 
                 disabled={loadingAuth}
-                className="w-full bg-[#1A2B6D] hover:bg-[#1A2B6D]/90 text-white font-bold py-3.5 rounded-xl transition-all disabled:opacity-75 flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98"
+                className="w-full bg-[#1A2B6D] hover:bg-[#1A2B6D]/90 text-white font-bold py-4 rounded-xl transition-all disabled:opacity-75 flex items-center justify-center gap-2 cursor-pointer shadow-md text-base active:scale-98"
               >
-                {loadingAuth && <Loader2 size={16} className="animate-spin" />}
+                {loadingAuth && <Loader2 size={18} className="animate-spin" />}
                 Se connecter
               </button>
             </form>
           ) : (
-            <form onSubmit={handleRegister} className="space-y-4">
+            <form onSubmit={handleRegister} className="space-y-5">
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Nom complet *</label>
+                <label className="block text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">Nom complet *</label>
                 <input
                   type="text"
                   required
                   value={regForm.name}
                   onChange={(e) => setRegForm((f) => ({ ...f, name: e.target.value }))}
                   placeholder="Kossi Adjovi"
-                  className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
+                  className="w-full px-5 py-4 bg-slate-50/50 border border-slate-200 rounded-xl text-base outline-none focus:bg-white focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Email *</label>
+                <label className="block text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">Email *</label>
                 <input
                   type="email"
                   required
                   value={regForm.email}
                   onChange={(e) => setRegForm((f) => ({ ...f, email: e.target.value }))}
                   placeholder="kossi@exemple.bj"
-                  className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
+                  className="w-full px-5 py-4 bg-slate-50/50 border border-slate-200 rounded-xl text-base outline-none focus:bg-white focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Mot de passe *</label>
+                <label className="block text-sm font-semibold text-slate-500 mb-2 uppercase tracking-wider">Mot de passe *</label>
                 <div className="relative">
                   <input
                     type={showPwd ? "text" : "password"}
@@ -392,7 +392,7 @@ export default function OrdersHistoryPage() {
                     value={regForm.password}
                     onChange={(e) => setRegForm((f) => ({ ...f, password: e.target.value }))}
                     placeholder="Minimum 8 caractères"
-                    className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent pr-12 focus:border-transparent transition-all"
+                    className="w-full px-5 py-4 bg-slate-50/50 border border-slate-200 rounded-xl text-base outline-none focus:bg-white focus:ring-2 focus:ring-accent pr-12 focus:border-transparent transition-all"
                   />
                   <button type="button" onClick={() => setShowPwd(!showPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
                     {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -402,16 +402,16 @@ export default function OrdersHistoryPage() {
               <button 
                 type="submit" 
                 disabled={loadingAuth}
-                className="w-full bg-[#1A2B6D] hover:bg-[#1A2B6D]/90 text-white font-bold py-3.5 rounded-xl transition-all disabled:opacity-75 flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98"
+                className="w-full bg-[#1A2B6D] hover:bg-[#1A2B6D]/90 text-white font-bold py-4 rounded-xl transition-all disabled:opacity-75 flex items-center justify-center gap-2 cursor-pointer shadow-md text-base active:scale-98"
               >
-                {loadingAuth && <Loader2 size={16} className="animate-spin" />}
+                {loadingAuth && <Loader2 size={18} className="animate-spin" />}
                 Créer mon compte
               </button>
             </form>
           )}
 
           {/* Option : Continuer avec mon e-mail */}
-          <div className="relative my-6 text-center">
+          <div className="relative my-8 text-center">
             <div className="absolute inset-0 flex items-center" aria-hidden="true">
               <div className="w-full border-t border-slate-200" />
             </div>
@@ -420,7 +420,7 @@ export default function OrdersHistoryPage() {
 
           <button
             onClick={() => setGuestMode(true)}
-            className="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-3 rounded-xl border border-slate-200 text-xs transition-colors cursor-pointer text-center"
+            className="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-4 rounded-xl border border-slate-200 text-sm transition-colors cursor-pointer text-center"
           >
             Continuer avec mon e-mail (OTP)
           </button>
@@ -435,197 +435,220 @@ export default function OrdersHistoryPage() {
   const paginatedOrders = activeOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 font-body">
-      <div className="flex items-center justify-between mb-8 border-b border-border pb-4">
-        <div>
-          <h1 className="font-display text-2xl font-bold text-primary">Historique des Commandes</h1>
-          <p className="text-xs text-muted-foreground mt-1">
-            {isAuthenticated 
-              ? "Consultez l'historique et l'avancement de vos achats." 
-              : `Commandes associées à l'adresse e-mail : ${guestEmail}`}
+    <div className="font-body bg-slate-50/50 min-h-screen">
+      {/* Banner Section */}
+      <section className="relative h-[220px] sm:h-[260px] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/images/catalogue_banner.png"
+            alt="Mes commandes"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/80" />
+        </div>
+        <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 text-center text-white">
+          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold mb-2.5 tracking-tight animate-fade-in">
+            Mes Commandes
+          </h1>
+          <p className="text-accent text-xs sm:text-sm font-medium max-w-xl mx-auto opacity-90 tracking-wide uppercase">
+            Historique et suivi de vos achats
           </p>
         </div>
-        <button
-          onClick={() => {
-            if (guestVerified) {
-              setGuestVerified(false);
-              setGuestOrders([]);
-              setGuestEmail("");
-              setOtpCode("");
-              setOtpSent(false);
-            } else {
-              navigate("home");
-            }
-          }}
-          className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-primary transition-colors cursor-pointer bg-slate-50 hover:bg-slate-100 px-3 py-2.5 rounded-xl border border-slate-200"
-        >
-          <ArrowLeft size={14} />
-          {guestVerified ? "Quitter le suivi" : "Boutique"}
-        </button>
-      </div>
+      </section>
 
-      {loadingOrders ? (
-        <div className="text-center py-16 bg-white border border-slate-200/80 rounded-2xl shadow-sm text-muted-foreground">
-          <Loader2 size={32} className="animate-spin mx-auto mb-3 text-primary" />
-          Chargement de vos commandes...
+      {/* Main content body */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+        <div className="flex items-center justify-between mb-8 border-b border-slate-200 pb-5">
+          <div>
+            <h2 className="font-display text-xl font-bold text-primary">Historique des Commandes</h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              {isAuthenticated 
+                ? "Consultez l'historique et l'avancement de vos achats." 
+                : `Commandes associées à l'adresse e-mail : ${guestEmail}`}
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              if (guestVerified) {
+                setGuestVerified(false);
+                setGuestOrders([]);
+                setGuestEmail("");
+                setOtpCode("");
+                setOtpSent(false);
+              } else {
+                navigate("home");
+              }
+            }}
+            className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-primary transition-colors cursor-pointer bg-white hover:bg-slate-50 px-3.5 py-2.5 rounded-xl border border-slate-200 shadow-sm"
+          >
+            <ArrowLeft size={14} />
+            {guestVerified ? "Quitter le suivi" : "Boutique"}
+          </button>
         </div>
-      ) : activeOrders.length > 0 ? (
-        <div className="space-y-4">
-          {paginatedOrders.map((order) => {
-            const statusConf = STATUS_CONFIG[order.status] || { label: order.status, color: "bg-gray-100 text-gray-700" };
-            const orderDate = new Date(order.createdAt).toLocaleDateString("fr-FR", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit"
-            });
-            const isExpanded = expandedOrder === order.id;
 
-            return (
-              <div key={order.id} className="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-hidden transition-all duration-300">
-                {/* Header card clickable */}
-                <div
-                  onClick={() => toggleExpand(order.id)}
-                  className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/50 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-primary font-bold">
-                      📦
+        {loadingOrders ? (
+          <div className="text-center py-16 bg-white border border-slate-200/80 rounded-2xl shadow-sm text-muted-foreground">
+            <Loader2 size={32} className="animate-spin mx-auto mb-3 text-primary" />
+            Chargement de vos commandes...
+          </div>
+        ) : activeOrders.length > 0 ? (
+          <div className="space-y-4">
+            {paginatedOrders.map((order) => {
+              const statusConf = STATUS_CONFIG[order.status] || { label: order.status, color: "bg-gray-100 text-gray-700" };
+              const orderDate = new Date(order.createdAt).toLocaleDateString("fr-FR", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+              });
+              const isExpanded = expandedOrder === order.id;
+
+              return (
+                <div key={order.id} className="bg-white border border-slate-200/80 rounded-2xl shadow-sm overflow-hidden transition-all duration-300">
+                  {/* Header card clickable */}
+                  <div
+                    onClick={() => toggleExpand(order.id)}
+                    className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-primary font-bold">
+                        📦
+                      </div>
+                      <div>
+                        <p className="font-display font-bold text-primary text-base">{order.orderNumber}</p>
+                        <p className="text-muted-foreground text-xs flex items-center gap-1 mt-0.5">
+                          <Clock size={12} />
+                          Passée le {orderDate}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-display font-bold text-primary text-base">{order.orderNumber}</p>
-                      <p className="text-muted-foreground text-xs flex items-center gap-1 mt-0.5">
-                        <Clock size={12} />
-                        Passée le {orderDate}
-                      </p>
+                    <div className="flex items-center justify-between sm:justify-end gap-4">
+                      <div className="text-left sm:text-right">
+                        <p className="text-xs text-slate-400">Montant Total</p>
+                        <p className="font-display font-bold text-primary text-base">{formatPrice(order.totalAmount)}</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusConf.color}`}>
+                        {statusConf.label}
+                      </span>
+                      <div>
+                        {isExpanded ? <ChevronUp size={18} className="text-muted-foreground" /> : <ChevronDown size={18} className="text-muted-foreground" />}
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between sm:justify-end gap-4">
-                    <div className="text-left sm:text-right">
-                      <p className="text-xs text-slate-400">Montant Total</p>
-                      <p className="font-display font-bold text-primary text-base">{formatPrice(order.totalAmount)}</p>
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusConf.color}`}>
-                      {statusConf.label}
-                    </span>
-                    <div>
-                      {isExpanded ? <ChevronUp size={18} className="text-muted-foreground" /> : <ChevronDown size={18} className="text-muted-foreground" />}
-                    </div>
-                  </div>
-                </div>
 
-                {/* Items list always visible */}
-                <div className="px-5 pb-5 border-t border-slate-100 pt-4 bg-slate-50/20">
-                  <h4 className="text-xs font-bold text-primary mb-2.5 uppercase tracking-wider">Articles</h4>
-                  <div className="space-y-2">
-                    {order.orderItems.map((item: any, i: number) => (
-                      <div key={i} className="flex justify-between items-center text-sm">
-                        <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground line-clamp-1">{item.product.name}</span>
-                          <span className="bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded text-xs">x{item.quantity}</span>
+                  {/* Items list always visible */}
+                  <div className="px-5 pb-5 border-t border-slate-100 pt-4 bg-slate-50/20">
+                    <h4 className="text-xs font-bold text-primary mb-2.5 uppercase tracking-wider">Articles</h4>
+                    <div className="space-y-2">
+                      {order.orderItems.map((item: any, i: number) => (
+                        <div key={i} className="flex justify-between items-center text-sm">
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground line-clamp-1">{item.product.name}</span>
+                            <span className="bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded text-xs">x{item.quantity}</span>
+                          </div>
+                          <span className="font-medium text-slate-900">{formatPrice(item.price * item.quantity)}</span>
                         </div>
-                        <span className="font-medium text-slate-900">{formatPrice(item.price * item.quantity)}</span>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                {/* Extra details visible on expand */}
-                {isExpanded && (
-                  <div className="px-5 pb-5 pt-3 border-t border-slate-100 bg-slate-50/40 space-y-4 animate-fade-in">
-                    <div className="grid sm:grid-cols-2 gap-4 text-xs">
-                      <div>
-                        <p className="font-semibold text-primary uppercase tracking-wider mb-1">Destinataire & Adresse</p>
-                        <p className="text-slate-800 font-semibold">{order.clientName}</p>
-                        <p className="text-slate-600 mt-0.5">{order.shippingAddress}</p>
-                        <p className="text-slate-500 mt-0.5">Zone : {order.shippingZone?.name}</p>
+                  {/* Extra details visible on expand */}
+                  {isExpanded && (
+                    <div className="px-5 pb-5 pt-3 border-t border-slate-100 bg-slate-50/40 space-y-4 animate-fade-in">
+                      <div className="grid sm:grid-cols-2 gap-4 text-xs">
+                        <div>
+                          <p className="font-semibold text-primary uppercase tracking-wider mb-1">Destinataire & Adresse</p>
+                          <p className="text-slate-800 font-semibold">{order.clientName}</p>
+                          <p className="text-slate-600 mt-0.5">{order.shippingAddress}</p>
+                          <p className="text-slate-500 mt-0.5">Zone : {order.shippingZone?.name}</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-primary uppercase tracking-wider mb-1">Contact & Paiement</p>
+                          <p className="text-slate-600">Tél : {order.clientPhone}</p>
+                          <p className="text-slate-600">Email : {order.clientEmail}</p>
+                          {order.transactionId && (
+                            <p className="text-slate-500 mt-1 font-mono">Tx ID : {order.transactionId}</p>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-semibold text-primary uppercase tracking-wider mb-1">Contact & Paiement</p>
-                        <p className="text-slate-600">Tél : {order.clientPhone}</p>
-                        <p className="text-slate-600">Email : {order.clientEmail}</p>
-                        {order.transactionId && (
-                          <p className="text-slate-500 mt-1 font-mono">Tx ID : {order.transactionId}</p>
+
+                      <div className="border-t border-slate-200/60 pt-4 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <CopyOrderNumberButton orderNumber={order.orderNumber} />
+                          <a
+                            href={`https://wa.me/22997000000?text=${encodeURIComponent(`Bonjour Bénin Cadeau, je souhaite des informations sur ma commande ${order.orderNumber}`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#25D366] hover:text-[#22c55e] border border-emerald-100 hover:border-emerald-300 bg-white px-3.5 py-2.5 rounded-xl transition-all cursor-pointer shadow-xs"
+                          >
+                            <Phone size={14} />
+                            Aide WhatsApp
+                          </a>
+                        </div>
+                        {(order.status === "EN_ATTENTE" || order.status === "ANNULEE") && (
+                          <RepayButton
+                            orderNumber={order.orderNumber}
+                            text="Procéder au paiement"
+                            className="w-full sm:w-auto"
+                          />
                         )}
                       </div>
                     </div>
+                  )}
+                </div>
+              );
+            })}
 
-                    <div className="border-t border-slate-200/60 pt-4 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <CopyOrderNumberButton orderNumber={order.orderNumber} />
-                        <a
-                          href={`https://wa.me/22997000000?text=${encodeURIComponent(`Bonjour Bénin Cadeau, je souhaite des informations sur ma commande ${order.orderNumber}`)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#25D366] hover:text-[#22c55e] border border-emerald-100 hover:border-emerald-300 bg-white px-3.5 py-2.5 rounded-xl transition-all cursor-pointer shadow-xs"
-                        >
-                          <Phone size={14} />
-                          Aide WhatsApp
-                        </a>
-                      </div>
-                      {(order.status === "EN_ATTENTE" || order.status === "ANNULEE") && (
-                        <RepayButton
-                          orderNumber={order.orderNumber}
-                          text="Procéder au paiement"
-                          className="w-full sm:w-auto"
-                        />
-                      )}
-                    </div>
-                  </div>
-                )}
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between pt-6 border-t border-slate-100">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-500 hover:text-primary hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                >
+                  Précédent
+                </button>
+                <div className="flex items-center gap-1.5">
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`w-8 h-8 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        currentPage === i + 1
+                          ? "bg-primary text-white shadow-sm"
+                          : "border border-slate-200 text-slate-500 hover:text-primary hover:bg-slate-50"
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-500 hover:text-primary hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                >
+                  Suivant
+                </button>
               </div>
-            );
-          })}
-
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between pt-6 border-t border-slate-100">
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-500 hover:text-primary hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-              >
-                Précédent
-              </button>
-              <div className="flex items-center gap-1.5">
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentPage(i + 1)}
-                    className={`w-8 h-8 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      currentPage === i + 1
-                        ? "bg-primary text-white shadow-sm"
-                        : "border border-slate-200 text-slate-500 hover:text-primary hover:bg-slate-50"
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-              </div>
-              <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-500 hover:text-primary hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
-              >
-                Suivant
-              </button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="text-center py-16 bg-white border border-slate-200/80 rounded-2xl shadow-sm text-slate-500">
-          <p className="text-5xl mb-4">🎁</p>
-          <h3 className="font-display text-lg font-bold text-primary mb-1">Aucune commande trouvée</h3>
-          <p className="text-sm text-slate-400 max-w-sm mx-auto mb-6">Aucune commande trouvée pour l'adresse e-mail renseignée.</p>
-          <button 
-            onClick={() => navigate("catalogue")}
-            className="bg-primary text-white font-bold px-5 py-3 rounded-xl text-xs hover:bg-primary/90 transition-all cursor-pointer shadow-md"
-          >
-            Découvrir le catalogue
-          </button>
-        </div>
-      )}
+            )}
+          </div>
+        ) : (
+          <div className="text-center py-16 bg-white border border-slate-200/80 rounded-2xl shadow-sm text-slate-500">
+            <p className="text-5xl mb-4">🎁</p>
+            <h3 className="font-display text-lg font-bold text-primary mb-1">Aucune commande trouvée</h3>
+            <p className="text-sm text-slate-400 max-w-sm mx-auto mb-6">Aucune commande trouvée pour l'adresse e-mail renseignée.</p>
+            <button 
+              onClick={() => navigate("catalogue")}
+              className="bg-primary text-white font-bold px-5 py-3 rounded-xl text-xs hover:bg-primary/90 transition-all cursor-pointer shadow-md"
+            >
+              Découvrir le catalogue
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

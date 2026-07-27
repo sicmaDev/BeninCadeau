@@ -183,9 +183,11 @@ export default function AccountPage() {
             <div className="flex gap-3 justify-center">
               <button
                 onClick={async () => {
-                  await logout();
                   setShowLogoutConfirm(false);
-                  navigate("home");
+                  try {
+                    await fetch("/api/auth/logout", { method: "POST" });
+                  } catch (e) {}
+                  window.location.href = "/";
                 }}
                 className="flex-1 bg-[#1A2B6D] hover:bg-[#1A2B6D]/90 text-white font-bold py-3 rounded-xl text-xs transition-colors cursor-pointer shadow-md"
               >
