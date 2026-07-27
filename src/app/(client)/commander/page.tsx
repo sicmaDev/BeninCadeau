@@ -27,6 +27,19 @@ export default function CheckoutPage() {
     zoneId: "",
     paymentMethod: "mtn" as PaymentMethod,
   });
+
+  useEffect(() => {
+    if (user) {
+      setForm((f) => ({
+        ...f,
+        name: f.name || user.name || "",
+        email: f.email || user.email || "",
+        phone: f.phone || user.phone || "",
+        address: f.address || user.address || "",
+      }));
+    }
+  }, [user]);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [shippingZones, setShippingZones] = useState<ShippingZone[]>([]);
@@ -42,6 +55,13 @@ export default function CheckoutPage() {
       })
       .catch((err) => console.error("Error loading shipping zones", err));
   }, []);
+
+  // Rediriger vers le panier si le panier est vide
+  useEffect(() => {
+    if (cart.items.length === 0 && !loading) {
+      navigate("cart");
+    }
+  }, [cart.items.length, loading, navigate]);
 
   const selectedZone = shippingZones.find((z) => z.id.toString() === form.zoneId);
   const deliveryFee = selectedZone?.deliveryFee || 0;
@@ -118,7 +138,6 @@ export default function CheckoutPage() {
   ];
 
   if (cart.items.length === 0 && !loading) {
-    navigate("cart");
     return null;
   }
 

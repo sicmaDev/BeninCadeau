@@ -122,3 +122,11 @@ model OrderItem {
   price                Int // Prix du produit au moment de la commande
   customizationMessage String? @db.Text
 }
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  title     String
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

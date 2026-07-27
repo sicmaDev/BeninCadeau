@@ -53,12 +53,66 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const [toasts, setToasts] = useState<Toast[]>([]);
 
+  // Notifications dynamiques
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
   const showToast = (message: string, type: "success" | "error") => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 4500);
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch("/api/admin/notifications");
+      if (res.ok) {
+        const data = await res.json();
+        const list = data.notifications || [];
+        setNotifications(list);
+        setUnreadCount(list.filter((n: any) => !n.isRead).length);
+      }
+    } catch (err) {
+      console.error("Failed to load notifications", err);
+    }
+  };
+
+  const markAsRead = async (id: number) => {
+    try {
+      const res = await fetch("/api/admin/notifications", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "read_one", id }),
+      });
+      if (res.ok) {
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+        );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+        showToast("Notification marquée comme lue.", "success");
+      }
+    } catch (err) {
+      showToast("Erreur lors de la mise à jour.", "error");
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      const res = await fetch("/api/admin/notifications", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "read_all" }),
+      });
+      if (res.ok) {
+        setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+        setUnreadCount(0);
+        showToast("Toutes les notifications ont été marquées comme lues.", "success");
+      }
+    } catch (err) {
+      showToast("Erreur lors de la mise à jour.", "error");
+    }
   };
 
   const checkAdminSession = async () => {
@@ -105,6 +159,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }, [pathname]);
 
   useEffect(() => {
+    if (isAdmin) {
+      fetchNotifications();
+      const interval = setInterval(fetchNotifications, 15000);
+      return () => clearInterval(interval);
+    }
+  }, [isAdmin]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (!target.closest("#nav-notifications")) {
@@ -140,6 +202,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { name: "Clients", path: "/admin/clients", iconClass: "ti ti-users" },
     { name: "Zones de livraison", path: "/admin/livraisons", iconClass: "ti ti-truck" },
     { name: "Codes promo", path: "/admin/promocodes", iconClass: "ti ti-ticket" },
+    { name: "Notifications", path: "/admin/notifications", iconClass: "ti ti-bell animate-bounce-slow" },
     { name: "Log des activités", path: "/admin/logs", iconClass: "ti ti-history" },
   ];
 
@@ -237,9 +300,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       <path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" />
                       <path d="M9 17v1a3 3 0 0 0 6 0v-1" />
                     </svg>
-                    <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger mt-2 ms-n2">
-                      2
-                    </span>
+                    {unreadCount > 0 && (
+                      <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger mt-2 ms-n2">
+                        {unreadCount}
+                      </span>
+                    )}
                   </button>
 
                   <div
@@ -250,57 +315,68 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       position: "absolute",
                       inset: "0px 0px auto auto",
                       transform: "translate(0px, 40px)",
-                      minWidth: "320px",
+                      minWidth: "340px",
                       display: notificationOpen ? "block" : "none",
                     }}
                   >
                     <ul className="list-unstyled p-0 m-0">
-                      <li className="p-3 border-bottom">
-                        <div className="d-flex gap-3">
-                          <img
-                            src="/assets/images/avatar/avatar-1.jpg"
-                            alt=""
-                            className="avatar avatar-sm rounded-circle"
-                          />
-                          <div className="flex-grow-1 small">
-                            <p className="mb-0 text-dark fw-semibold">Nouvelle commande reçue</p>
-                            <p className="mb-1 text-muted">La commande #BC-9923 a été passée.</p>
-                            <div className="text-secondary">Il y a 5 min</div>
-                          </div>
-                        </div>
+                      <li className="p-3 border-bottom d-flex justify-content-between align-items-center bg-light rounded-top-2">
+                        <span className="fw-bold text-dark small">Notifications ({unreadCount} non lues)</span>
+                        {unreadCount > 0 && (
+                          <button
+                            onClick={markAllAsRead}
+                            className="btn btn-link btn-xs p-0 text-primary text-decoration-none fw-bold small border-0 bg-transparent"
+                            style={{ fontSize: "11px" }}
+                          >
+                            Tout marquer comme lu
+                          </button>
+                        )}
                       </li>
-                      <li className="p-3 border-bottom">
-                        <div className="d-flex gap-3">
-                          <img
-                            src="/assets/images/avatar/avatar-4.jpg"
-                            alt=""
-                            className="avatar avatar-sm rounded-circle"
-                          />
-                          <div className="flex-grow-1 small">
-                            <p className="mb-0 text-dark fw-semibold">Nouveau client inscrit</p>
-                            <p className="mb-1 text-muted">Marie Soglo a créé un compte client.</p>
-                            <div className="text-secondary">Il y a 30 min</div>
-                          </div>
-                        </div>
-                      </li>
-                      <li className="p-3 border-bottom">
-                        <div className="d-flex gap-3">
-                          <img
-                            src="/assets/images/avatar/avatar-2.jpg"
-                            alt=""
-                            className="avatar avatar-sm rounded-circle"
-                          />
-                          <div className="flex-grow-1 small">
-                            <p className="mb-0 text-dark fw-semibold">Paiement confirmé</p>
-                            <p className="mb-1 text-muted">Le paiement de 299 $ a été reçu.</p>
-                            <div className="text-secondary">Il y a 1 heure</div>
-                          </div>
-                        </div>
-                      </li>
-                      <li className="px-4 py-3 text-center">
-                        <a href="#!" className="text-primary text-decoration-none fw-semibold">
+
+                      <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                        {notifications.filter((n) => !n.isRead).slice(0, 5).map((n) => (
+                          <li key={n.id} className="p-3 border-bottom bg-light bg-opacity-50">
+                            <div className="d-flex gap-3 align-items-start">
+                              <div className="flex-grow-1 small">
+                                <p className="mb-0 text-dark fw-bold">
+                                  {n.title}
+                                </p>
+                                <p className="mb-1 text-muted" style={{ fontSize: '12px', lineHeight: '1.4' }}>
+                                  {n.message}
+                                </p>
+                                <div className="text-secondary" style={{ fontSize: '10px' }}>
+                                  {new Date(n.createdAt).toLocaleDateString("fr-FR", {
+                                    day: "numeric",
+                                    month: "short",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => markAsRead(n.id)}
+                                className="btn btn-link p-0 text-success border-0 bg-transparent align-self-center"
+                                title="Marquer comme lu"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icon-tabler-checks">
+                                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                  <path d="M7 12l5 5l10 -10" />
+                                  <path d="M2 12l5 5m5 -5l5 -5" />
+                                </svg>
+                              </button>
+                            </div>
+                          </li>
+                        ))}
+
+                        {notifications.filter((n) => !n.isRead).length === 0 && (
+                          <li className="p-4 text-center text-muted small">Aucune notification non lue.</li>
+                        )}
+                      </div>
+
+                      <li className="px-4 py-3 text-center border-top">
+                        <Link href="/admin/notifications" className="text-primary text-decoration-none fw-semibold small" onClick={() => setNotificationOpen(false)}>
                           Voir toutes les notifications
-                        </a>
+                        </Link>
                       </li>
                     </ul>
                   </div>

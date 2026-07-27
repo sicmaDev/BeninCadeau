@@ -8,11 +8,12 @@ import { toast } from "sonner";
 type AuthTab = "login" | "register";
 
 export default function AccountPage() {
-  const { user, loading, login, register, logout } = useAuth();
+  const { user, loading, updateUser, login, register, logout } = useAuth();
   const { navigate } = useRouter();
 
   const [profile, setProfile] = useState({
     name: "",
+    email: "",
     phone: "",
     address: "",
   });
@@ -25,6 +26,7 @@ export default function AccountPage() {
     if (user) {
       setProfile({
         name: user.name,
+        email: user.email || "",
         phone: user.phone || "",
         address: user.address || "",
       });
@@ -43,6 +45,10 @@ export default function AccountPage() {
       toast.error("Le nom ne peut pas être vide.");
       return;
     }
+    if (!profile.email.trim()) {
+      toast.error("L'adresse e-mail ne peut pas être vide.");
+      return;
+    }
     setLoadingProfileSave(true);
     try {
       const res = await fetch("/api/auth/profile", {
@@ -52,6 +58,7 @@ export default function AccountPage() {
       });
       if (res.ok) {
         setProfileSaved(true);
+        updateUser(profile);
         toast.success("Profil mis à jour !");
         setTimeout(() => setProfileSaved(false), 2000);
       } else {
@@ -137,9 +144,9 @@ export default function AccountPage() {
           <div className="sm:col-span-2">
             <label className="block text-xs font-semibold text-foreground mb-1.5 uppercase tracking-wider">Adresse Email</label>
             <input
-              value={user.email}
-              disabled
-              className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-sm text-muted-foreground cursor-not-allowed"
+              value={profile.email}
+              onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))}
+              className="w-full px-4 py-3 bg-input-background border border-border rounded-xl text-sm outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
             />
           </div>
           <div className="sm:col-span-2">

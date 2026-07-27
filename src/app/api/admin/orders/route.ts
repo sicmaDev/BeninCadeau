@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '../../../../utils/db';
 import { getCurrentUser } from '../../../../utils/auth';
+import { sendOrderStatusUpdateEmail } from '../../../../utils/emails';
 import { OrderStatus } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
@@ -63,12 +64,33 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: 'ID de la commande et statut requis.' }, { status: 400 });
     }
 
+    const oldOrder = await prisma.order.findUnique({
+      where: { id: parseInt(id, 10) },
+    });
+
+    if (!oldOrder) {
+      return NextResponse.json({ error: 'Commande non trouvée.' }, { status: 404 });
+    }
+
     const order = await prisma.order.update({
       where: { id: parseInt(id, 10) },
       data: {
         status: status as OrderStatus,
       },
     });
+
+    // Envoyer l'e-mail de mise à jour du statut
+    sendOrderStatusUpdateEmail(order, oldOrder.status, status).catch(err => 
+      console.error('Failed to send status update email:', err)
+    );
+
+    // Créer une notification dynamique pour l'admin
+    await prisma.notification.create({
+      data: {
+        title: "Statut modifié",
+        message: `La commande ${order.orderNumber} est passée du statut "${oldOrder.status}" à "${status}".`
+      }
+    }).catch(err => console.error('Failed to create admin notification:', err));
 
     return NextResponse.json({ success: true, order });
   } catch (error) {

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '../../../utils/db';
 import { getCurrentUser } from '../../../utils/auth';
 import { OrderStatus } from '@prisma/client';
-import { sendOrderConfirmationEmail } from '../../../utils/emails';
+import { sendOrderConfirmationEmail, sendAdminNewOrderEmail } from '../../../utils/emails';
 
 export async function GET() {
   try {
@@ -140,6 +140,23 @@ export async function POST(req: Request) {
 
     // Transaction Prisma : Créer la commande, ses lignes et décrémenter les stocks
     const createdOrder = await prisma.$transaction(async (tx) => {
+      // Mettre à jour le profil de l'utilisateur s'il y a de nouvelles informations
+      if (user) {
+        const profileUpdate: any = {};
+        if (!user.phone && clientPhone) {
+          profileUpdate.phone = clientPhone;
+        }
+        if (!user.address && shippingAddress) {
+          profileUpdate.address = shippingAddress;
+        }
+        if (Object.keys(profileUpdate).length > 0) {
+          await tx.user.update({
+            where: { id: user.id },
+            data: profileUpdate,
+          });
+        }
+      }
+
       // 1. Créer la commande avec un orderNumber temporaire
       const order = await tx.order.create({
         data: {
@@ -207,6 +224,24 @@ export async function POST(req: Request) {
       shippingFee: zone.deliveryFee,
       totalAmount: createdOrder.totalAmount
     }, emailItems).catch(err => console.error('Failed to send confirmation email:', err));
+
+    sendAdminNewOrderEmail({
+      clientName,
+      clientEmail,
+      clientPhone,
+      shippingAddress,
+      orderNumber: createdOrder.orderNumber,
+      shippingFee: zone.deliveryFee,
+      totalAmount: createdOrder.totalAmount
+    }, emailItems).catch(err => console.error('Failed to send admin notification email:', err));
+
+    // Créer une notification dynamique pour l'admin
+    prisma.notification.create({
+      data: {
+        title: "Nouvelle commande",
+        message: `Une nouvelle commande ${createdOrder.orderNumber} d'un montant de ${createdOrder.totalAmount.toLocaleString('fr-FR')} FCFA a été passée par ${clientName}.`
+      }
+    }).catch(err => console.error('Failed to create admin notification:', err));
 
     // Intégration FedaPay
     let checkoutUrl = `/confirmation/${createdOrder.orderNumber}`;

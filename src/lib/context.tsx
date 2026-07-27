@@ -159,6 +159,7 @@ export interface User {
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
+  updateUser: (updatedFields: Partial<User>) => void;
   login: (email: string, passwordHash: string) => Promise<boolean>;
   register: (name: string, email: string, passwordHash: string) => Promise<boolean>;
   logout: () => Promise<void>;
@@ -335,6 +336,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return s + (i.product.price || 0) * (i.quantity || 0);
   }, 0);
 
+  const updateUser = useCallback((updated: Partial<User>) => {
+    setUser((prev) => prev ? { ...prev, ...updated } : null);
+  }, []);
+
   // Authentification via les API réelles
   const login = useCallback(async (email: string, passwordHash: string): Promise<boolean> => {
     try {
@@ -405,7 +410,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return (
     <RouterContext.Provider value={{ ...routerState, navigate }}>
       <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQty, clearCart, applyPromo, cartCount, subtotal }}>
-        <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+        <AuthContext.Provider value={{ user, loading, updateUser, login, register, logout }}>
           {children}
         </AuthContext.Provider>
       </CartContext.Provider>

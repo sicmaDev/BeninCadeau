@@ -38,6 +38,14 @@ export async function POST(request: Request) {
       },
     });
 
+    // Créer une notification dynamique pour l'admin
+    await prisma.notification.create({
+      data: {
+        title: "Nouveau client",
+        message: `${name} (${email}) s'est inscrit sur la plateforme.`
+      }
+    }).catch(err => console.error('Failed to create admin notification:', err));
+
     // Émettre la session
     await setSessionCookie({
       userId: user.id,
