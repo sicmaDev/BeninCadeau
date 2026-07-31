@@ -19,7 +19,7 @@ interface PageProps {
   }>;
 }
 
-const WHATSAPP_NUMBER = "22997000000";
+const WHATSAPP_NUMBER = "2290163904000";
 
 export const dynamic = "force-dynamic";
 

@@ -186,7 +186,7 @@ export default function ProductPageClient({ product, relatedProducts }: Props) {
               {added ? "Ajouté !" : "Ajouter au panier"}
             </button>
             <a
-              href={`https://wa.me/22997000000?text=${whatsappMsg}`}
+              href={`https://wa.me/2290163904000?text=${whatsappMsg}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm bg-[#25D366] text-white hover:bg-[#22c55e] transition-colors"

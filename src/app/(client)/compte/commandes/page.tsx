@@ -577,7 +577,7 @@ export default function OrdersHistoryPage() {
                         <div className="flex flex-wrap items-center gap-3">
                           <CopyOrderNumberButton orderNumber={order.orderNumber} />
                           <a
-                            href={`https://wa.me/22997000000?text=${encodeURIComponent(`Bonjour Bénin Cadeau, je souhaite des informations sur ma commande ${order.orderNumber}`)}`}
+                            href={`https://wa.me/2290163904000?text=${encodeURIComponent(`Bonjour Bénin Cadeau, je souhaite des informations sur ma commande ${order.orderNumber}`)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#25D366] hover:text-[#22c55e] border border-emerald-100 hover:border-emerald-300 bg-white px-3.5 py-2.5 rounded-xl transition-all cursor-pointer shadow-xs"

@@ -581,7 +581,7 @@ export default function HomePageClient({ categories, products }: Props) {
           </div>
           <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
             <a
-              href="https://wa.me/22997000000"
+              href="https://wa.me/2290163904000"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-[#25D366] text-white font-bold px-5 py-3 rounded-xl hover:bg-[#22c55e] transition-colors text-sm"

@@ -5,7 +5,7 @@ import { MapPin, Phone, Mail, Send, CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 
-const WHATSAPP_NUMBER = "22997000000";
+const WHATSAPP_NUMBER = "2290163904000";
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -128,8 +128,8 @@ export default function ContactPage() {
                 {
                   icon: <Phone size={22} className="text-accent" />,
                   title: "Téléphone & WhatsApp",
-                  content: "+229 55 25 00 00",
-                  href: "tel:+22955250000",
+                  content: "+229 01 63 90 40 00",
+                  href: "tel:+2290163904000",
                 },
                 {
                   icon: <Mail size={22} className="text-accent" />,
