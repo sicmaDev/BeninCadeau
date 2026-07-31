@@ -108,7 +108,6 @@ export default function CheckoutPage() {
 
       const data = await res.json();
       if (res.ok) {
-        clearCart();
         // Rediriger vers l'URL de paiement FedaPay ou la page de confirmation locale
         window.location.href = data.checkoutUrl;
       } else {

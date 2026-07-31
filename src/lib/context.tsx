@@ -251,6 +251,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } else if (pathname.startsWith("/confirmation/")) {
       page = "confirmation";
       params.orderNumber = pathname.split("/").pop() || "";
+      if (searchParams.get("status") === "approved") {
+        dispatch({ type: "CLEAR" });
+      }
     } else if (pathname === "/compte") {
       page = "account";
     } else if (pathname === "/compte/commandes") {
