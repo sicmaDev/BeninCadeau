@@ -44,3 +44,6 @@ next-env.d.ts
 /rapport/
 *.pdf
 
+# template de référence (ne pas versionner - trop lourd)
+/ciseco-template-next/
+
