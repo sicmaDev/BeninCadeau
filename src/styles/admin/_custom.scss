@@ -1,0 +1,196 @@
+
+.overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0,0,0,.45);
+	backdrop-filter: blur(1px);
+	display: none;
+	z-index: 1030;
+}
+.overlay.show {
+	display: block;
+}
+.sidebar {
+	width: 240px;
+	background: $white;
+	transition: width .3s, left .3s;
+  border-right: 1px solid $gray-200;
+	height: 100vh;
+	position: fixed;
+	top: 0;
+	left: 0;
+	padding-top: 60px;
+	z-index: 1040;
+	.nav-link {
+		color: $gray-800;
+		padding: 8px 10px;
+		display: flex;
+		align-items: center;
+    font-size: 14px;
+    font-weight: 400;
+		gap: 12px;
+		white-space: nowrap;
+    margin: 1px 12px;
+    border-radius: 8px;
+
+		&:hover {
+			color: $primary;
+      background-color: rgba($primary, 0.095);
+		}
+			&.active {
+			color: $primary;
+      background-color: rgba($primary, 0.095);
+		}
+    .ti {
+      font-size: 18px;
+    }
+	}
+	.nav-text {
+		transition: opacity .2s;
+	}
+	.logo-area {
+		position: absolute;
+		top: 0;
+		left: 0;
+		height: 60px;
+		width: 100%;
+		background: $white;
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding-left: 17px;
+		color: $gray-800;
+    border-bottom: 1px solid $gray-200;
+	}
+}
+.sidebar.collapsed {
+	width: 60px;
+	.nav-link{
+		margin: 0 0px;
+		background-color: transparent;
+		padding: 8px 18px;
+	}
+	.nav-text {
+		display: none;
+	}
+	.logo-text {
+		display: none;
+	}
+}
+.topbar {
+	height: 60px;
+	margin-left: 240px;
+	// transition: margin-left .3s;
+}
+.topbar.full {
+	margin-left: 60px;
+}
+.content {
+	margin-left: 240px;
+	// transition: margin-left .3s;
+	// padding: 20px;
+}
+.content.full {
+	margin-left: 60px;
+}
+.admin-footer {
+	position: fixed !important;
+	bottom: 0 !important;
+	right: 0 !important;
+	left: 240px !important;
+	height: 70px !important;
+	z-index: 1020 !important;
+	border-top: 1px solid $gray-200 !important;
+	background: $white !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	transition: left .3s !important;
+}
+.content.full .admin-footer {
+	left: 60px !important;
+}
+@media (max-width: 992px) {
+	.admin-footer {
+		left: 0 !important;
+	}
+}
+@media (max-width: 992px) {
+	.sidebar {
+		left: -240px;
+	}
+	.sidebar.mobile-show {
+		left: 0;
+	}
+	.topbar {
+		margin-left: 0 !important;
+		width: 100% !important;
+	}
+	.content {
+		margin-left: 0 !important;
+	}
+}
+
+.dropdown-menu-md {
+	min-width: 320px !important;
+}
+
+@import "./avatar";
+@import "./button";
+@import "./icon-shape";
+@import "./utilities";
+
+// ─── Classes de statuts commandes (couleurs d'origine, indépendantes du thème) ───
+// Ces classes préservent le vert (#00C951) et le cyan (#00B8DB) pour les badges de statut
+
+$status-success: #00C951;
+$status-info:    #00B8DB;
+$status-warning: #F5A623;
+$status-danger:  #D4352B;
+$status-primary: #1A2B6D;
+
+.status-success-badge {
+  background-color: rgba($status-success, 0.15) !important;
+  color: $status-success !important;
+  border: 1px solid rgba($status-success, 0.4) !important;
+}
+
+.status-info-badge {
+  background-color: rgba($status-info, 0.15) !important;
+  color: darken($status-info, 8%) !important;
+  border: 1px solid rgba($status-info, 0.4) !important;
+}
+
+.status-warning-badge {
+  background-color: rgba($status-warning, 0.15) !important;
+  color: darken($status-warning, 12%) !important;
+  border: 1px solid rgba($status-warning, 0.4) !important;
+}
+
+.status-danger-badge {
+  background-color: rgba($status-danger, 0.15) !important;
+  color: $status-danger !important;
+  border: 1px solid rgba($status-danger, 0.4) !important;
+}
+
+.status-primary-badge {
+  background-color: rgba($status-primary, 0.12) !important;
+  color: $status-primary !important;
+  border: 1px solid rgba($status-primary, 0.3) !important;
+}
+
+// ─── Toasts d'erreur personnalisés (Jaune principal rgb(245, 166, 35) / #F5A623) ───
+.toast-warning-custom {
+  background-color: rgba(245, 166, 35, 0.1) !important;
+  border-color: rgb(245, 166, 35) !important;
+}
+
+.toast-warning-solid {
+  background-color: rgb(245, 166, 35) !important;
+  border-color: rgb(245, 166, 35) !important;
+  color: #ffffff !important;
+}
+
+.text-warning-custom {
+  color: rgb(245, 166, 35) !important;
+}
