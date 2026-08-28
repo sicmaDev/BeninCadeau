@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../../utils/db';
 import { getCurrentUser } from '../../../utils/auth';
 import { OrderStatus } from '@prisma/client';
@@ -142,7 +143,7 @@ export async function POST(req: Request) {
     const createdOrder = await prisma.$transaction(async (tx) => {
       // Mettre à jour le profil de l'utilisateur s'il y a de nouvelles informations
       if (user) {
-        const profileUpdate: any = {};
+        const profileUpdate: Prisma.UserUpdateInput = {};
         if (!user.phone && clientPhone) {
           profileUpdate.phone = clientPhone;
         }

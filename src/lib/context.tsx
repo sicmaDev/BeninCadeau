@@ -232,7 +232,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Déduire l'état du routeur local à partir du pathname de Next.js
   useEffect(() => {
     let page: PageName = "home";
-    let params: Record<string, string> = {};
+    const params: Record<string, string> = {};
 
     if (pathname === "/") {
       page = "home";

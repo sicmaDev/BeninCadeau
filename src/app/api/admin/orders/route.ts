@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '../../../../utils/db';
 import { getCurrentUser } from '../../../../utils/auth';
 import { sendOrderStatusUpdateEmail } from '../../../../utils/emails';
-import { OrderStatus } from '@prisma/client';
+import { Prisma, OrderStatus } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +20,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status');
 
-    const whereClause: any = {};
+    const whereClause: Prisma.OrderWhereInput = {};
     if (status) {
       whereClause.status = status as OrderStatus;
     }

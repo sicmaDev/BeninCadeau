@@ -56,11 +56,11 @@ export default function AdminProductsPage() {
         let result = freshProducts;
         if (selectedCategory !== 'ALL') {
           const catId = parseInt(selectedCategory, 10);
-          result = result.filter((p: any) => p.categoryId === catId);
+          result = result.filter((p) => p.categoryId === catId);
         }
         if (searchQuery.trim() !== '') {
           const q = searchQuery.toLowerCase();
-          result = result.filter((p: any) => 
+          result = result.filter((p) =>
             p.name.toLowerCase().includes(q) || 
             p.description.toLowerCase().includes(q) || 
             p.category.name.toLowerCase().includes(q)

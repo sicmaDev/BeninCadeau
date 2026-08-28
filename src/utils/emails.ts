@@ -6,6 +6,23 @@ const user = process.env.SMTP_USER;
 const pass = process.env.SMTP_PASS;
 const fromEmail = process.env.SMTP_FROM || 'noreply@benincadeau.com';
 
+type EmailOrder = {
+  orderNumber: string;
+  clientName: string;
+  clientEmail: string;
+  clientPhone: string;
+  shippingAddress: string;
+  shippingFee: number;
+  totalAmount: number;
+};
+
+type EmailItem = {
+  name: string;
+  quantity: number;
+  price: number;
+  customizationMessage?: string | null;
+};
+
 function getTransporter() {
   if (!user || user.includes('remplacez_par')) {
     console.warn("SMTP credentials are not configured in .env. Skipping actual email delivery.");
@@ -22,7 +39,7 @@ function getTransporter() {
   });
 }
 
-export async function sendOrderConfirmationEmail(order: any, items: any[]) {
+export async function sendOrderConfirmationEmail(order: EmailOrder, items: EmailItem[]) {
   const transporter = getTransporter();
   if (!transporter) return;
 
@@ -120,7 +137,7 @@ export async function sendOrderConfirmationEmail(order: any, items: any[]) {
   }
 }
 
-export async function sendPaymentConfirmationEmail(order: any) {
+export async function sendPaymentConfirmationEmail(order: EmailOrder) {
   const transporter = getTransporter();
   if (!transporter) return;
 
@@ -203,7 +220,7 @@ export async function sendOtpEmail(email: string, otp: string) {
   }
 }
 
-export async function sendOrderStatusUpdateEmail(order: any, oldStatus: string, newStatus: string) {
+export async function sendOrderStatusUpdateEmail(order: EmailOrder, oldStatus: string, newStatus: string) {
   const transporter = getTransporter();
   if (!transporter) return;
 
@@ -267,7 +284,7 @@ export async function sendOrderStatusUpdateEmail(order: any, oldStatus: string, 
   }
 }
 
-export async function sendAdminNewOrderEmail(order: any, items: any[]) {
+export async function sendAdminNewOrderEmail(order: EmailOrder, items: EmailItem[]) {
   const transporter = getTransporter();
   if (!transporter) return;
 

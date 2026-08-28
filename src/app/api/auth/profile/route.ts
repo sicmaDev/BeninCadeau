@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../../../utils/db';
 import { getCurrentUser, comparePassword, hashPassword, setSessionCookie } from '../../../../utils/auth';
 
@@ -42,7 +43,7 @@ export async function PUT(req: Request) {
       }
     }
 
-    const dataToUpdate: any = {
+    const dataToUpdate: Prisma.UserUpdateInput = {
       name: name.trim(),
       email: email.trim().toLowerCase(),
       phone: phone ? phone.trim() : null,

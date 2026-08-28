@@ -1,14 +1,29 @@
-import { Product as ClientProduct } from "@/lib/context";
+import type { Product as ClientProduct } from '@/lib/context';
 
-export function mapDbProductToClientProduct(product: any): ClientProduct {
+type DbProduct = {
+  id: number;
+  slug: string;
+  name: string;
+  description: string;
+  price: number;
+  images: unknown;
+  category?: { slug: string } | null;
+  stock: number;
+  estimatedDelivery: string;
+  isCustomizable: boolean;
+  active: boolean;
+};
+
+export function mapDbProductToClientProduct(product: DbProduct): ClientProduct {
   let images: string[] = [];
   try {
     if (typeof product.images === "string") {
-      images = JSON.parse(product.images);
+      const parsed: unknown = JSON.parse(product.images);
+      images = Array.isArray(parsed) ? parsed.filter((image): image is string => typeof image === "string") : [];
     } else if (Array.isArray(product.images)) {
-      images = product.images;
+      images = product.images.filter((image): image is string => typeof image === "string");
     }
-  } catch (e) {
+  } catch {
     images = ["/1-19.png"];
   }
 

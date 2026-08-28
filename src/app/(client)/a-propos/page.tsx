@@ -51,10 +51,10 @@ export default function AboutPage() {
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="font-display text-2xl sm:text-3xl font-semibold text-primary mb-4">
-            L'art d'offrir, <span className="text-accent italic">made in Bénin</span>
+            L&apos;art d&apos;offrir, <span className="text-accent italic">made in Bénin</span>
           </h2>
           <p className="text-foreground/80 text-lg leading-relaxed font-light">
-            Bénin Cadeau est née d'une conviction simple : offrir un cadeau doit être une expérience agréable,
+            Bénin Cadeau est née d&apos;une conviction simple : offrir un cadeau doit être une expérience agréable,
             accessible et mémorable. Depuis Cotonou, nous aidons des centaines de personnes à exprimer
             leur affection à travers des cadeaux soigneusement choisis.
           </p>
@@ -114,16 +114,16 @@ export default function AboutPage() {
             <div className="space-y-4 text-muted-foreground text-sm leading-relaxed">
               <p>
                 Chez Bénin Cadeau, nous croyons que chaque cadeau est une occasion de créer un souvenir
-                durable. C'est pourquoi nous sélectionsons soigneusement nos produits pour garantir
+                durable. C&apos;est pourquoi nous sélectionsons soigneusement nos produits pour garantir
                 qualité, originalité et signification.
               </p>
               <p>
-                Notre équipe passionnée se charge de l'emballage et de la livraison de vos cadeaux
+                Notre équipe passionnée se charge de l&apos;emballage et de la livraison de vos cadeaux
                 avec le plus grand soin, pour que chaque boîte déballée soit un moment de joie pure.
               </p>
               <p>
                 Nous proposons aussi des solutions sur mesure pour les entreprises — goodies personnalisés,
-                cadeaux d'entreprise et récompenses collaborateurs.
+                cadeaux d&apos;entreprise et récompenses collaborateurs.
               </p>
             </div>
             <button

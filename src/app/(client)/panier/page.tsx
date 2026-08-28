@@ -100,7 +100,7 @@ export default function CartPage() {
 
                 {personalMessage && (
                   <div className="bg-secondary rounded-lg px-3 py-2 text-xs text-foreground mb-2 italic">
-                    ✏️ "{personalMessage}"
+                    ✏️ &quot;{personalMessage}&quot;
                   </div>
                 )}
 
@@ -152,7 +152,7 @@ export default function CartPage() {
               )}
               <div className="flex justify-between text-muted-foreground">
                 <span>Livraison</span>
-                <span>Calculée à l'étape suivante</span>
+                <span>Calculée à l&apos;étape suivante</span>
               </div>
               <div className="border-t border-border pt-3 flex justify-between font-bold text-lg">
                 <span className="text-foreground">Total estimé</span>

@@ -68,11 +68,11 @@ export default function AdminOrdersPage() {
         // Apply initial filters
         let result = freshOrders;
         if (selectedStatus !== 'ALL') {
-          result = result.filter((o: any) => o.status === selectedStatus);
+          result = result.filter((o) => o.status === selectedStatus);
         }
         if (searchQuery.trim() !== '') {
           const q = searchQuery.toLowerCase();
-          result = result.filter((o: any) => 
+          result = result.filter((o) =>
             o.orderNumber.toLowerCase().includes(q) ||
             o.clientName.toLowerCase().includes(q) ||
             o.clientEmail.toLowerCase().includes(q)

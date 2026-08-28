@@ -21,6 +21,27 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
 
 const ITEMS_PER_PAGE = 5;
 
+type ClientOrderItem = {
+  quantity: number;
+  price: number;
+  product: { name: string };
+};
+
+type ClientOrder = {
+  id: number;
+  orderNumber: string;
+  status: string;
+  createdAt: string;
+  totalAmount: number;
+  clientName: string;
+  shippingAddress: string;
+  shippingZone?: { name: string } | null;
+  clientPhone: string;
+  clientEmail: string;
+  transactionId?: string | null;
+  orderItems: ClientOrderItem[];
+};
+
 export default function OrdersHistoryPage() {
   const { user, login, register } = useAuth();
   const { navigate } = useRouter();
@@ -41,10 +62,10 @@ export default function OrdersHistoryPage() {
   const [loadingOtp, setLoadingOtp] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [guestVerified, setGuestVerified] = useState(false);
-  const [guestOrders, setGuestOrders] = useState<any[]>([]);
+  const [guestOrders, setGuestOrders] = useState<ClientOrder[]>([]);
 
   // Authenticated user orders state
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<ClientOrder[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
 
@@ -184,7 +205,7 @@ export default function OrdersHistoryPage() {
                   <img src="/1-19.png" alt="Bénin Cadeau" className="w-16 h-16 object-contain" />
                 </button>
                 <h1 className="font-display text-2xl font-bold text-primary tracking-tight">Suivre mes commandes</h1>
-                <p className="text-muted-foreground text-sm mt-1.5">Saisissez l'e-mail utilisé pour recevoir un code temporaire</p>
+                <p className="text-muted-foreground text-sm mt-1.5">Saisissez l&apos;e-mail utilisé pour recevoir un code temporaire</p>
               </div>
 
               {otpError && (
@@ -275,7 +296,7 @@ export default function OrdersHistoryPage() {
                   onClick={() => setGuestMode(false)}
                   className="w-full bg-white hover:bg-slate-100 text-slate-700 font-bold py-3 rounded-xl border border-slate-200 text-sm transition-colors cursor-pointer text-center"
                 >
-                  S'inscrire ou se connecter
+                  S&apos;inscrire ou se connecter
                 </button>
               </div>
             </div>
@@ -297,7 +318,7 @@ export default function OrdersHistoryPage() {
               <img src="/1-19.png" alt="Bénin Cadeau" className="w-16 h-16 object-contain" />
             </button>
             <h1 className="font-display text-2xl font-bold text-primary tracking-tight">Mes Commandes</h1>
-            <p className="text-muted-foreground text-sm mt-1.5 font-medium">Connectez-vous pour consulter votre historique d'achats</p>
+            <p className="text-muted-foreground text-sm mt-1.5 font-medium">Connectez-vous pour consulter votre historique d&apos;achats</p>
           </div>
 
           {/* Tabs */}
@@ -541,7 +562,7 @@ export default function OrdersHistoryPage() {
                   <div className="px-5 pb-5 border-t border-slate-100 pt-4 bg-slate-50/20">
                     <h4 className="text-xs font-bold text-primary mb-2.5 uppercase tracking-wider">Articles</h4>
                     <div className="space-y-2">
-                      {order.orderItems.map((item: any, i: number) => (
+                      {order.orderItems.map((item: ClientOrderItem, i: number) => (
                         <div key={i} className="flex justify-between items-center text-sm">
                           <div className="flex items-center gap-2">
                             <span className="text-muted-foreground line-clamp-1">{item.product.name}</span>
@@ -639,7 +660,7 @@ export default function OrdersHistoryPage() {
           <div className="text-center py-16 bg-white border border-slate-200/80 rounded-2xl shadow-sm text-slate-500">
             <p className="text-5xl mb-4">🎁</p>
             <h3 className="font-display text-lg font-bold text-primary mb-1">Aucune commande trouvée</h3>
-            <p className="text-sm text-slate-400 max-w-sm mx-auto mb-6">Aucune commande trouvée pour l'adresse e-mail renseignée.</p>
+            <p className="text-sm text-slate-400 max-w-sm mx-auto mb-6">Aucune commande trouvée pour l&apos;adresse e-mail renseignée.</p>
             <button 
               onClick={() => navigate("catalogue")}
               className="bg-primary text-white font-bold px-5 py-3 rounded-xl text-xs hover:bg-primary/90 transition-all cursor-pointer shadow-md"

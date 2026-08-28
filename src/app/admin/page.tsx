@@ -402,7 +402,7 @@ export default function AdminDashboardPage() {
                 <select
                   className="form-select form-select-sm"
                   value={salesInterval}
-                  onChange={(e) => setSalesInterval(e.target.value as any)}
+                  onChange={(e) => setSalesInterval(e.target.value as "week" | "month" | "year")}
                 >
                   <option value="ANNUELLE">Comparaison annuelle</option>
                   <option value="MENSUELLE">Comparaison mensuelle</option>
@@ -430,7 +430,7 @@ export default function AdminDashboardPage() {
                 <select
                   className="form-select form-select-sm"
                   value={customerInterval}
-                  onChange={(e) => setCustomerInterval(e.target.value as any)}
+                  onChange={(e) => setCustomerInterval(e.target.value as "week" | "month" | "year")}
                 >
                   <option value="GLOBAL">Tous les clients</option>
                   <option value="YEAR">Cette année</option>

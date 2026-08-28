@@ -184,7 +184,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
             Paiement en attente
           </h1>
           <p className="text-muted-foreground text-lg mb-8">
-            Merci {name.split(" ")[0]}, votre commande est bien enregistrée mais le paiement n'est pas encore finalisé ⏳. Un e-mail de confirmation de commande a été envoyé à <strong>{email}</strong>.
+            Merci {name.split(" ")[0]}, votre commande est bien enregistrée mais le paiement n&apos;est pas encore finalisé ⏳. Un e-mail de confirmation de commande a été envoyé à <strong>{email}</strong>.
           </p>
 
           <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl p-5 mb-8 text-left text-sm space-y-2 shadow-sm">
@@ -193,7 +193,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
               <span>Action requise pour valider votre commande</span>
             </div>
             <p className="text-amber-800 leading-relaxed">
-              Votre règlement via FedaPay n'a pas été complété. Si vous avez fermé la fenêtre de paiement ou si la transaction s'est interrompue, cliquez sur le bouton ci-dessous pour finaliser votre paiement.
+              Votre règlement via FedaPay n&apos;a pas été complété. Si vous avez fermé la fenêtre de paiement ou si la transaction s&apos;est interrompue, cliquez sur le bouton ci-dessous pour finaliser votre paiement.
             </p>
           </div>
         </>
@@ -208,7 +208,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
             Paiement non effectué
           </h1>
           <p className="text-muted-foreground text-lg mb-8">
-            Désolé {name.split(" ")[0]}, le paiement de votre commande n'a pas pu aboutir ou a été annulé ❌
+            Désolé {name.split(" ")[0]}, le paiement de votre commande n&apos;a pas pu aboutir ou a été annulé ❌
           </p>
 
           <div className="bg-red-50 border border-red-200 text-red-900 rounded-2xl p-5 mb-8 text-left text-sm space-y-2 shadow-sm">
@@ -217,7 +217,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
               <span>Paiement interrompu ou décliné</span>
             </div>
             <p className="text-red-800 leading-relaxed">
-              La transaction FedaPay a échoué ou a été annulée. Aucun débit n'a été effectué sur votre compte. Vous pouvez réessayer de régler votre commande.
+              La transaction FedaPay a échoué ou a été annulée. Aucun débit n&apos;a été effectué sur votre compte. Vous pouvez réessayer de régler votre commande.
             </p>
           </div>
         </>
@@ -260,8 +260,8 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
             Suivi de votre commande
           </h3>
           <p className="text-sm text-slate-600 leading-relaxed mb-4">
-            Pour suivre l'avancement de votre commande en temps réel et en toute tranquillité, 
-            veuillez <strong>copier le numéro de commande ci-dessus</strong> (en cliquant sur l'icône à côté du code) 
+            Pour suivre l&apos;avancement de votre commande en temps réel et en toute tranquillité,
+            veuillez <strong>copier le numéro de commande ci-dessus</strong> (en cliquant sur l&apos;icône à côté du code)
             et le coller sur notre page de suivi.
             <br />
             <span className="text-primary font-semibold">💡 Pensez à copier ce code et à le conserver précieusement.</span>
@@ -299,7 +299,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
           className="inline-flex items-center gap-2 bg-[#25D366] text-white font-bold px-5 py-3 rounded-xl hover:bg-[#22c55e] transition-colors text-sm cursor-pointer shadow-sm"
         >
           <Phone size={16} />
-          Contacter l'équipe sur WhatsApp
+          Contacter l&apos;équipe sur WhatsApp
         </a>
       </div>
 
@@ -315,7 +315,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
           href="/"
           className="inline-flex items-center justify-center gap-2 bg-secondary text-primary font-semibold px-6 py-3 rounded-xl hover:bg-accent hover:text-primary transition-colors text-sm cursor-pointer"
         >
-          Retour à l'accueil
+          Retour à l&apos;accueil
         </Link>
       </div>
     </div>

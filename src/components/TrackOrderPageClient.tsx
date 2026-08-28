@@ -164,7 +164,7 @@ export default function TrackOrderPageClient() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="text-accent text-sm sm:text-base md:text-lg font-medium max-w-xl mx-auto opacity-90"
           >
-            Connaître l'état de votre livraison en temps réel
+            Connaître l&apos;état de votre livraison en temps réel
           </motion.p>
         </div>
       </section>

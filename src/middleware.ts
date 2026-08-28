@@ -14,7 +14,9 @@ function base64urlDecode(str: string): string {
 }
 
 // Verify JWT signature using Web Crypto API (Edge compatible)
-async function verifyJWT(token: string, secret: string): Promise<any | null> {
+type JwtPayload = { role?: string; userId?: number; email?: string };
+
+async function verifyJWT(token: string, secret: string): Promise<JwtPayload | null> {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return null;

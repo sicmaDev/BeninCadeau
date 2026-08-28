@@ -5,7 +5,9 @@ import { Loader2, CheckSquare, Bell } from "lucide-react";
 import { useAdminToast } from "../layout";
 
 export default function AdminNotificationsPage() {
-  const [notifications, setNotifications] = useState<any[]>([]);
+  type AdminNotification = { id: number; title: string; message: string; isRead: boolean; createdAt: string };
+
+  const [notifications, setNotifications] = useState<AdminNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const { showToast } = useAdminToast();
 

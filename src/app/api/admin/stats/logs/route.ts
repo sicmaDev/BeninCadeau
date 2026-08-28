@@ -55,7 +55,7 @@ export async function GET() {
     });
 
     // Formatage unifié
-    const logs: any[] = [];
+    const logs: Array<Record<string, unknown>> = [];
 
     users.forEach((u) => {
       logs.push({

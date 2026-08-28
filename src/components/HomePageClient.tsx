@@ -136,7 +136,7 @@ function HeroCarousel() {
             className="flex flex-wrap gap-3"
           >
             <button
-              onClick={() => navigate(slide.ctaPage, (slide as any).ctaParams)}
+              onClick={() => navigate(slide.ctaPage, (slide as { ctaParams?: Record<string, string> }).ctaParams)}
               className="group inline-flex items-center gap-2 bg-accent text-primary font-bold px-7 py-3.5 rounded-xl hover:bg-white transition-colors text-sm shadow-lg cursor-pointer"
             >
               {slide.cta}

@@ -73,7 +73,7 @@ export default function ConnexionPage() {
             <img src="/1-19.png" alt="Bénin Cadeau" className="w-16 h-16 object-contain" />
           </button>
           <h1 className="font-display text-2xl font-bold text-primary tracking-tight">Mon Compte</h1>
-          <p className="text-muted-foreground text-xs mt-1.5">Connectez-vous à l'espace client Bénin Cadeau</p>
+          <p className="text-muted-foreground text-xs mt-1.5">Connectez-vous à l&apos;espace client Bénin Cadeau</p>
         </div>
 
         {/* Tabs */}

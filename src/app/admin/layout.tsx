@@ -25,6 +25,8 @@ interface ToastContextType {
 }
 
 // Création du Contexte
+type AdminNotification = { id: number; title: string; message: string; isRead: boolean; createdAt: string };
+
 const ToastContext = createContext<ToastContextType>({
   showToast: () => {},
 });
@@ -54,7 +56,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   // Notifications dynamiques
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<AdminNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
   const showToast = (message: string, type: "success" | "error") => {
@@ -72,7 +74,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         const data = await res.json();
         const list = data.notifications || [];
         setNotifications(list);
-        setUnreadCount(list.filter((n: any) => !n.isRead).length);
+        setUnreadCount(list.filter((n) => !n.isRead).length);
       }
     } catch (err) {
       console.error("Failed to load notifications", err);

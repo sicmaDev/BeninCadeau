@@ -22,7 +22,7 @@ Ajout des dépendances Prisma :
 #### [NEW] [.env](file:///home/mr-lazare/Documents/BeninCadeau/benin-cadeau-next/.env)
 Création du fichier d'environnement local contenant la chaîne de connexion MySQL :
 ```env
-DATABASE_URL="mysql://lazare:peya123@localhost:3306/benin-cadeau"
+DATABASE_URL="mysql://utilisateur:mot_de_passe@localhost:3306/benin-cadeau"
 ```
 
 ---

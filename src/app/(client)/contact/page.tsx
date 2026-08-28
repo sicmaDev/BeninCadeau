@@ -113,7 +113,7 @@ export default function ContactPage() {
             <div>
               <h2 className="font-display text-3xl font-semibold text-primary mb-4">Nos coordonnées</h2>
               <p className="text-muted-foreground text-sm leading-relaxed mb-6">
-                N'hésitez pas à nous joindre par téléphone, e-mail, ou à passer directement nous voir en agence.
+                N&apos;hésitez pas à nous joindre par téléphone, e-mail, ou à passer directement nous voir en agence.
                 Nous sommes disponibles du lundi au samedi de 8h à 20h.
               </p>
             </div>
@@ -196,7 +196,7 @@ export default function ContactPage() {
                 </div>
                 <h3 className="font-display text-2xl font-semibold text-primary">Message envoyé !</h3>
                 <p className="text-muted-foreground text-sm max-w-sm mx-auto leading-relaxed">
-                  Merci pour votre message. Un membre de l'équipe Bénin Cadeau reviendra vers vous très rapidement.
+                  Merci pour votre message. Un membre de l&apos;équipe Bénin Cadeau reviendra vers vous très rapidement.
                 </p>
               </motion.div>
             ) : (
