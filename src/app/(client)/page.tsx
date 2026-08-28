@@ -11,11 +11,14 @@ export default async function Page() {
     orderBy: { displayOrder: "asc" },
   });
 
-  // Récupérer les 8 derniers produits actifs pour la page d'accueil
+  // Récupérer les 8 produits les plus vendus / actifs pour la page d'accueil
   const dbProducts = await prisma.product.findMany({
     where: { active: true },
     take: 8,
-    orderBy: { createdAt: "desc" },
+    orderBy: [
+      { orderItems: { _count: "desc" } },
+      { createdAt: "desc" },
+    ],
     include: {
       category: {
         select: {

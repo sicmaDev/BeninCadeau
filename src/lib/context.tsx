@@ -46,6 +46,8 @@ interface RouterState {
 
 interface RouterContextValue extends RouterState {
   navigate: (page: PageName, params?: Record<string, string>) => void;
+  isNavigating: boolean;
+  setIsNavigating: (isNavigating: boolean) => void;
 }
 
 const RouterContext = createContext<RouterContextValue | null>(null);
@@ -175,6 +177,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
 
   const [routerState, setRouterState] = useState<RouterState>({ page: "home", params: {} });
+  const [isNavigating, setIsNavigating] = useState(false);
   const [cart, dispatch] = useReducer(cartReducer, { items: [], promoCode: "", promoDiscount: 0 });
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -267,9 +270,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
 
     setRouterState({ page, params });
+    setIsNavigating(false);
   }, [pathname, searchParams]);
 
   const navigate = useCallback((page: PageName, params: Record<string, string> = {}) => {
+    setIsNavigating(true);
     let path = "/";
     if (page === "catalogue") {
       const query = new URLSearchParams(params).toString();
@@ -411,7 +416,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <RouterContext.Provider value={{ ...routerState, navigate }}>
+    <RouterContext.Provider value={{ ...routerState, navigate, isNavigating, setIsNavigating }}>
       <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQty, clearCart, applyPromo, cartCount, subtotal }}>
         <AuthContext.Provider value={{ user, loading, updateUser, login, register, logout }}>
           {children}
