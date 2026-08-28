@@ -4,6 +4,7 @@ import { AppProvider } from "@/lib/context";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import NavigationLoader from "@/components/NavigationLoader";
 import { Toaster } from "sonner";
 import { Suspense } from "react";
 import { usePathname } from "next/navigation";
@@ -26,6 +27,7 @@ export default function ClientLayout({
       </div>
     }>
       <AppProvider>
+        <NavigationLoader />
         <div className="min-h-screen flex flex-col bg-background font-body">
           {!isLoginPage && <Navbar />}
           <main className="flex-1">
