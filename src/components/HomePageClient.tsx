@@ -94,7 +94,7 @@ function HeroCarousel() {
         </div>
       ))}
 
-      <div className="relative z-10 h-full max-w-7xl mx-auto px-12 sm:px-20 md:px-24 flex flex-col justify-center">
+      <div className="relative z-10 h-full max-w-7xl mx-auto px-6 sm:px-16 md:px-24 flex flex-col justify-center">
         <div className="max-w-2xl">
           <motion.span
             key={`tag-${current}`}
@@ -112,7 +112,7 @@ function HeroCarousel() {
             initial={{ opacity: 0, y: 30, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ type: "spring", stiffness: 100, damping: 12, delay: 0.15 }}
-            className="font-display text-4xl sm:text-5xl lg:text-[3.5rem] text-white font-semibold leading-[1.15] mb-5"
+            className="font-display text-3xl sm:text-5xl lg:text-[3.5rem] text-white font-semibold leading-[1.15] mb-5"
           >
             {slide.title}{" "}
             <em className="text-accent not-italic">{slide.accent}</em>
@@ -123,7 +123,7 @@ function HeroCarousel() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="text-white/75 text-base sm:text-lg leading-relaxed mb-9 max-w-lg"
+            className="text-white/75 text-sm sm:text-lg leading-relaxed mb-9 max-w-lg"
           >
             {slide.sub}
           </motion.p>
@@ -133,11 +133,11 @@ function HeroCarousel() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ type: "spring", stiffness: 150, damping: 10, delay: 0.45 }}
-            className="flex flex-wrap gap-3"
+            className="flex flex-col sm:flex-row gap-3"
           >
             <button
               onClick={() => navigate(slide.ctaPage, (slide as any).ctaParams)}
-              className="group inline-flex items-center gap-2 bg-accent text-primary font-bold px-7 py-3.5 rounded-xl hover:bg-white transition-colors text-sm shadow-lg cursor-pointer"
+              className="group inline-flex items-center justify-center gap-2 bg-accent text-primary font-bold px-7 py-3.5 rounded-xl hover:bg-white transition-colors text-sm shadow-lg cursor-pointer"
             >
               {slide.cta}
               <ArrowRight size={17} className="group-hover:translate-x-1 transition-transform" />
@@ -146,7 +146,7 @@ function HeroCarousel() {
               href="https://wa.me/22955250000"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 border border-white/30 text-white font-semibold px-6 py-3.5 rounded-xl hover:bg-white/10 transition-colors text-sm backdrop-blur-sm"
+              className="inline-flex items-center justify-center gap-2 border border-white/30 text-white font-semibold px-6 py-3.5 rounded-xl hover:bg-white/10 transition-colors text-sm backdrop-blur-sm"
             >
               <Phone size={15} /> Nous écrire
             </a>
@@ -155,11 +155,11 @@ function HeroCarousel() {
       </div>
 
       {/* Arrow controls */}
-      <button onClick={prev} className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/25 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-black/40 transition-colors cursor-pointer" aria-label="Précédent">
-        <ChevronLeft size={20} />
+      <button onClick={prev} className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/35 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-black/50 transition-colors cursor-pointer" aria-label="Précédent">
+        <ChevronLeft size={18} className="sm:w-5 sm:h-5" />
       </button>
-      <button onClick={next} className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/25 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-black/40 transition-colors cursor-pointer" aria-label="Suivant">
-        <ChevronRight size={20} />
+      <button onClick={next} className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/35 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-black/50 transition-colors cursor-pointer" aria-label="Suivant">
+        <ChevronRight size={18} className="sm:w-5 sm:h-5" />
       </button>
 
       {/* Slide dots */}
@@ -270,6 +270,89 @@ export function getCategoryIcon(slug: string, name: string) {
   if (text.includes("valentin") || text.includes("amour") || text.includes("love")) return Heart;
   if (text.includes("fêt") || text.includes("celebration") || text.includes("noel") || text.includes("party")) return PartyPopper;
   return Gift;
+}
+
+function PopularProductsMobileCarousel({ products }: { products: Product[] }) {
+  // Sur mobile, afficher exactement les 4 produits les plus vendus
+  const mobileProducts = products.slice(0, 4);
+  const [api, setApi] = useState<CarouselApi | null>(null);
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    if (!api) return;
+
+    const onSelect = () => {
+      setCurrent(api.selectedScrollSnap());
+    };
+
+    api.on("select", onSelect);
+    onSelect();
+
+    const interval = setInterval(() => {
+      api.scrollNext();
+    }, 3500);
+
+    return () => {
+      api.off("select", onSelect);
+      clearInterval(interval);
+    };
+  }, [api]);
+
+  return (
+    <div className="sm:hidden relative">
+      <Carousel
+        opts={{
+          loop: true,
+          align: "start",
+        }}
+        setApi={setApi}
+        className="w-full"
+      >
+        <CarouselContent className="-ml-0">
+          {mobileProducts.map((product) => (
+            <CarouselItem key={product.id} className="pl-0 basis-full shrink-0 grow-0">
+              <div className="px-1">
+                <ProductCard product={product} />
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+
+        {/* Navigation & Puces pour le carrousel mobile */}
+        <div className="flex items-center justify-between mt-5 px-3">
+          <button
+            onClick={() => api?.scrollPrev()}
+            className="w-9 h-9 rounded-full bg-white border border-border shadow-sm flex items-center justify-center text-primary active:scale-90 transition-transform cursor-pointer"
+            aria-label="Produit précédent"
+          >
+            <ChevronLeft size={18} />
+          </button>
+
+          {/* Dots Indicator (4 puces) */}
+          <div className="flex items-center gap-2">
+            {mobileProducts.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => api?.scrollTo(idx)}
+                className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                  current === idx ? "w-7 bg-accent" : "w-2.5 bg-primary/20 hover:bg-primary/40"
+                }`}
+                aria-label={`Aller au produit ${idx + 1}`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={() => api?.scrollNext()}
+            className="w-9 h-9 rounded-full bg-white border border-border shadow-sm flex items-center justify-center text-primary active:scale-90 transition-transform cursor-pointer"
+            aria-label="Produit suivant"
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
+      </Carousel>
+    </div>
+  );
 }
 
 export default function HomePageClient({ categories, products }: Props) {
@@ -451,21 +534,25 @@ export default function HomePageClient({ categories, products }: Props) {
       </section>
 
       {/* ── Popular Products ────────────────────────────────────────────────── */}
-      <section className="bg-muted/50 py-16">
+      <section className="bg-muted/50 py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-end justify-between mb-10">
+          <div className="flex items-end justify-between mb-8 sm:mb-10">
             <div>
-              <p className="text-accent font-semibold text-sm uppercase tracking-wider mb-2">Nos coups de cœur</p>
-              <h2 className="font-display text-3xl sm:text-4xl font-semibold text-primary">Produits populaires</h2>
+              <p className="text-accent font-semibold text-xs sm:text-sm uppercase tracking-wider mb-1.5 sm:mb-2">Nos coups de cœur</p>
+              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold text-primary">Produits populaires</h2>
             </div>
             <button
               onClick={() => navigate("catalogue")}
-              className="hidden sm:flex items-center gap-2 text-primary font-semibold text-sm hover:text-accent transition-colors"
+              className="hidden sm:flex items-center gap-2 text-primary font-semibold text-sm hover:text-accent transition-colors cursor-pointer"
             >
               Tout voir <ArrowRight size={16} />
             </button>
           </div>
 
+          {/* Carrousel Mobile Auto-défilant (1 produit à la fois, 4 top ventes) */}
+          <PopularProductsMobileCarousel products={popular} />
+
+          {/* Grille Desktop / Tablette (produits populaires) */}
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -474,7 +561,7 @@ export default function HomePageClient({ categories, products }: Props) {
               hidden: {},
               visible: { transition: { staggerChildren: 0.08 } }
             }}
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
+            className="hidden sm:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
           >
             {popular.map((product) => (
               <motion.div
@@ -493,7 +580,7 @@ export default function HomePageClient({ categories, products }: Props) {
           <div className="text-center mt-8 sm:hidden">
             <button
               onClick={() => navigate("catalogue")}
-              className="inline-flex items-center gap-2 bg-primary text-white font-semibold px-6 py-3 rounded-xl hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center gap-2 bg-primary text-white font-semibold px-6 py-3 rounded-xl hover:bg-primary/90 transition-colors text-sm w-full justify-center active:scale-98"
             >
               Voir tout le catalogue <ArrowRight size={16} />
             </button>
