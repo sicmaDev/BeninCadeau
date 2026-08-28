@@ -466,6 +466,134 @@ function HowItWorksCarousel() {
   );
 }
 
+function CategoriesCarousel({
+  categories,
+  onNavigate,
+}: {
+  categories: Category[];
+  onNavigate: (slug: string) => void;
+}) {
+  const [api, setApi] = useState<CarouselApi | null>(null);
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    if (!api) return;
+
+    const onSelect = () => {
+      setCurrent(api.selectedScrollSnap());
+    };
+
+    api.on("select", onSelect);
+    onSelect();
+
+    const interval = setInterval(() => {
+      api.scrollNext();
+    }, 3500);
+
+    return () => {
+      api.off("select", onSelect);
+      clearInterval(interval);
+    };
+  }, [api]);
+
+  return (
+    <div className="relative">
+      <Carousel
+        opts={{
+          loop: true,
+          align: "start",
+        }}
+        setApi={setApi}
+        className="w-full"
+      >
+        <CarouselContent className="-ml-4 py-4">
+          {categories.map((cat) => {
+            const bgUrl =
+              CATEGORY_RESOURCES[cat.slug.toLowerCase()] ||
+              "https://images.unsplash.com/photo-1512909006721-3d6018887383?w=600&auto=format&fit=crop&q=80";
+
+            return (
+              <CarouselItem
+                key={cat.id}
+                className="pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
+              >
+                <motion.button
+                  onClick={() => onNavigate(cat.slug)}
+                  whileHover={{
+                    y: -8,
+                    scale: 1.02,
+                    boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 0 20px rgba(245, 166, 35, 0.4)",
+                  }}
+                  className="group flex flex-col items-center justify-center text-center p-6 rounded-3xl bg-card border border-border hover:border-accent transition-all duration-500 relative overflow-hidden cursor-pointer w-full h-[200px]"
+                >
+                  {/* Background Image with Zoom and dark gradient overlay */}
+                  <div className="absolute inset-0 z-0">
+                    <img
+                      src={bgUrl}
+                      alt={cat.name}
+                      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:rotate-1"
+                      draggable={false}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/25 group-hover:bg-black/60 transition-colors duration-500" />
+                  </div>
+
+                  {/* Content wrapper */}
+                  <div className="relative z-10 flex flex-col items-center justify-center h-full w-full">
+                    <span className="text-2xl mb-1.5">{cat.emoji}</span>
+                    <h3 className="font-display text-xl font-bold text-white group-hover:text-accent transition-colors duration-300 mb-1">
+                      {cat.name}
+                    </h3>
+                    <p className="text-white/80 text-xs leading-relaxed max-w-[220px] line-clamp-2">
+                      {cat.description || "Trouvez le cadeau parfait pour cette occasion."}
+                    </p>
+
+                    <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-accent opacity-90 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                      Découvrir <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  </div>
+                </motion.button>
+              </CarouselItem>
+            );
+          })}
+        </CarouselContent>
+
+        {/* Contrôles et puces de navigation */}
+        <div className="flex items-center justify-between mt-6 px-4 max-w-xs mx-auto">
+          <button
+            onClick={() => api?.scrollPrev()}
+            className="w-10 h-10 rounded-full bg-white border border-border shadow-sm flex items-center justify-center text-primary active:scale-95 transition-transform cursor-pointer hover:bg-accent hover:text-primary"
+            aria-label="Occasion précédente"
+          >
+            <ChevronLeft size={20} />
+          </button>
+
+          {/* Dots */}
+          <div className="flex items-center gap-2">
+            {categories.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => api?.scrollTo(idx)}
+                className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                  current === idx ? "w-8 bg-accent" : "w-2.5 bg-primary/20 hover:bg-primary/40"
+                }`}
+                aria-label={`Aller à l'occasion ${idx + 1}`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={() => api?.scrollNext()}
+            className="w-10 h-10 rounded-full bg-white border border-border shadow-sm flex items-center justify-center text-primary active:scale-95 transition-transform cursor-pointer hover:bg-accent hover:text-primary"
+            aria-label="Occasion suivante"
+          >
+            <ChevronRight size={20} />
+          </button>
+        </div>
+      </Carousel>
+    </div>
+  );
+}
+
 export default function HomePageClient({ categories, products }: Props) {
   const { navigate } = useRouter();
   const popular = products.slice(0, 8);
@@ -578,7 +706,7 @@ export default function HomePageClient({ categories, products }: Props) {
       </section>
 
       {/* ── Categories ─────────────────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20 overflow-hidden">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20 overflow-hidden">
         <div className="text-center mb-12">
           <p className="text-accent font-semibold text-sm uppercase tracking-wider mb-2">Parcourir par occasion</p>
           <h2 className="font-display text-3xl sm:text-4xl font-semibold text-primary mb-3">Choisissez votre occasion</h2>
@@ -587,61 +715,10 @@ export default function HomePageClient({ categories, products }: Props) {
           </p>
         </div>
 
-        <Carousel
-          opts={{
-            loop: true,
-            align: "start",
-          }}
-          setApi={setApi}
-          className="w-full"
-        >
-          <CarouselContent className="-ml-8 py-4">
-            {categories.map((cat) => {
-              const bgUrl = CATEGORY_RESOURCES[cat.slug.toLowerCase()] || "https://images.unsplash.com/photo-1512909006721-3d6018887383?w=600&auto=format&fit=crop&q=80";
-
-              return (
-                <CarouselItem key={cat.id} className="pl-8 basis-[312px] shrink-0">
-                  <motion.button
-                    onClick={() => navigate("catalogue", { category: cat.slug })}
-                    variants={categoryCardVariants}
-                    whileHover={{
-                      y: -8,
-                      scale: 1.02,
-                      boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 0 20px rgba(245, 166, 35, 0.4)",
-                      borderColor: "var(--accent)"
-                    }}
-                    className="group flex flex-col items-center justify-center text-center p-6 rounded-3xl bg-card border border-border hover:border-accent transition-all duration-500 relative overflow-hidden cursor-pointer w-[280px] h-[170px]"
-                  >
-                    {/* Background Image with Zoom, subtle rotation, and light dark overlay */}
-                    <div className="absolute inset-0 z-0">
-                      <img
-                        src={bgUrl}
-                        alt={cat.name}
-                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-115 group-hover:rotate-1"
-                        draggable={false}
-                      />
-                      <div className="absolute inset-0 bg-black/35 group-hover:bg-black/45 transition-colors duration-500" />
-                    </div>
-
-                    {/* Content wrapper */}
-                    <div className="relative z-10 flex flex-col items-center justify-center h-full w-full">
-                      <h3 className="font-display text-xl font-bold text-white group-hover:text-accent transition-colors duration-300 mb-2">
-                        {cat.name}
-                      </h3>
-                      <p className="text-white/80 text-sm leading-relaxed max-w-[240px] line-clamp-2">
-                        {cat.description || "Trouvez le cadeau parfait pour cette occasion."}
-                      </p>
-
-                      <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-accent opacity-0 group-hover:opacity-100 translate-y-3 group-hover:translate-y-0 transition-all duration-300">
-                        Découvrir <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
-                      </span>
-                    </div>
-                  </motion.button>
-                </CarouselItem>
-              );
-            })}
-          </CarouselContent>
-        </Carousel>
+        <CategoriesCarousel
+          categories={categories}
+          onNavigate={(slug) => navigate("catalogue", { category: slug })}
+        />
       </section>
 
       {/* ── Popular Products ────────────────────────────────────────────────── */}
