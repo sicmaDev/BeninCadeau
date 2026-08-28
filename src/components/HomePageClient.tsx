@@ -63,6 +63,9 @@ function HeroCarousel() {
   const [current, setCurrent] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+
   const goTo = (idx: number) => setCurrent(idx);
   const prev = () => goTo((current - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
   const next = () => goTo((current + 1) % HERO_SLIDES.length);
@@ -72,10 +75,36 @@ function HeroCarousel() {
     return () => clearInterval(intervalRef.current);
   }, [current]);
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    const diff = touchStartX.current - touchEndX.current;
+    if (diff > 40) {
+      next();
+    } else if (diff < -40) {
+      prev();
+    }
+    touchStartX.current = 0;
+    touchEndX.current = 0;
+  };
+
   const slide = HERO_SLIDES[current];
 
   return (
-    <section className="relative w-full overflow-hidden" style={{ height: "clamp(520px, 80vh, 780px)" }}>
+    <section
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      className="relative w-full overflow-hidden"
+      style={{ height: "clamp(520px, 80vh, 780px)" }}
+    >
       {HERO_SLIDES.map((s, i) => (
         <div
           key={s.id}
@@ -151,23 +180,30 @@ function HeroCarousel() {
               <Phone size={15} /> Nous écrire
             </a>
           </motion.div>
+
+          {/* Puces de navigation placées sous les deux boutons */}
+          <div className="flex gap-2 items-center justify-center sm:justify-start mt-6">
+            {HERO_SLIDES.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => goTo(i)}
+                className={`rounded-full transition-all duration-300 cursor-pointer ${
+                  i === current ? "w-8 h-2 bg-accent" : "w-2.5 h-2 bg-white/40 hover:bg-white/70"
+                }`}
+                aria-label={`Diapositive ${i + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Arrow controls */}
-      <button onClick={prev} className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/35 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-black/50 transition-colors cursor-pointer" aria-label="Précédent">
-        <ChevronLeft size={18} className="sm:w-5 sm:h-5" />
+      {/* Arrow controls (uniquement visibles sur grand écran desktop lg+) */}
+      <button onClick={prev} className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/35 backdrop-blur-sm border border-white/20 text-white items-center justify-center hover:bg-black/50 transition-colors cursor-pointer" aria-label="Précédent">
+        <ChevronLeft size={20} />
       </button>
-      <button onClick={next} className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/35 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-black/50 transition-colors cursor-pointer" aria-label="Suivant">
-        <ChevronRight size={18} className="sm:w-5 sm:h-5" />
+      <button onClick={next} className="hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/35 backdrop-blur-sm border border-white/20 text-white items-center justify-center hover:bg-black/50 transition-colors cursor-pointer" aria-label="Suivant">
+        <ChevronRight size={20} />
       </button>
-
-      {/* Slide dots */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2 items-center">
-        {HERO_SLIDES.map((_, i) => (
-          <button key={i} onClick={() => goTo(i)} className={`rounded-full transition-all duration-300 cursor-pointer ${i === current ? "w-7 h-1.5 bg-accent" : "w-1.5 h-1.5 bg-white/40 hover:bg-white/70"}`} aria-label={`Diapositive ${i + 1}`} />
-        ))}
-      </div>
     </section>
   );
 }
@@ -787,35 +823,45 @@ export default function HomePageClient({ categories, products }: Props) {
       </section>
 
       {/* ── Banner CTA ── */}
-      <section className="mx-4 sm:mx-6 max-w-7xl lg:mx-auto mb-16 rounded-3xl overflow-hidden relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-[#2A3F9D]" />
-        <div className="absolute inset-0 opacity-20"
-          style={{ backgroundImage: "radial-gradient(circle at 20% 50%, #F5A623 0%, transparent 50%), radial-gradient(circle at 80% 20%, #D4352B 0%, transparent 40%)" }}
-        />
-        <div className="relative px-8 py-14 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div>
-            <h2 className="font-display text-2xl sm:text-3xl text-white font-semibold mb-2">
-              Une commande entreprise ?
-            </h2>
-            <p className="text-white/70 text-sm">
-              Goodies, récompenses, cadeaux corporate — contactez-nous pour un devis personnalisé.
-            </p>
+      <section className="mx-4 sm:mx-6 max-w-7xl lg:mx-auto mb-16 rounded-3xl overflow-hidden relative border border-white/15 shadow-xl">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1A2B6D] via-[#152357] to-[#0F1B47]" />
+        {/* Glow effects */}
+        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-accent/20 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-primary/40 blur-3xl pointer-events-none" />
+
+        <div className="relative px-6 py-10 sm:px-10 sm:py-12 md:px-14 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-4 sm:gap-6 max-w-2xl">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-accent/15 border border-accent/30 text-accent flex items-center justify-center flex-shrink-0 shadow-lg">
+              <Briefcase className="w-7 h-7 sm:w-8 sm:h-8" />
+            </div>
+            <div>
+              <span className="inline-flex items-center gap-1.5 text-accent text-xs font-bold uppercase tracking-widest mb-2">
+                Offres B2B & Corporate
+              </span>
+              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl text-white font-bold mb-2">
+                Une commande entreprise ?
+              </h2>
+              <p className="text-white/80 text-sm sm:text-base leading-relaxed">
+                Goodies personnalisés, coffrets de récompenses et cadeaux d'affaires prestige — contactez notre équipe pour un devis sur-mesure.
+              </p>
+            </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full md:w-auto flex-shrink-0">
             <a
               href="https://wa.me/2290163904000"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-[#25D366] text-white font-bold px-5 py-3 rounded-xl hover:bg-[#22c55e] transition-colors text-sm"
+              className="inline-flex items-center justify-center gap-2 bg-[#25D366] text-white font-bold px-6 py-3.5 rounded-2xl hover:bg-[#22c55e] active:scale-95 transition-all text-sm w-full sm:w-auto shadow-md"
             >
-              <Phone size={16} />
-              WhatsApp
+              <Phone size={17} />
+              Devis WhatsApp
             </a>
             <button
               onClick={() => navigate("catalogue", { category: "entreprise" })}
-              className="inline-flex items-center gap-2 bg-accent text-primary font-bold px-5 py-3 rounded-xl hover:bg-accent/90 transition-colors text-sm"
+              className="inline-flex items-center justify-center gap-2 bg-accent text-primary font-bold px-6 py-3.5 rounded-2xl hover:bg-white active:scale-95 transition-all text-sm w-full sm:w-auto shadow-md cursor-pointer"
             >
-              Voir les offres <ArrowRight size={16} />
+              Voir les offres <ArrowRight size={17} />
             </button>
           </div>
         </div>
