@@ -355,6 +355,117 @@ function PopularProductsMobileCarousel({ products }: { products: Product[] }) {
   );
 }
 
+const HOW_IT_WORKS_STEPS = [
+  {
+    step: "01",
+    icon: <Gift size={32} />,
+    title: "Choisissez votre cadeau",
+    desc: "Parcourez notre catalogue et trouvez le cadeau parfait. Filtrez par occasion, budget ou catégorie.",
+  },
+  {
+    step: "02",
+    icon: <Shield size={32} />,
+    title: "Payez en toute sécurité",
+    desc: "Réglez votre commande via MTN MoMo, Moov Money ou carte bancaire. Paiement 100% sécurisé via FedaPay.",
+  },
+  {
+    step: "03",
+    icon: <Truck size={32} />,
+    title: "Recevez à domicile",
+    desc: "Votre commande est préparée avec soin et livrée rapidement à votre adresse partout au Bénin.",
+  },
+];
+
+function HowItWorksCarousel() {
+  const [api, setApi] = useState<CarouselApi | null>(null);
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    if (!api) return;
+
+    const onSelect = () => {
+      setCurrent(api.selectedScrollSnap());
+    };
+
+    api.on("select", onSelect);
+    onSelect();
+
+    const interval = setInterval(() => {
+      api.scrollNext();
+    }, 4000);
+
+    return () => {
+      api.off("select", onSelect);
+      clearInterval(interval);
+    };
+  }, [api]);
+
+  return (
+    <div className="relative">
+      <Carousel
+        opts={{
+          loop: true,
+          align: "start",
+        }}
+        setApi={setApi}
+        className="w-full"
+      >
+        <CarouselContent className="-ml-4 py-2">
+          {HOW_IT_WORKS_STEPS.map(({ step, icon, title, desc }) => (
+            <CarouselItem key={step} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
+              <div className="bg-card border border-border/80 rounded-3xl p-8 flex flex-col items-center text-center h-full shadow-sm hover:shadow-md transition-all duration-300 hover:border-accent">
+                <div className="relative mb-6">
+                  <div className="w-20 h-20 bg-primary text-accent rounded-2xl flex items-center justify-center shadow-lg">
+                    {icon}
+                  </div>
+                  <span className="absolute -top-2 -right-2 w-8 h-8 bg-accent text-primary font-bold text-xs rounded-full flex items-center justify-center shadow-md">
+                    {step}
+                  </span>
+                </div>
+                <h3 className="font-display text-xl font-bold text-primary mb-3">{title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+
+        {/* Contrôles et puces de navigation */}
+        <div className="flex items-center justify-between mt-8 px-4 max-w-xs mx-auto">
+          <button
+            onClick={() => api?.scrollPrev()}
+            className="w-10 h-10 rounded-full bg-white border border-border shadow-sm flex items-center justify-center text-primary active:scale-95 transition-transform cursor-pointer hover:bg-accent hover:text-primary"
+            aria-label="Étape précédente"
+          >
+            <ChevronLeft size={20} />
+          </button>
+
+          {/* Dots */}
+          <div className="flex items-center gap-2">
+            {HOW_IT_WORKS_STEPS.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => api?.scrollTo(idx)}
+                className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                  current === idx ? "w-8 bg-accent" : "w-2.5 bg-primary/20 hover:bg-primary/40"
+                }`}
+                aria-label={`Aller à l'étape ${idx + 1}`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={() => api?.scrollNext()}
+            className="w-10 h-10 rounded-full bg-white border border-border shadow-sm flex items-center justify-center text-primary active:scale-95 transition-transform cursor-pointer hover:bg-accent hover:text-primary"
+            aria-label="Étape suivante"
+          >
+            <ChevronRight size={20} />
+          </button>
+        </div>
+      </Carousel>
+    </div>
+  );
+}
+
 export default function HomePageClient({ categories, products }: Props) {
   const { navigate } = useRouter();
   const popular = products.slice(0, 8);
@@ -594,61 +705,8 @@ export default function HomePageClient({ categories, products }: Props) {
           <p className="text-accent font-semibold text-sm uppercase tracking-wider mb-2">Simple & rapide</p>
           <h2 className="font-display text-3xl sm:text-4xl font-semibold text-primary">Comment ça marche ?</h2>
         </div>
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.15 }}
-          variants={{
-            hidden: {},
-            visible: { transition: { staggerChildren: 0.15 } }
-          }}
-          className="grid sm:grid-cols-3 gap-8 relative"
-        >
-          {/* Connector lines */}
-          <div className="hidden sm:block absolute top-10 left-1/3 right-1/3 h-0.5 bg-accent/30" />
-
-          {[
-            {
-              step: "01",
-              icon: <Gift size={28} />,
-              title: "Choisissez votre cadeau",
-              desc: "Parcourez notre catalogue et trouvez le cadeau parfait. Filtrez par occasion, budget ou catégorie.",
-            },
-            {
-              step: "02",
-              icon: <Shield size={28} />,
-              title: "Payez en toute sécurité",
-              desc: "Réglez votre commande via MTN MoMo, Moov Money ou carte bancaire. Paiement 100% sécurisé via FedaPay.",
-            },
-            {
-              step: "03",
-              icon: <Truck size={28} />,
-              title: "Recevez à domicile",
-              desc: "Votre commande est préparée avec soin et livrée rapidement à votre adresse partout au Bénin.",
-            },
-          ].map(({ step, icon, title, desc }) => (
-            <motion.div
-              variants={{
-                hidden: { opacity: 0, y: 30 },
-                visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } }
-              }}
-              whileHover={{ scale: 1.02 }}
-              key={step}
-              className="flex flex-col items-center text-center"
-            >
-              <div className="relative mb-6">
-                <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center text-white shadow-lg">
-                  {icon}
-                </div>
-                <span className="absolute -top-2 -right-2 w-7 h-7 bg-accent text-primary font-bold text-xs rounded-full flex items-center justify-center">
-                  {step}
-                </span>
-              </div>
-              <h3 className="font-display text-lg font-semibold text-primary mb-3">{title}</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">{desc}</p>
-            </motion.div>
-          ))}
-        </motion.div>
+        
+        <HowItWorksCarousel />
       </section>
 
       {/* ── Banner CTA ── */}
